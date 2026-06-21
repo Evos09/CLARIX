@@ -15,10 +15,17 @@ function putWithProgress(url: string, file: Blob, onProgress: (pct: number) => v
     xhr.upload.onprogress = (e) => {
       if (e.lengthComputable) onProgress(Math.round((e.loaded / e.total) * 100));
     };
-    xhr.onload = () =>
-      xhr.status >= 200 && xhr.status < 300
-        ? resolve()
-        : reject(new Error(`Upload failed (${xhr.status})`));
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) return resolve();
+      if (xhr.status === 400 || xhr.status === 413) {
+        return reject(
+          new Error(
+            "Upload failed — the file is too large for your storage plan. Supabase's free plan caps uploads at 50 MB; try a shorter clip, compress the audio, or upgrade Supabase storage.",
+          ),
+        );
+      }
+      reject(new Error(`Upload failed (${xhr.status})`));
+    };
     xhr.onerror = () => reject(new Error("Upload network error"));
     xhr.send(file);
   });
