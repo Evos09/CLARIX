@@ -41,3 +41,13 @@ export function globalChatLimit(plan: PlanConfig): number | null {
   if (plan.id === "PRO") return 200;
   return 0;
 }
+
+/** Audio storage cap in bytes. null = unlimited. */
+export function storageLimitBytes(plan: PlanConfig): number | null {
+  switch (plan.id) {
+    case "FREE": return 500 * 1024 * 1024;
+    case "STARTER": return 5 * 1024 * 1024 * 1024;
+    case "PRO": return 50 * 1024 * 1024 * 1024;
+    default: return null;
+  }
+}

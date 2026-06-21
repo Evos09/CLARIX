@@ -6,6 +6,7 @@ import {
   LayoutDashboard,
   MessageSquare,
   Mic,
+  Music,
   ListTodo,
   Settings,
   CreditCard,
@@ -23,6 +24,7 @@ const NAV: NavItem[] = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/chat", label: "Chat", icon: MessageSquare },
   { href: "/meetings", label: "Meetings", icon: Mic },
+  { href: "/audio", label: "Audio Library", icon: Music },
   { href: "/action-items", label: "Action Items", icon: ListTodo, badgeKey: "openActions" },
 ];
 
