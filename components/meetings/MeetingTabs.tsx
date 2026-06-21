@@ -24,6 +24,8 @@ export function MeetingTabs({
   claudeConfigured,
   keyPoints,
   speakerMap,
+  meetingType,
+  status,
 }: {
   meetingId: string;
   segments: TranscriptSegment[];
@@ -33,6 +35,8 @@ export function MeetingTabs({
   claudeConfigured: boolean;
   keyPoints?: KeyPoint[];
   speakerMap?: Record<string, string>;
+  meetingType?: string;
+  status?: string;
 }) {
   const [tab, setTab] = useState<Tab>(structuredOutput ? "Summary" : "Transcript");
   const [copied, setCopied] = useState(false);
@@ -89,7 +93,7 @@ export function MeetingTabs({
         </Card>
       )}
 
-      {tab === "Ask CLARIX" && <AskClarix meetingId={meetingId} disabled={!claudeConfigured} />}
+      {tab === "Ask CLARIX" && <AskClarix meetingId={meetingId} disabled={!claudeConfigured} meetingType={meetingType} status={status} />}
 
       {tab === "Raw JSON" && (
         <Card>

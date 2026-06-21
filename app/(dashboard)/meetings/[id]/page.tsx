@@ -77,6 +77,8 @@ export default async function MeetingDetailPage({ params }: Params) {
             audioUrl={audioUrl}
             keyPoints={(meeting.keyPoints as unknown as KeyPoint[] | null) ?? []}
             speakerMap={(meeting.speakerMap as unknown as Record<string, string> | null) ?? {}}
+            meetingType={meeting.meetingType}
+            status={meeting.status}
             structuredOutput={(meeting.structuredOutput as unknown as BaseOutput | null) ?? null}
             claudeConfigured={isClaudeConfigured()}
           />
