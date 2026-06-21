@@ -7,7 +7,7 @@ import { isClaudeConfigured } from "@/lib/claude";
 import { answerGlobalChat, bumpChatUsage, findRelevantMeetings, getChatUsage } from "@/lib/globalChat";
 
 type Params = { params: Promise<{ sessionId: string }> };
-const Body = z.object({ message: z.string().min(1).max(4000) });
+const Body = z.object({ message: z.string().min(1).max(4000), mode: z.enum(["focused", "research", "writer"]).optional() });
 
 export async function POST(req: Request, { params }: Params) {
   const { sessionId } = await params;
@@ -39,6 +39,7 @@ export async function POST(req: Request, { params }: Params) {
     message,
     history: session.messages.map((m) => ({ role: m.role, content: m.content })),
     meetings,
+    mode: parsed.data.mode,
   });
 
   const citations = meetings.map((m) => ({ id: m.id, title: m.title, date: m.createdAt }));

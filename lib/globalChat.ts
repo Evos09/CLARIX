@@ -70,6 +70,7 @@ export async function answerGlobalChat(opts: {
   message: string;
   history: ChatTurn[];
   meetings: RelevantMeeting[];
+  mode?: "focused" | "research" | "writer";
 }): Promise<string> {
   const ctx = opts.meetings
     .map((m) => {
@@ -84,7 +85,16 @@ Action items: ${actions}
     })
     .join("\n");
 
+  const modeNote =
+    opts.mode === "writer"
+      ? "MODE: Writer. Produce polished, fully-formatted written output with no conversational filler."
+      : opts.mode === "research"
+        ? "MODE: Research. Supplement the meeting context with general knowledge where helpful, and clearly mark what came from meetings vs general knowledge."
+        : "MODE: Focused. Answer only from the meeting context below. If the answer is not present, say you do not know.";
+
   const system = `You are CLARIX, an AI assistant with access to ${opts.orgName}'s meeting history. You help the team understand decisions, track commitments, and find information across all their recorded meetings.
+
+${modeNote}
 
 GUIDELINES:
 - Always cite which meeting your information comes from (meeting title + date).
@@ -101,5 +111,5 @@ ${ctx || "No completed meetings found yet."}`;
     .join("\n");
   const prompt = `${historyText ? historyText + "\n" : ""}User: ${opts.message}\nCLARIX:`;
 
-  return claudeText({ system, prompt, maxTokens: 1024, temperature: 0.3 });
+  return claudeText({ system, prompt, maxTokens: opts.mode === "writer" ? 2048 : 1024, temperature: 0.3 });
 }
