@@ -34,3 +34,10 @@ export function canUseType(plan: PlanConfig, typeId: string): { ok: boolean; rea
 export function canExportFormat(plan: PlanConfig, format: string): boolean {
   return (plan.exports as string[]).includes(format);
 }
+
+/** Monthly global-chat message cap. null = unlimited, 0 = locked. */
+export function globalChatLimit(plan: PlanConfig): number | null {
+  if (plan.id === "ENTERPRISE") return null;
+  if (plan.id === "PRO") return 200;
+  return 0;
+}

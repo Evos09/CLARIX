@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
+  MessageSquare,
   Mic,
   ListTodo,
   Settings,
@@ -20,6 +21,7 @@ type NavItem = { href: string; label: string; icon: LucideIcon; badgeKey?: "open
 
 const NAV: NavItem[] = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/chat", label: "Chat", icon: MessageSquare },
   { href: "/meetings", label: "Meetings", icon: Mic },
   { href: "/action-items", label: "Action Items", icon: ListTodo, badgeKey: "openActions" },
 ];

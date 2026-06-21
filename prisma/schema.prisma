@@ -18,10 +18,11 @@ model Organization {
   stripeId   String?
   createdAt  DateTime @default(now())
 
-  users       User[]
-  meetings    Meeting[]
-  templates   OutputTemplate[]
-  actionItems ActionItem[]
+  users              User[]
+  meetings           Meeting[]
+  templates          OutputTemplate[]
+  actionItems        ActionItem[]
+  globalChatSessions GlobalChatSession[]
 }
 
 model User {
@@ -33,7 +34,10 @@ model User {
   orgId   String
   org     Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
 
-  meetings Meeting[]
+  meetings           Meeting[]
+  globalChatSessions GlobalChatSession[]
+  chatUsage          ChatUsage?
+  annotations        ChatAnnotation[]
 
   @@index([orgId])
 }
@@ -47,6 +51,13 @@ model Meeting {
   rawTranscript      String?
   structuredOutput   Json?
   transcriptSegments Json?
+  keyPoints          Json?
+  speakerMap         Json?
+  audioFilename      String?
+  audioSize          Int?
+  audioDuration      Int?
+  audioMimeType      String?
+  processingCount    Int           @default(1)
   meetingType        String        @default("GENERAL")
   detectedType       String?
   autoDetect         Boolean       @default(false)
@@ -67,6 +78,7 @@ model Meeting {
   comments          Comment[]
   messages          ChatMessage[]
   actionItemRecords ActionItem[]
+  chatAnnotations   ChatAnnotation[]
 
   @@index([orgId])
   @@index([userId])
@@ -161,4 +173,56 @@ model ActionItem {
   @@index([orgId])
   @@index([meetingId])
   @@index([completed])
+}
+
+model ChatAnnotation {
+  id         String   @id @default(cuid())
+  meetingId  String
+  meeting    Meeting  @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  startIndex Int
+  endIndex   Int
+  startTime  Float?
+  content    String
+  color      String   @default("yellow")
+  createdAt  DateTime @default(now())
+
+  @@index([meetingId])
+}
+
+model GlobalChatSession {
+  id        String              @id @default(cuid())
+  userId    String
+  user      User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orgId     String
+  org       Organization        @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  title     String?
+  messages  GlobalChatMessage[]
+  createdAt DateTime            @default(now())
+  updatedAt DateTime            @updatedAt
+
+  @@index([userId])
+  @@index([orgId])
+}
+
+model GlobalChatMessage {
+  id        String            @id @default(cuid())
+  sessionId String
+  session   GlobalChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  role      String
+  content   String
+  citations Json?
+  createdAt DateTime          @default(now())
+
+  @@index([sessionId])
+}
+
+model ChatUsage {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  monthYear String
+  count     Int      @default(0)
+  updatedAt DateTime @updatedAt
 }
