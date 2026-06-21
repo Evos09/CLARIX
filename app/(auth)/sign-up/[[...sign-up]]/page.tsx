@@ -19,7 +19,7 @@ export default function SignUpPage() {
             </div>
           </ClerkLoading>
           <ClerkLoaded>
-            <SignUp />
+            <SignUp forceRedirectUrl="/onboarding" />
           </ClerkLoaded>
         </>
       ) : (

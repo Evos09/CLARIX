@@ -19,7 +19,7 @@ export default function SignInPage() {
             </div>
           </ClerkLoading>
           <ClerkLoaded>
-            <SignIn />
+            <SignIn forceRedirectUrl="/dashboard" />
           </ClerkLoaded>
         </>
       ) : (
