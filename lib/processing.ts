@@ -6,6 +6,7 @@ import { getPromptSpec } from "@/lib/prompts";
 import { buildProcessingPrompt, BASE_SYSTEM } from "@/lib/prompts/base";
 import type { BaseOutput } from "@/lib/outputTypes";
 import { sendMeetingComplete } from "@/lib/email";
+import { extractKeyPoints } from "@/lib/keyPoints";
 
 /**
  * Runs Claude analysis for a meeting: picks the prompt by type, calls Claude,
@@ -56,6 +57,8 @@ export async function processMeeting(meetingId: string, instruction?: string): P
         orgId: meeting.orgId,
       }));
     if (rows.length) await prisma.actionItem.createMany({ data: rows });
+
+    await extractKeyPoints(meetingId, meeting.rawTranscript);
 
     // Notify the owner their meeting is ready (best-effort).
     const owner = await prisma.user.findUnique({ where: { id: meeting.userId } });

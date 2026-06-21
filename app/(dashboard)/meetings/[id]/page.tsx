@@ -8,6 +8,7 @@ import { StatusBadge } from "@/components/meetings/StatusBadge";
 import { StatusPoller } from "@/components/meetings/StatusPoller";
 import { ExportMenu } from "@/components/meetings/ExportMenu";
 import { getMeetingType } from "@/lib/meetingTypes";
+import type { KeyPoint } from "@/lib/keyPoints";
 import { MeetingTabs } from "@/components/meetings/MeetingTabs";
 import { prisma } from "@/lib/prisma";
 import { getOrCreateContext, hasDb } from "@/lib/auth";
@@ -74,6 +75,8 @@ export default async function MeetingDetailPage({ params }: Params) {
             segments={segments}
             rawTranscript={meeting.rawTranscript}
             audioUrl={audioUrl}
+            keyPoints={(meeting.keyPoints as unknown as KeyPoint[] | null) ?? []}
+            speakerMap={(meeting.speakerMap as unknown as Record<string, string> | null) ?? {}}
             structuredOutput={(meeting.structuredOutput as unknown as BaseOutput | null) ?? null}
             claudeConfigured={isClaudeConfigured()}
           />

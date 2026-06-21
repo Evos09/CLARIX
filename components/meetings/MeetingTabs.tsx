@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import type { TranscriptSegment } from "@/lib/transcription";
 import type { BaseOutput } from "@/lib/outputTypes";
+import type { KeyPoint } from "@/lib/keyPoints";
 import { StructuredOutputView } from "./StructuredOutput/StructuredOutputView";
 import { RegenerateButton } from "./StructuredOutput/RegenerateButton";
 import { TranscriptViewer } from "./TranscriptViewer";
@@ -21,6 +22,8 @@ export function MeetingTabs({
   audioUrl,
   structuredOutput,
   claudeConfigured,
+  keyPoints,
+  speakerMap,
 }: {
   meetingId: string;
   segments: TranscriptSegment[];
@@ -28,6 +31,8 @@ export function MeetingTabs({
   audioUrl: string | null;
   structuredOutput: BaseOutput | null;
   claudeConfigured: boolean;
+  keyPoints?: KeyPoint[];
+  speakerMap?: Record<string, string>;
 }) {
   const [tab, setTab] = useState<Tab>(structuredOutput ? "Summary" : "Transcript");
   const [copied, setCopied] = useState(false);
@@ -77,6 +82,8 @@ export function MeetingTabs({
               segments={segments}
               audioUrl={audioUrl}
               rawTranscript={rawTranscript}
+              keyPoints={keyPoints}
+              speakerMap={speakerMap}
             />
           </CardContent>
         </Card>
