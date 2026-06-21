@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Plus, Trash2, Send, Loader2, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { MarkdownView } from "./MarkdownView";
 
 interface SessionMeta { id: string; title: string; updatedAt: string }
 interface Citation { id: string; title: string; date: string }
@@ -140,7 +141,7 @@ export function GlobalChatClient({ usageThisMonth, usageLimit }: { usageThisMont
               {messages.map((m, i) => (
                 <div key={i} className={cn("flex", m.role === "user" ? "justify-end" : "justify-start")}>
                   <div className={cn("max-w-[85%] whitespace-pre-wrap text-sm", m.role === "user" ? "rounded-lg bg-navy px-4 py-2 text-white" : "rounded-lg border-l-2 border-teal bg-card px-4 py-3")}>
-                    {m.content}
+                    {m.role === "assistant" ? <MarkdownView content={m.content} /> : m.content}
                     {m.citations && m.citations.length > 0 && (
                       <div className="mt-3 flex flex-wrap gap-2">
                         {m.citations.map((c) => (
