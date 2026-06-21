@@ -1,0 +1,164 @@
+// CLARIX — Prisma schema
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Organization {
+  id         String   @id @default(cuid())
+  clerkOrgId String   @unique
+  name       String
+  plan       Plan     @default(FREE)
+  verticals  String[] @default([]) // ["HEALTHCARE","LEGAL","FINANCIAL"]
+  useCase    String? // primary use case picked at onboarding
+  stripeId   String?
+  createdAt  DateTime @default(now())
+
+  users       User[]
+  meetings    Meeting[]
+  templates   OutputTemplate[]
+  actionItems ActionItem[]
+}
+
+model User {
+  id      String       @id @default(cuid())
+  clerkId String       @unique
+  email   String
+  name    String?
+  role    Role         @default(MEMBER)
+  orgId   String
+  org     Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  meetings Meeting[]
+
+  @@index([orgId])
+}
+
+model Meeting {
+  id                 String        @id @default(cuid())
+  title              String
+  audioUrl           String?
+  storagePath        String? // path within the storage bucket
+  transcriptJobId    String? // AssemblyAI transcript id (webhook correlation)
+  rawTranscript      String?
+  structuredOutput   Json?
+  transcriptSegments Json?
+  meetingType        String        @default("GENERAL")
+  detectedType       String?
+  autoDetect         Boolean       @default(false)
+  status             MeetingStatus @default(UPLOADING)
+  duration           Int?
+  speakerCount       Int?
+  language           String?
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+
+  userId String
+  user   User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orgId  String
+  org    Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  tags              Tag[]
+  exports           Export[]
+  comments          Comment[]
+  messages          ChatMessage[]
+  actionItemRecords ActionItem[]
+
+  @@index([orgId])
+  @@index([userId])
+  @@index([status])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String
+  timestamp Int? // audio timestamp (seconds)
+  meetingId String
+  meeting   Meeting  @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  userId    String
+  createdAt DateTime @default(now())
+
+  @@index([meetingId])
+}
+
+model ChatMessage {
+  id        String   @id @default(cuid())
+  role      String // "user" | "assistant"
+  content   String
+  meetingId String
+  meeting   Meeting  @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@index([meetingId])
+}
+
+model Export {
+  id        String   @id @default(cuid())
+  format    String // PDF | DOCX | JSON | CSV | EHR_HL7
+  url       String
+  meetingId String
+  meeting   Meeting  @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@index([meetingId])
+}
+
+model OutputTemplate {
+  id             String       @id @default(cuid())
+  name           String
+  meetingType    String
+  promptOverride String
+  orgId          String
+  org            Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@index([orgId])
+}
+
+model Tag {
+  id       String    @id @default(cuid())
+  label    String
+  meetings Meeting[]
+}
+
+enum Plan {
+  FREE
+  STARTER
+  PRO
+  ENTERPRISE
+}
+
+enum Role {
+  ADMIN
+  MEMBER
+  VIEWER
+}
+
+enum MeetingStatus {
+  UPLOADING
+  TRANSCRIBING
+  PROCESSING
+  COMPLETE
+  ERROR
+}
+
+model ActionItem {
+  id        String       @id @default(cuid())
+  task      String
+  owner     String?
+  dueDate   String?
+  priority  String?
+  completed Boolean      @default(false)
+  meetingId String
+  meeting   Meeting      @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  orgId     String
+  org       Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  createdAt DateTime     @default(now())
+
+  @@index([orgId])
+  @@index([meetingId])
+  @@index([completed])
+}

@@ -1,0 +1,110 @@
+@import "tailwindcss";
+
+/*
+  CLARIX Design System — design tokens
+  Palette: Deep Navy #0A1628 / Electric Teal #00C8B4 / Slate White #F7F9FC
+  Type: Inter (UI) + JetBrains Mono (transcripts)
+*/
+
+:root {
+  /* Brand */
+  --clarix-navy: #0a1628;
+  --clarix-navy-700: #122340;
+  --clarix-navy-600: #1b3157;
+  --clarix-teal: #00c8b4;
+  --clarix-teal-600: #00a896;
+  --clarix-surface: #f7f9fc;
+  --clarix-danger: #e84545;
+  --clarix-text: #1e293b;
+  --clarix-muted: #64748b;
+  --clarix-border: #e2e8f0;
+
+  /* Semantic (light) */
+  --background: #f7f9fc;
+  --foreground: #1e293b;
+  --card: #ffffff;
+  --card-foreground: #1e293b;
+  --primary: #0a1628;
+  --primary-foreground: #ffffff;
+  --accent: #00c8b4;
+  --accent-foreground: #03261f;
+  --muted: #eef2f7;
+  --muted-foreground: #64748b;
+  --border: #e2e8f0;
+  --input: #e2e8f0;
+  --ring: #00c8b4;
+  --destructive: #e84545;
+  --destructive-foreground: #ffffff;
+
+  --radius: 0.75rem;
+}
+
+.dark {
+  --background: #0a1628;
+  --foreground: #e8eef7;
+  --card: #122340;
+  --card-foreground: #e8eef7;
+  --primary: #00c8b4;
+  --primary-foreground: #03261f;
+  --accent: #00c8b4;
+  --accent-foreground: #03261f;
+  --muted: #1b3157;
+  --muted-foreground: #94a3b8;
+  --border: #1f3a5f;
+  --input: #1f3a5f;
+  --ring: #00c8b4;
+  --destructive: #e84545;
+  --destructive-foreground: #ffffff;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  /* Brand utilities: bg-navy, text-teal, etc. */
+  --color-navy: var(--clarix-navy);
+  --color-navy-700: var(--clarix-navy-700);
+  --color-navy-600: var(--clarix-navy-600);
+  --color-teal: var(--clarix-teal);
+  --color-teal-600: var(--clarix-teal-600);
+  --color-surface: var(--clarix-surface);
+  --color-danger: var(--clarix-danger);
+
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-jetbrains-mono);
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 0.25rem);
+  --radius-sm: calc(var(--radius) - 0.5rem);
+}
+
+* {
+  border-color: var(--border);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Speaker-label colors for the transcript viewer */
+.speaker-0 { color: #2563eb; }
+.speaker-1 { color: #00a896; }
+.speaker-2 { color: #9333ea; }
+.speaker-3 { color: #ea580c; }
+.speaker-4 { color: #db2777; }
+.speaker-5 { color: #0891b2; }
