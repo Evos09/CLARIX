@@ -1,5 +1,6 @@
 import { TopNav } from "@/components/layout/TopNav";
 import { StatsGrid, type Stat } from "@/components/dashboard/StatsGrid";
+import { UpcomingMeetings } from "@/components/calendar/UpcomingMeetings";
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import { MeetingTypeBreakdown } from "@/components/dashboard/MeetingTypeBreakdown";
 import { MeetingCard } from "@/components/meetings/MeetingCard";
@@ -54,6 +55,7 @@ export default async function DashboardPage() {
       <TopNav title="Dashboard" />
       <main className="flex-1 space-y-6 p-4 md:p-6">
         <StatsGrid stats={stats} />
+        <UpcomingMeetings />
         <div className="grid gap-6 lg:grid-cols-3">
           <Card className="lg:col-span-2">
             <CardHeader><CardTitle>Recent meetings</CardTitle></CardHeader>
