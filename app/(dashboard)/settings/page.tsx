@@ -1,6 +1,7 @@
 import { TopNav } from "@/components/layout/TopNav";
 import { SettingsClient } from "@/components/settings/SettingsClient";
 import { IntegrationsClient } from "@/components/settings/IntegrationsClient";
+import { IntegrationsHub } from "@/components/settings/IntegrationsHub";
 import { prisma } from "@/lib/prisma";
 import { getOrCreateContext, hasDb } from "@/lib/auth";
 
@@ -23,6 +24,8 @@ export default async function SettingsPage() {
         <SettingsClient initialName={name} />
         <h2 className="mb-3 mt-8 text-lg font-semibold">Integrations</h2>
         <IntegrationsClient />
+        <h2 className="mb-3 mt-8 text-lg font-semibold">Push integrations</h2>
+        <IntegrationsHub />
       </main>
     </>
   );
