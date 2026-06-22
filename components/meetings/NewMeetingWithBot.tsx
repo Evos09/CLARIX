@@ -4,6 +4,7 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { NewMeetingClient } from "@/components/meetings/NewMeetingClient";
 import { JoinWithBotTab } from "@/components/meetings/bot/JoinWithBotTab";
+import { LiveAssistPanel } from "@/components/meetings/new/LiveAssistPanel";
 
 export function NewMeetingWithBot() {
   const [tab, setTab] = useState<"local" | "bot">("local");
@@ -29,7 +30,7 @@ export function NewMeetingWithBot() {
           Join Live Meeting
         </button>
       </div>
-      {tab === "local" ? <NewMeetingClient /> : <JoinWithBotTab />}
+      {tab === "local" ? (<><NewMeetingClient /><div className="mt-4"><LiveAssistPanel /></div></>) : <JoinWithBotTab />}
     </div>
   );
 }
