@@ -2,6 +2,7 @@ import { TopNav } from "@/components/layout/TopNav";
 import { SettingsClient } from "@/components/settings/SettingsClient";
 import { IntegrationsClient } from "@/components/settings/IntegrationsClient";
 import { IntegrationsHub } from "@/components/settings/IntegrationsHub";
+import { CRMConnectionCard } from "@/components/settings/CRMConnectionCard";
 import { prisma } from "@/lib/prisma";
 import { getOrCreateContext, hasDb } from "@/lib/auth";
 
@@ -26,6 +27,7 @@ export default async function SettingsPage() {
         <IntegrationsClient />
         <h2 className="mb-3 mt-8 text-lg font-semibold">Push integrations</h2>
         <IntegrationsHub />
+        <div className="mt-4"><CRMConnectionCard /></div>
       </main>
     </>
   );

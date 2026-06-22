@@ -7,6 +7,7 @@ import { MeetingTypeBadge } from "@/components/meetings/MeetingTypeBadge";
 import { StatusBadge } from "@/components/meetings/StatusBadge";
 import { StatusPoller } from "@/components/meetings/StatusPoller";
 import { ExportMenu } from "@/components/meetings/ExportMenu";
+import { CRMPushButton } from "@/components/meetings/crm/CRMPushButton";
 import { getMeetingType } from "@/lib/meetingTypes";
 import type { KeyPoint } from "@/lib/keyPoints";
 import { MeetingTabs } from "@/components/meetings/MeetingTabs";
@@ -64,6 +65,7 @@ export default async function MeetingDetailPage({ params }: Params) {
               {meeting.language && <span className="flex items-center gap-1"><Globe className="size-4" />{meeting.language}</span>}
             </div>
             {meeting.status === "COMPLETE" && <ExportMenu meetingId={meeting.id} showEhr={getMeetingType(meeting.meetingType).category === "PRO"} />}
+            {meeting.status === "COMPLETE" && <CRMPushButton meetingId={meeting.id} />}
           </CardContent>
         </Card>
 
