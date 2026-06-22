@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { notifyMeetingReady } from "@/lib/desktop";
 
 const STEPS = [
   { key: "UPLOADING", label: "Uploading" },
@@ -25,6 +26,7 @@ export function StatusPoller({ meetingId, status }: { meetingId: string; status:
         const m = await res.json();
         if (m.status !== current) {
           setCurrent(m.status);
+          if (m.status === "COMPLETE") notifyMeetingReady(m.title ?? "Your meeting");
           if (m.status === "COMPLETE" || m.status === "ERROR") router.refresh();
         }
       } catch {
