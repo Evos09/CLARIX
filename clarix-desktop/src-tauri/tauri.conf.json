@@ -1,0 +1,28 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "CLARIX",
+  "version": "1.0.0",
+  "identifier": "ai.clarix.app",
+  "build": {},
+  "app": {
+    "windows": [
+      {
+        "title": "CLARIX",
+        "width": 1280,
+        "height": 800,
+        "minWidth": 900,
+        "minHeight": 600,
+        "url": "https://clarix.ai"
+      }
+    ],
+    "security": { "csp": null }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": ["icons/icon.png", "icons/icon.icns", "icons/icon.ico"],
+    "category": "Productivity",
+    "shortDescription": "AI meeting assistant for every meeting",
+    "copyright": "(c) 2026 CLARIX"
+  }
+}
