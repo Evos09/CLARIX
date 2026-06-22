@@ -1,5 +1,5 @@
 import { TopNav } from "@/components/layout/TopNav";
-import { NewMeetingClient } from "@/components/meetings/NewMeetingClient";
+import { NewMeetingWithBot } from "@/components/meetings/NewMeetingWithBot";
 
 export const metadata = { title: "New Meeting" };
 
@@ -8,7 +8,7 @@ export default function NewMeetingPage() {
     <>
       <TopNav title="New Meeting" />
       <main className="flex-1 p-4 md:p-6">
-        <NewMeetingClient />
+        <NewMeetingWithBot />
       </main>
     </>
   );
