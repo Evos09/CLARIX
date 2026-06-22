@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Download, ChevronDown, Copy, Check, Loader2 } from "lucide-react";
+import { Download, ChevronDown, Copy, Check, Loader2, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { SendEmailModal } from "./SendEmailModal";
 
 const FILE_FORMATS = [
   { fmt: "pdf", label: "PDF report" },
@@ -21,6 +22,7 @@ export function ExportMenu({ meetingId, showEhr = false }: { meetingId: string; 
   const [loading, setLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [emailOpen, setEmailOpen] = useState(false);
 
   function download(fmt: string) {
     window.open(`/api/meetings/${meetingId}/export?format=${fmt}`, "_blank");
@@ -65,6 +67,10 @@ export function ExportMenu({ meetingId, showEhr = false }: { meetingId: string; 
               {f.label}
             </button>
           ))}
+          <div className="my-1 border-t border-border" />
+          <button onClick={() => { setEmailOpen(true); setOpen(false); }} className="flex w-full items-center gap-2 rounded px-3 py-2 text-left text-sm hover:bg-muted">
+            <Mail className="size-3.5" /> Send via Email
+          </button>
         </div>
       )}
       {error && <p className="absolute right-0 mt-2 text-xs text-destructive">{error}</p>}
@@ -83,6 +89,7 @@ export function ExportMenu({ meetingId, showEhr = false }: { meetingId: string; 
           <button onClick={() => setDraft(null)} className="mt-2 text-xs text-muted-foreground hover:text-foreground">Close</button>
         </div>
       )}
+      {emailOpen && <SendEmailModal meetingId={meetingId} onClose={() => setEmailOpen(false)} />}
     </div>
   );
 }

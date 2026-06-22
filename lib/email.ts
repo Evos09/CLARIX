@@ -11,7 +11,7 @@ function getResend(): Resend {
   return client;
 }
 
-const FROM = "CLARIX <no-reply@clarix.ai>";
+const FROM = process.env.EMAIL_FROM ?? "CLARIX <onboarding@resend.dev>";
 
 /** Best-effort "your meeting is ready" notification. Never throws. */
 export async function sendMeetingComplete(opts: { to: string; title: string; meetingId: string }): Promise<void> {
@@ -31,4 +31,16 @@ export async function sendMeetingComplete(opts: { to: string; title: string; mee
   } catch {
     // best-effort
   }
+}
+
+/** Sends a pre-rendered HTML email via Resend. Throws on failure. */
+export async function sendHtml(opts: { to: string[]; subject: string; html: string }): Promise<{ id?: string }> {
+  const { data, error } = await getResend().emails.send({
+    from: FROM,
+    to: opts.to,
+    subject: opts.subject,
+    html: opts.html,
+  });
+  if (error) throw new Error(error.message);
+  return { id: data?.id };
 }
