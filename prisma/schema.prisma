@@ -42,6 +42,10 @@ model User {
   emailDigestSettings EmailDigestSettings?
   calendarConnection  CalendarConnection?
   calendarEvents      CalendarEvent[]
+  crmconnection       CRMConnection?
+  slackConnection     SlackConnection?
+  notionConnection    NotionConnection?
+  linearConnection    LinearConnection?
 
   @@index([orgId])
 }
@@ -85,6 +89,10 @@ model Meeting {
   chatAnnotations   ChatAnnotation[]
   emailSends        EmailSend[]
   calendarEvents    CalendarEvent[]
+  meetingBot        MeetingBot?
+  crmsyncs          CRMSync[]
+  meetingAnalytics  MeetingAnalytics?
+  integrationPushes IntegrationPush[]
 
   @@index([orgId])
   @@index([userId])
@@ -304,4 +312,124 @@ model CalendarEvent {
 
   @@unique([userId, externalId])
   @@index([userId])
+}
+
+// ===== Competitive Gap Fill (additive) =====
+
+enum BotStatus {
+  CREATED
+  JOINING
+  IN_MEETING
+  DONE
+  FAILED
+}
+
+model MeetingBot {
+  id           String    @id @default(cuid())
+  recallBotId  String    @unique
+  meetingId    String    @unique
+  meeting      Meeting   @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  platform     String
+  meetingUrl   String
+  status       BotStatus @default(CREATED)
+  joinedAt     DateTime?
+  leftAt       DateTime?
+  recordingUrl String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model CRMConnection {
+  id           String   @id @default(cuid())
+  userId       String   @unique
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider     String
+  accessToken  String   @db.Text
+  refreshToken String   @db.Text
+  instanceUrl  String?
+  expiresAt    DateTime
+  connected    Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model CRMSync {
+  id         String   @id @default(cuid())
+  meetingId  String
+  meeting    Meeting  @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  userId     String
+  provider   String
+  externalId String
+  recordType String
+  syncedAt   DateTime @default(now())
+
+  @@index([meetingId])
+}
+
+model MeetingAnalytics {
+  id                   String   @id @default(cuid())
+  meetingId            String   @unique
+  meeting              Meeting  @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  overallEngagement    Float
+  participationBalance Float
+  questionRate         Float
+  decisionRate         Float
+  actionRate           Float
+  overallSentiment     String
+  sentimentByMinute    Json
+  speakerStats         Json
+  fillerWordCount      Int
+  fillerWordDetails    Json
+  topicTimeline        Json
+  energyTimeline       Json
+  insights             Json?
+  recommendations      Json?
+  generatedAt          DateTime @default(now())
+}
+
+model SlackConnection {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken String   @db.Text
+  teamId      String
+  teamName    String
+  botUserId   String
+  connected   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+}
+
+model NotionConnection {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken   String   @db.Text
+  workspaceName String
+  workspaceId   String
+  connected     Boolean  @default(true)
+  createdAt     DateTime @default(now())
+}
+
+model LinearConnection {
+  id               String   @id @default(cuid())
+  userId           String   @unique
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken      String   @db.Text
+  organizationId   String
+  organizationName String
+  connected        Boolean  @default(true)
+  createdAt        DateTime @default(now())
+}
+
+model IntegrationPush {
+  id          String   @id @default(cuid())
+  meetingId   String
+  meeting     Meeting  @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  userId      String
+  platform    String
+  destination String
+  externalUrl String?
+  pushedAt    DateTime @default(now())
+
+  @@index([meetingId])
 }

@@ -4,7 +4,7 @@ import { PLANS, type PlanId } from "@/lib/stripe";
 import { cn } from "@/lib/utils";
 
 const FEATURES: Record<PlanId, string[]> = {
-  FREE: ["3 meetings / month", "General meeting type", "Summary + action items"],
+  FREE: ["10 meetings / month", "General meeting type", "Summary + action items"],
   STARTER: ["20 meetings / month", "All General meeting types", "PDF export"],
   PRO: ["Unlimited meetings", "All standard meeting types", "PDF, DOCX, CSV & JSON export", "Ask CLARIX chat"],
   ENTERPRISE: ["Everything in Pro", "Pro Verticals (Health/Legal/Finance)", "SSO + custom templates", "EHR / FHIR export · HIPAA BAA"],

@@ -11,8 +11,9 @@ import { StructuredOutputView } from "./StructuredOutput/StructuredOutputView";
 import { RegenerateButton } from "./StructuredOutput/RegenerateButton";
 import { TranscriptViewer } from "./TranscriptViewer";
 import { AskClarix } from "./AskClarix";
+import { AnalyticsTab } from "./analytics/AnalyticsTab";
 
-const TABS = ["Summary", "Transcript", "Ask CLARIX", "Raw JSON"] as const;
+const TABS = ["Summary", "Transcript", "Analytics", "Ask CLARIX", "Raw JSON"] as const;
 type Tab = (typeof TABS)[number];
 
 export function MeetingTabs({
@@ -94,6 +95,8 @@ export function MeetingTabs({
       )}
 
       {tab === "Ask CLARIX" && <AskClarix meetingId={meetingId} disabled={!claudeConfigured} meetingType={meetingType} status={status} />}
+
+      {tab === "Analytics" && <AnalyticsTab meetingId={meetingId} />}
 
       {tab === "Raw JSON" && (
         <Card>

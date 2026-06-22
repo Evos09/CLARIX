@@ -7,6 +7,7 @@ import {
   MessageSquare,
   Mic,
   Music,
+  BarChart3,
   ListTodo,
   Settings,
   CreditCard,
@@ -25,6 +26,7 @@ const NAV: NavItem[] = [
   { href: "/chat", label: "Chat", icon: MessageSquare },
   { href: "/meetings", label: "Meetings", icon: Mic },
   { href: "/audio", label: "Audio Library", icon: Music },
+  { href: "/analytics", label: "Analytics", icon: BarChart3 },
   { href: "/action-items", label: "Action Items", icon: ListTodo, badgeKey: "openActions" },
 ];
 
