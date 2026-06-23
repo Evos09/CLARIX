@@ -101,6 +101,17 @@ body {
   font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 }
 
+/* Empty-state hero motion (Dashboard design) */
+@keyframes clarix-ring { 0% { transform: scale(.55); opacity: .6; } 100% { transform: scale(2.3); opacity: 0; } }
+@keyframes clarix-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+@keyframes clarix-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0,200,180,.45), 0 10px 26px rgba(0,200,180,.3); }
+  50% { box-shadow: 0 0 0 14px rgba(0,200,180,0), 0 12px 30px rgba(0,200,180,.45); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .clarix-ring, .clarix-float, .clarix-glow { animation: none !important; }
+}
+
 /* Speaker-label colors for the transcript viewer */
 .speaker-0 { color: #2563eb; }
 .speaker-1 { color: #00a896; }

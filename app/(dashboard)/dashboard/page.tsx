@@ -88,7 +88,15 @@ export default async function DashboardPage() {
             <CardHeader><CardTitle>Recent meetings</CardTitle></CardHeader>
             <CardContent>
               {recent.length === 0 ? (
-                <EmptyState icon="Mic" title="No meetings yet" description="Upload or record to get started." actionHref="/meetings/new" actionLabel="New meeting" />
+                <EmptyState
+                  variant="hero"
+                  icon="UploadCloud"
+                  title="Upload your first meeting"
+                  description="Drop an audio or video file or paste a link — CLARIX returns a summary and action items in ~12 seconds."
+                  actionHref="/meetings/new"
+                  actionLabel="Upload your first meeting"
+                  chips={["MP3 · MP4 · WAV · M4A", "Zoom · Meet · Teams links", "10 free this month"]}
+                />
               ) : (
                 <div className="grid gap-3 sm:grid-cols-2">
                   {recent.map((m) => <MeetingCard key={m.id} meeting={m} />)}
