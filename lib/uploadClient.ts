@@ -44,7 +44,7 @@ export async function createMeetingFromFile(
   const signRes = await fetch("/api/upload", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ filename: file.name, contentType: file.type }),
+    body: JSON.stringify({ filename: file.name, contentType: file.type, size: file.size }),
   });
   if (!signRes.ok) throw new Error((await signRes.json()).error ?? "Could not start upload");
   const { path, signedUrl } = await signRes.json();
@@ -54,7 +54,7 @@ export async function createMeetingFromFile(
   const createRes = await fetch("/api/meetings", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ ...opts, storagePath: path }),
+    body: JSON.stringify({ ...opts, storagePath: path, audioSize: file.size, audioFilename: file.name }),
   });
   if (!createRes.ok) throw new Error((await createRes.json()).error ?? "Could not create meeting");
   const meeting = await createRes.json();

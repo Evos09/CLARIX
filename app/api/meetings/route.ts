@@ -10,6 +10,8 @@ const CreateBody = z.object({
   autoDetect: z.boolean().default(false),
   storagePath: z.string().optional(),
   audioUrl: z.string().optional(),
+  audioSize: z.number().int().positive().optional(),
+  audioFilename: z.string().max(255).optional(),
 });
 
 export async function GET() {
@@ -40,7 +42,7 @@ export async function POST(req: Request) {
 
   const parsed = CreateBody.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "Invalid input" }, { status: 400 });
-  const { title, meetingType, autoDetect, storagePath, audioUrl } = parsed.data;
+  const { title, meetingType, autoDetect, storagePath, audioUrl, audioSize, audioFilename } = parsed.data;
 
   const gate = await canCreateMeeting(ctx.orgId);
   if (!gate.ok) return NextResponse.json({ error: gate.reason }, { status: 403 });
@@ -57,6 +59,8 @@ export async function POST(req: Request) {
       autoDetect,
       storagePath,
       audioUrl,
+      audioSize,
+      audioFilename,
       status: "UPLOADING",
       orgId: ctx.orgId,
       userId: ctx.userId,

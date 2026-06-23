@@ -42,6 +42,18 @@ export function globalChatLimit(plan: PlanConfig): number | null {
   return 0;
 }
 
+/** Per-file upload ceiling in bytes (override with NEXT_PUBLIC_MAX_UPLOAD_MB). */
+export function maxUploadBytes(): number {
+  const mb = Number(process.env.NEXT_PUBLIC_MAX_UPLOAD_MB) || 2048;
+  return mb * 1024 * 1024;
+}
+
+/** Total audio bytes an org has stored. */
+export async function orgStorageUsed(orgId: string): Promise<number> {
+  const agg = await prisma.meeting.aggregate({ where: { orgId }, _sum: { audioSize: true } });
+  return agg._sum.audioSize ?? 0;
+}
+
 /** Audio storage cap in bytes. null = unlimited. */
 export function storageLimitBytes(plan: PlanConfig): number | null {
   switch (plan.id) {
