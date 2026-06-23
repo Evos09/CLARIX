@@ -19,7 +19,7 @@ export default hasClerk
   ? clerkMiddleware(async (auth, req) => {
       if (isProtectedRoute(req)) await auth.protect();
     })
-  : function middleware() {
+  : function proxy() {
       return NextResponse.next();
     };
 
