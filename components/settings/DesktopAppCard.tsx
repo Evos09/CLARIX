@@ -15,13 +15,14 @@ export function DesktopAppCard() {
           A native menu-bar app for Mac and Windows — global shortcut to start recording from anywhere, and
           notifications when a meeting is ready.
         </p>
-        <div className="flex flex-wrap gap-2">
-          <a href="/download/clarix-mac.dmg" className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>
-            <Apple className="size-4" /> Download for Mac
-          </a>
-          <a href="/download/clarix-windows.exe" className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>
-            <Monitor className="size-4" /> Download for Windows
-          </a>
+        <div className="flex flex-wrap items-center gap-2">
+          <span className={cn(buttonVariants({ variant: "outline", size: "sm" }), "pointer-events-none opacity-60")} aria-disabled="true">
+            <Apple className="size-4" /> Mac
+          </span>
+          <span className={cn(buttonVariants({ variant: "outline", size: "sm" }), "pointer-events-none opacity-60")} aria-disabled="true">
+            <Monitor className="size-4" /> Windows
+          </span>
+          <span className="rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">Coming soon</span>
         </div>
         <p className="text-xs text-muted-foreground">Global shortcut: <kbd className="rounded border border-border px-1">Cmd/Ctrl+Shift+R</kbd> to start recording from any app.</p>
         {isDesktop() && (

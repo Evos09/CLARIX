@@ -87,6 +87,6 @@ export const PLANS: Record<PlanId, PlanConfig> = {
     sso: true,
     customTemplates: true,
     priceEnv: "STRIPE_ENTERPRISE_PRICE_ID",
-    blurb: "Everything + Pro Verticals, SSO, custom templates, API, HIPAA BAA.",
+    blurb: "Everything + Pro Verticals, SSO, custom templates, API, EHR/FHIR export.",
   },
 };

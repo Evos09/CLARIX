@@ -23,6 +23,16 @@ import { isClaudeConfigured } from "@/lib/claude";
 
 type Params = { params: Promise<{ id: string }> };
 
+export async function generateMetadata({ params }: Params) {
+  const { id } = await params;
+  if (!hasDb) return { title: "Meeting" };
+  const ctx = await getOrCreateContext();
+  const meeting = ctx
+    ? await prisma.meeting.findFirst({ where: { id, orgId: ctx.orgId }, select: { title: true } })
+    : null;
+  return { title: meeting?.title ?? "Meeting" };
+}
+
 export default async function MeetingDetailPage({ params }: Params) {
   const { id } = await params;
   if (!hasDb) {
