@@ -24,6 +24,7 @@ Status legend: ⬜ not done · ✅ done
 | `STRIPE_WEBHOOK_SECRET` | billing | ⬜ See §2. |
 | `STRIPE_STARTER_PRICE_ID` / `STRIPE_PRO_PRICE_ID` / `STRIPE_ENTERPRISE_PRICE_ID` | billing | ⬜ See §2. |
 | `NEXT_PUBLIC_MAX_UPLOAD_MB` | uploads | Optional. Default `2048`. Lower it if your storage plan is small. |
+| `CRON_SECRET` | background jobs | ⬜ Random string (`openssl rand -hex 32`). Guards the digest cron — see §8. |
 | Integration keys (optional) | Slack/Notion/Linear/Google/CRM/Recall | ⬜ Only needed for the features you advertise. Each is dormant until its key is set. |
 
 ---
@@ -87,6 +88,35 @@ Status legend: ⬜ not done · ✅ done
 - Pricing copy matches real entitlements; misinformation (fake logos/testimonials/stats, uncertified
   compliance badges) removed; `/privacy` + `/terms` pages exist and are linked.
 - Per-meeting page titles; desktop download buttons show "Coming soon" instead of 404.
+
+---
+
+## 8. Background jobs / cron
+
+### Action-item digest (built ✅ — needs a scheduler)
+The digest email is live. To turn it on:
+1. ⬜ Set `CRON_SECRET` (Railway) and `RESEND_API_KEY` (§3).
+2. ⬜ Have users enable it in **Settings → Automation** (Daily or Weekly).
+3. ⬜ Point a scheduler at the endpoint (daily is fine; it self-throttles per user):
+   ```
+   POST https://<your-domain>/api/cron/digest
+   Header: Authorization: Bearer <CRON_SECRET>
+   ```
+   Use Railway Cron, GitHub Actions, or cron-job.org. The endpoint returns `{ sent, skipped, evaluated }`.
+
+### Calendar auto-join (not built — groundwork blocked)
+"Connect calendar → CLARIX auto-joins your meetings" is the highest-impact capture feature, but it
+needs three things I can't provision:
+1. ⬜ A **DB column** — run once against your database:
+   ```sql
+   ALTER TABLE "CalendarConnection" ADD COLUMN IF NOT EXISTS "autoJoin" boolean NOT NULL DEFAULT false;
+   ```
+   (I was blocked from writing DDL to your production DB; run this yourself or grant permission.)
+2. ⬜ A **Recall.ai API key** (`RECALL_API_KEY`) — the bot that joins Zoom/Meet/Teams is a paid service.
+3. ⬜ A scheduler hitting a `/api/cron/auto-join` endpoint every ~2–5 min.
+
+Once the column exists and Recall is set up, the remaining code (cron + a Settings toggle) is a small,
+self-contained build on top of the existing calendar sync + Recall bot.
 
 ---
 
