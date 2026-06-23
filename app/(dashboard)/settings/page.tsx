@@ -5,6 +5,7 @@ import { IntegrationsHub } from "@/components/settings/IntegrationsHub";
 import { CRMConnectionCard } from "@/components/settings/CRMConnectionCard";
 import { DesktopAppCard } from "@/components/settings/DesktopAppCard";
 import { DigestCard } from "@/components/settings/DigestCard";
+import { AutoJoinCard } from "@/components/settings/AutoJoinCard";
 import { prisma } from "@/lib/prisma";
 import { getOrCreateContext, hasDb } from "@/lib/auth";
 
@@ -31,7 +32,10 @@ export default async function SettingsPage() {
         <IntegrationsHub />
         <div className="mt-4"><CRMConnectionCard /></div>
         <h2 className="mb-3 mt-8 text-lg font-semibold">Automation</h2>
-        <DigestCard />
+        <div className="space-y-4">
+          <AutoJoinCard />
+          <DigestCard />
+        </div>
         <div className="mt-4"><DesktopAppCard /></div>
       </main>
     </>

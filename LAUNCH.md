@@ -104,19 +104,20 @@ The digest email is live. To turn it on:
    ```
    Use Railway Cron, GitHub Actions, or cron-job.org. The endpoint returns `{ sent, skipped, evaluated }`.
 
-### Calendar auto-join (not built — groundwork blocked)
-"Connect calendar → CLARIX auto-joins your meetings" is the highest-impact capture feature, but it
-needs three things I can't provision:
-1. ⬜ A **DB column** — run once against your database:
-   ```sql
-   ALTER TABLE "CalendarConnection" ADD COLUMN IF NOT EXISTS "autoJoin" boolean NOT NULL DEFAULT false;
+### Calendar auto-join (built ✅ — needs Recall + a scheduler)
+"Connect calendar → CLARIX auto-joins your meetings" — the highest-impact capture feature. The code,
+the `autoJoin` DB column (✅ applied), and the **Settings → Automation** toggle are all in place. To run it:
+1. ✅ DB column applied (`CalendarConnection.autoJoin`).
+2. ⬜ Set a **Recall.ai API key** (`RECALL_API_KEY`) — the bot that joins Zoom/Meet/Teams is a paid service.
+3. ⬜ Users connect a calendar and flip **Settings → Automation → Auto-join** on.
+4. ⬜ Point a scheduler at the endpoint every ~2–5 min:
    ```
-   (I was blocked from writing DDL to your production DB; run this yourself or grant permission.)
-2. ⬜ A **Recall.ai API key** (`RECALL_API_KEY`) — the bot that joins Zoom/Meet/Teams is a paid service.
-3. ⬜ A scheduler hitting a `/api/cron/auto-join` endpoint every ~2–5 min.
-
-Once the column exists and Recall is set up, the remaining code (cron + a Settings toggle) is a small,
-self-contained build on top of the existing calendar sync + Recall bot.
+   POST https://<your-domain>/api/cron/auto-join
+   Header: Authorization: Bearer <CRON_SECRET>
+   ```
+   It finds calendar events starting within 10 min that have a Zoom/Meet/Teams link, dispatches a bot
+   (respecting plan limits), and links the resulting meeting so it never double-joins. Returns
+   `{ considered, joined, skipped }`.
 
 ---
 

@@ -290,6 +290,7 @@ model CalendarConnection {
   calDavUser   String?
   calDavPass   String?   @db.Text
   connected    Boolean   @default(true)
+  autoJoin     Boolean   @default(false)
   syncedAt     DateTime?
   createdAt    DateTime  @default(now())
 }
