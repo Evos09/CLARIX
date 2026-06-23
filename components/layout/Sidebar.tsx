@@ -14,10 +14,8 @@ import {
   Users,
   type LucideIcon,
 } from "lucide-react";
-import { Logo } from "./Logo";
-import { PlanBadge } from "./PlanBadge";
 import { cn } from "@/lib/utils";
-import type { PlanId } from "@/lib/stripe";
+import { PLANS, type PlanId } from "@/lib/stripe";
 
 type NavItem = { href: string; label: string; icon: LucideIcon; badgeKey?: "openActions" };
 
@@ -39,29 +37,43 @@ const FOOTER_NAV: NavItem[] = [
 export function Sidebar({
   plan = "FREE",
   openActions = 0,
+  meetingsThisMonth = 0,
 }: {
   plan?: PlanId;
   openActions?: number;
+  meetingsThisMonth?: number;
 }) {
   const pathname = usePathname();
   const isActive = (href: string) =>
     pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
 
+  const limit = PLANS[plan].meetingsPerMonth; // null = unlimited
+  const pct = limit ? Math.min(100, Math.round((meetingsThisMonth / limit) * 100)) : 0;
+
+  const linkClass = (href: string) =>
+    cn(
+      "flex items-center justify-between rounded-[10px] px-3 py-2.5 text-sm font-medium transition-colors",
+      isActive(href)
+        ? "bg-teal/15 text-white"
+        : "text-white/60 hover:bg-white/5 hover:text-white",
+    );
+
   return (
-    <aside className="hidden md:flex w-60 shrink-0 flex-col border-r border-border bg-card">
-      <div className="flex h-16 items-center px-5 border-b border-border">
-        <Logo href="/dashboard" />
-      </div>
-      <nav className="flex-1 space-y-1 p-3">
+    <aside className="hidden md:flex w-60 shrink-0 flex-col bg-navy px-4 py-5">
+      {/* brand */}
+      <Link href="/dashboard" className="mb-5 flex items-center gap-2.5 px-2">
+        <span
+          className="grid size-[30px] place-items-center rounded-[9px]"
+          style={{ background: "linear-gradient(135deg,#00C8B4,#0A1628)" }}
+        >
+          <span className="size-2.5 rounded-full bg-white shadow-[0_0_0_3px_rgba(0,200,180,.5)]" />
+        </span>
+        <span className="text-[18px] font-extrabold tracking-tight text-white">CLARIX</span>
+      </Link>
+
+      <nav className="flex flex-1 flex-col gap-0.5">
         {NAV.map(({ href, label, icon: Icon, badgeKey }) => (
-          <Link
-            key={href}
-            href={href}
-            className={cn(
-              "flex items-center justify-between rounded-md px-3 py-2 text-sm font-medium transition-colors",
-              isActive(href) ? "bg-navy text-white" : "text-muted-foreground hover:bg-muted hover:text-foreground",
-            )}
-          >
+          <Link key={href} href={href} className={linkClass(href)}>
             <span className="flex items-center gap-3">
               <Icon className="size-4" />
               {label}
@@ -73,23 +85,38 @@ export function Sidebar({
             )}
           </Link>
         ))}
-        <div className="my-3 border-t border-border" />
+        <div className="my-3 border-t border-white/10" />
         {FOOTER_NAV.map(({ href, label, icon: Icon }) => (
-          <Link
-            key={href}
-            href={href}
-            className={cn(
-              "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
-              isActive(href) ? "bg-navy text-white" : "text-muted-foreground hover:bg-muted hover:text-foreground",
-            )}
-          >
+          <Link key={href} href={href} className={cn(linkClass(href), "justify-start gap-3")}>
             <Icon className="size-4" />
             {label}
           </Link>
         ))}
       </nav>
-      <div className="border-t border-border p-4">
-        <PlanBadge plan={plan} />
+
+      {/* usage meter / plan card */}
+      <div className="mt-4 rounded-xl border border-white/10 bg-white/[0.04] p-3.5">
+        <div className="mb-2 flex justify-between text-xs text-white/70">
+          <span>{PLANS[plan].name} plan</span>
+          <span className="font-bold text-white">
+            {limit ? `${meetingsThisMonth} / ${limit}` : "Unlimited"}
+          </span>
+        </div>
+        {limit ? (
+          <>
+            <div className="mb-3 h-1.5 overflow-hidden rounded-full bg-white/10">
+              <div className="h-full rounded-full bg-teal" style={{ width: `${pct}%` }} />
+            </div>
+            <Link
+              href="/settings/billing"
+              className="block rounded-[9px] bg-teal py-2 text-center text-[12.5px] font-bold text-navy transition hover:bg-teal-600"
+            >
+              Upgrade plan
+            </Link>
+          </>
+        ) : (
+          <p className="text-[12px] text-white/50">Meetings this month: {meetingsThisMonth}</p>
+        )}
       </div>
     </aside>
   );
