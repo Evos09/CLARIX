@@ -7,6 +7,10 @@ const isProtectedRoute = createRouteMatcher([
   "/settings(.*)",
   "/team(.*)",
   "/onboarding(.*)",
+  "/chat(.*)",
+  "/analytics(.*)",
+  "/action-items(.*)",
+  "/audio(.*)",
 ]);
 
 const hasClerk = Boolean(process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY);
