@@ -24,7 +24,7 @@ export function PricingTable({ highlight = "PRO" }: { highlight?: PlanId }) {
               <CardTitle className="flex items-center justify-between">
                 {plan.name}
                 {featured && (
-                  <span className="rounded-full bg-teal px-2 py-0.5 text-xs font-semibold text-navy">
+                  <span className="rounded-full bg-teal px-2 py-0.5 text-xs font-semibold text-white">
                     Popular
                   </span>
                 )}

@@ -60,7 +60,7 @@ export function StatusPoller({ meetingId, status }: { meetingId: string; status:
               <div
                 className={cn(
                   "grid size-9 place-items-center rounded-full border-2",
-                  done && "border-teal bg-teal text-navy",
+                  done && "border-teal bg-teal text-white",
                   active && "border-teal text-teal-600",
                   !done && !active && "border-border text-muted-foreground",
                 )}

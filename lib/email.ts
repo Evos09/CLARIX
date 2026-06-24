@@ -23,9 +23,9 @@ export async function sendMeetingComplete(opts: { to: string; title: string; mee
       to: [opts.to],
       subject: `✅ ${opts.title} is ready`,
       html: `<div style="font-family:Inter,sans-serif">
-        <h2 style="color:#0a1628">CLAR<span style="color:#00c8b4">IX</span></h2>
+        <h2 style="color:#0b0b14">CLAR<span style="color:#6d28d9">IX</span></h2>
         <p>Your meeting <strong>${opts.title}</strong> has been transcribed and analyzed.</p>
-        <p><a href="${base}/meetings/${opts.meetingId}" style="color:#00c8b4">View the summary →</a></p>
+        <p><a href="${base}/meetings/${opts.meetingId}" style="color:#6d28d9">View the summary →</a></p>
       </div>`,
     });
   } catch {

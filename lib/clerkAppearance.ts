@@ -5,7 +5,7 @@
 */
 export const clerkAppearance = {
   variables: {
-    colorPrimary: "#00c8b4",
+    colorPrimary: "#6d28d9",
     colorText: "#1e293b",
     colorTextSecondary: "#64748b",
     colorBackground: "#ffffff",
@@ -29,7 +29,7 @@ export const clerkAppearance = {
     formFieldInput:
       "rounded-xl border-[#d7dee8] py-3 text-[15px] focus:border-teal focus:ring-2 focus:ring-teal/20",
     formButtonPrimary:
-      "bg-teal text-navy rounded-xl py-3.5 text-[15px] font-bold shadow-[0_8px_22px_rgba(0,200,180,.35)] transition hover:-translate-y-0.5 hover:bg-teal-600 normal-case",
+      "bg-teal text-white rounded-xl py-3.5 text-[15px] font-bold shadow-[0_8px_22px_rgba(124,79,232,.35)] transition hover:-translate-y-0.5 hover:bg-teal-600 normal-case",
     formFieldInputShowPasswordButton: "text-muted-foreground",
     identityPreviewEditButton: "text-teal-600",
     formResendCodeLink: "text-teal-600",

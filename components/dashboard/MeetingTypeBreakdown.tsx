@@ -2,7 +2,7 @@
 
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
 
-const COLORS = ["#00c8b4", "#0a1628", "#2563eb", "#9333ea", "#ea580c", "#db2777", "#0891b2", "#f59e0b", "#64748b"];
+const COLORS = ["#6d28d9", "#0b0b14", "#2563eb", "#9333ea", "#ea580c", "#db2777", "#0891b2", "#f59e0b", "#64748b"];
 
 export function MeetingTypeBreakdown({ data }: { data: { name: string; value: number }[] }) {
   if (data.length === 0) {

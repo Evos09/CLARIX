@@ -227,7 +227,7 @@ export function GlobalChatClient({ usageThisMonth, usageLimit }: { usageThisMont
                 rows={1}
                 className="max-h-40 flex-1 resize-none rounded-md border border-input bg-card px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               />
-              <button onClick={() => send(input)} disabled={sending || !input.trim()} className="grid size-10 shrink-0 place-items-center rounded-md bg-teal text-navy disabled:opacity-50">
+              <button onClick={() => send(input)} disabled={sending || !input.trim()} className="grid size-10 shrink-0 place-items-center rounded-md bg-teal text-white disabled:opacity-50">
                 <Send className="size-4" />
               </button>
             </div>

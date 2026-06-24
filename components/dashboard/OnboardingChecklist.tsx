@@ -59,7 +59,7 @@ export function OnboardingChecklist({ steps }: { steps: OnboardingStep[] }) {
             <span
               className={
                 s.done
-                  ? "grid size-6 shrink-0 place-items-center rounded-full bg-teal text-navy"
+                  ? "grid size-6 shrink-0 place-items-center rounded-full bg-teal text-white"
                   : "grid size-6 shrink-0 place-items-center rounded-full border-2 border-border text-transparent"
               }
             >

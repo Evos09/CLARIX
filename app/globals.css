@@ -2,58 +2,58 @@
 
 /*
   CLARIX Design System — design tokens
-  Palette: Deep Navy #0A1628 / Electric Teal #00C8B4 / Slate White #F7F9FC
-  Type: Inter (UI) + JetBrains Mono (transcripts)
+  Palette: Deep Ink #0B0B14 / Electric Violet #6D28D9 / Warm Paper #FAFAF7
+  Type: Inter (UI) + Instrument Serif (display) + JetBrains Mono (mono)
 */
 
 :root {
-  /* Brand */
-  --clarix-navy: #0a1628;
-  --clarix-navy-700: #122340;
-  --clarix-navy-600: #1b3157;
-  --clarix-teal: #00c8b4;
-  --clarix-teal-600: #00a896;
-  --clarix-surface: #f7f9fc;
-  --clarix-danger: #e84545;
-  --clarix-text: #1e293b;
-  --clarix-muted: #64748b;
-  --clarix-border: #e2e8f0;
+  /* Brand — names kept for compatibility; values are the new ink/violet/paper system */
+  --clarix-navy: #0b0b14;      /* ink */
+  --clarix-navy-700: #15152a;  /* ink-2 */
+  --clarix-navy-600: #1f1f38;  /* ink-3 */
+  --clarix-teal: #6d28d9;      /* violet-600 (accent) */
+  --clarix-teal-600: #5b21b6;  /* violet-700 (accent hover) */
+  --clarix-surface: #fafaf7;   /* paper */
+  --clarix-danger: #f43f5e;    /* rose */
+  --clarix-text: #0b0b14;
+  --clarix-muted: #6e6e66;     /* gray-500 */
+  --clarix-border: #e2e2db;    /* gray-200 */
 
   /* Semantic (light) */
-  --background: #f7f9fc;
-  --foreground: #1e293b;
+  --background: #fafaf7;       /* paper */
+  --foreground: #0b0b14;       /* ink */
   --card: #ffffff;
-  --card-foreground: #1e293b;
-  --primary: #0a1628;
+  --card-foreground: #0b0b14;
+  --primary: #0b0b14;          /* ink */
   --primary-foreground: #ffffff;
-  --accent: #00c8b4;
-  --accent-foreground: #03261f;
-  --muted: #eef2f7;
-  --muted-foreground: #64748b;
-  --border: #e2e8f0;
-  --input: #e2e8f0;
-  --ring: #00c8b4;
-  --destructive: #e84545;
+  --accent: #6d28d9;           /* violet */
+  --accent-foreground: #ffffff;
+  --muted: #efefea;            /* gray-100 */
+  --muted-foreground: #6e6e66; /* gray-500 */
+  --border: #e2e2db;           /* gray-200 */
+  --input: #e2e2db;
+  --ring: #7c4fe8;             /* violet-500 */
+  --destructive: #f43f5e;      /* rose */
   --destructive-foreground: #ffffff;
 
   --radius: 0.75rem;
 }
 
 .dark {
-  --background: #0a1628;
-  --foreground: #e8eef7;
-  --card: #122340;
-  --card-foreground: #e8eef7;
-  --primary: #00c8b4;
-  --primary-foreground: #03261f;
-  --accent: #00c8b4;
-  --accent-foreground: #03261f;
-  --muted: #1b3157;
-  --muted-foreground: #94a3b8;
-  --border: #1f3a5f;
-  --input: #1f3a5f;
-  --ring: #00c8b4;
-  --destructive: #e84545;
+  --background: #0b0b14;       /* ink */
+  --foreground: #fafaf7;       /* paper */
+  --card: #15152a;            /* ink-2 */
+  --card-foreground: #fafaf7;
+  --primary: #6d28d9;          /* violet */
+  --primary-foreground: #ffffff;
+  --accent: #7c4fe8;           /* violet-500 */
+  --accent-foreground: #ffffff;
+  --muted: #1f1f38;           /* ink-3 */
+  --muted-foreground: #9e9e94; /* gray-400 */
+  --border: #2d2d2a;          /* gray-700 */
+  --input: #2d2d2a;
+  --ring: #7c4fe8;
+  --destructive: #f43f5e;
   --destructive-foreground: #ffffff;
 }
 
@@ -74,7 +74,7 @@
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
 
-  /* Brand utilities: bg-navy, text-teal, etc. */
+  /* Brand utilities: bg-navy (ink), text-teal (violet), etc. */
   --color-navy: var(--clarix-navy);
   --color-navy-700: var(--clarix-navy-700);
   --color-navy-600: var(--clarix-navy-600);
@@ -85,6 +85,7 @@
 
   --font-sans: var(--font-inter);
   --font-mono: var(--font-jetbrains-mono);
+  --font-display: var(--font-instrument-serif), Georgia, serif;
 
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 0.25rem);
@@ -101,21 +102,21 @@ body {
   font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 }
 
-/* Empty-state hero motion (Dashboard design) */
+/* Empty-state hero motion */
 @keyframes clarix-ring { 0% { transform: scale(.55); opacity: .6; } 100% { transform: scale(2.3); opacity: 0; } }
 @keyframes clarix-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
 @keyframes clarix-glow {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(0,200,180,.45), 0 10px 26px rgba(0,200,180,.3); }
-  50% { box-shadow: 0 0 0 14px rgba(0,200,180,0), 0 12px 30px rgba(0,200,180,.45); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(124,79,232,.45), 0 10px 26px rgba(124,79,232,.3); }
+  50% { box-shadow: 0 0 0 14px rgba(124,79,232,0), 0 12px 30px rgba(124,79,232,.45); }
 }
 @media (prefers-reduced-motion: reduce) {
   .clarix-ring, .clarix-float, .clarix-glow { animation: none !important; }
 }
 
 /* Speaker-label colors for the transcript viewer */
-.speaker-0 { color: #2563eb; }
-.speaker-1 { color: #00a896; }
-.speaker-2 { color: #9333ea; }
+.speaker-0 { color: #6d28d9; }
+.speaker-1 { color: #10b981; }
+.speaker-2 { color: #2563eb; }
 .speaker-3 { color: #ea580c; }
 .speaker-4 { color: #db2777; }
 .speaker-5 { color: #0891b2; }

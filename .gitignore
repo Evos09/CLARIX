@@ -36,6 +36,9 @@ yarn-error.log*
 # vercel
 .vercel
 
+# raw design import (source for the marketing site; processed assets live in /public/site)
+/.design-import
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

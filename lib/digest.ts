@@ -69,21 +69,21 @@ export async function buildActionItemDigest(orgId: string, greetingName?: string
       : `${sorted.length} open action items`;
 
   const html = `<div style="font-family:Inter,system-ui,sans-serif;max-width:560px;margin:0 auto;">
-    <div style="background:#0a1628;border-radius:14px;padding:22px 24px;color:#fff;">
-      <div style="font-size:20px;font-weight:800;">CLAR<span style="color:#00c8b4">IX</span></div>
+    <div style="background:#0b0b14;border-radius:14px;padding:22px 24px;color:#fff;">
+      <div style="font-size:20px;font-weight:800;">CLAR<span style="color:#6d28d9">IX</span></div>
       <div style="font-size:14px;color:rgba(255,255,255,.7);margin-top:6px;">
         ${greetingName ? escape(greetingName) + ", here's" : "Here's"} what's still open across your meetings.
       </div>
     </div>
     <div style="padding:8px 4px;">
       <div style="display:flex;gap:18px;margin:18px 4px;">
-        <div><span style="font-size:24px;font-weight:800;color:#0a1628;">${sorted.length}</span>
+        <div><span style="font-size:24px;font-weight:800;color:#0b0b14;">${sorted.length}</span>
           <span style="font-size:13px;color:#64748b;"> open</span></div>
         ${overdueCount > 0 ? `<div><span style="font-size:24px;font-weight:800;color:#b42318;">${overdueCount}</span><span style="font-size:13px;color:#64748b;"> overdue</span></div>` : ""}
       </div>
       <table style="width:100%;border-collapse:collapse;">${rows}</table>
       <div style="margin-top:22px;">
-        <a href="${base}/action-items" style="display:inline-block;background:#00c8b4;color:#04211d;font-weight:700;font-size:14px;text-decoration:none;padding:11px 20px;border-radius:11px;">Open action items →</a>
+        <a href="${base}/action-items" style="display:inline-block;background:#6d28d9;color:#ffffff;font-weight:700;font-size:14px;text-decoration:none;padding:11px 20px;border-radius:11px;">Open action items →</a>
       </div>
       <p style="font-size:12px;color:#94a3b8;margin-top:24px;">You're receiving this because action-item digests are on. Turn them off in Settings.</p>
     </div>

@@ -4,10 +4,10 @@ import { extraKeys } from "@/lib/outputTypes";
 
 const s = StyleSheet.create({
   page: { padding: 40, fontSize: 11, color: "#1e293b", fontFamily: "Helvetica" },
-  brand: { fontSize: 18, color: "#0a1628", fontFamily: "Helvetica-Bold" },
-  brandAccent: { color: "#00c8b4" },
+  brand: { fontSize: 18, color: "#0b0b14", fontFamily: "Helvetica-Bold" },
+  brandAccent: { color: "#6d28d9" },
   meta: { fontSize: 9, color: "#64748b", marginBottom: 16 },
-  h2: { fontSize: 13, color: "#0a1628", marginTop: 16, marginBottom: 6, fontFamily: "Helvetica-Bold" },
+  h2: { fontSize: 13, color: "#0b0b14", marginTop: 16, marginBottom: 6, fontFamily: "Helvetica-Bold" },
   tldr: { backgroundColor: "#e6faf7", padding: 10, borderRadius: 4, marginBottom: 8 },
   item: { marginBottom: 4 },
   bullet: { marginBottom: 3, paddingLeft: 8 },

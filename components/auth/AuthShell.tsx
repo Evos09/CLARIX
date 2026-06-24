@@ -10,7 +10,7 @@ import { Logo } from "@/components/layout/Logo";
 
 const AUTH_CSS = `
 @keyframes auth-blob{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(30px,-24px) scale(1.12)}}
-@keyframes auth-orb{0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(0,200,180,.45)}50%{transform:scale(1.08);box-shadow:0 0 0 12px rgba(0,200,180,0)}}
+@keyframes auth-orb{0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(124,79,232,.45)}50%{transform:scale(1.08);box-shadow:0 0 0 12px rgba(124,79,232,0)}}
 @keyframes auth-line{0%{opacity:0;transform:translateX(-6px)}100%{opacity:1;transform:translateX(0)}}
 @keyframes auth-check{0%{transform:scale(.4);opacity:0}60%{transform:scale(1.2)}100%{transform:scale(1);opacity:1}}
 .auth-item{animation:auth-line .5s ease both}
@@ -99,11 +99,11 @@ export function AuthShell({
       <div className="relative hidden overflow-hidden bg-navy p-14 lg:flex lg:flex-col lg:justify-center">
         <div
           className="auth-blob pointer-events-none absolute -right-16 -top-24 size-[420px] rounded-full blur-2xl"
-          style={{ background: "radial-gradient(circle,rgba(0,200,180,.24),transparent 65%)", animation: "auth-blob 15s ease-in-out infinite" }}
+          style={{ background: "radial-gradient(circle,rgba(124,79,232,.24),transparent 65%)", animation: "auth-blob 15s ease-in-out infinite" }}
         />
         <div
           className="auth-blob pointer-events-none absolute -bottom-32 -left-20 size-[360px] rounded-full blur-2xl"
-          style={{ background: "radial-gradient(circle,rgba(0,200,180,.14),transparent 65%)", animation: "auth-blob 19s ease-in-out infinite reverse" }}
+          style={{ background: "radial-gradient(circle,rgba(124,79,232,.14),transparent 65%)", animation: "auth-blob 19s ease-in-out infinite reverse" }}
         />
 
         <div className="relative max-w-md">
@@ -119,7 +119,7 @@ export function AuthShell({
             <div className="mb-3.5 flex items-center gap-2.5">
               <div
                 className="auth-orb grid size-9 place-items-center rounded-full"
-                style={{ background: "linear-gradient(135deg,#00C8B4,#0A1628)", animation: "auth-orb 3s ease-in-out infinite" }}
+                style={{ background: "linear-gradient(135deg,#6d28d9,#0b0b14)", animation: "auth-orb 3s ease-in-out infinite" }}
               >
                 <span className="size-3 rounded-full bg-white" />
               </div>
@@ -139,7 +139,7 @@ export function AuthShell({
                   style={{ animationDelay: task.d }}
                 >
                   <span
-                    className="auth-check grid size-4 place-items-center rounded-[5px] bg-teal text-[10px] font-black text-navy"
+                    className="auth-check grid size-4 place-items-center rounded-[5px] bg-teal text-[10px] font-black text-white"
                     style={{ animationDelay: task.cd }}
                   >
                     ✓

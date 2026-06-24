@@ -24,7 +24,7 @@ interface Analytics {
 }
 
 const SENTIMENT_EMOJI: Record<string, string> = { POSITIVE: "😊", NEUTRAL: "😐", MIXED: "🤔", TENSE: "😬" };
-const BAR_COLORS = ["#0a1628", "#00a896", "#2563eb", "#9333ea", "#ea580c", "#db2777"];
+const BAR_COLORS = ["#0b0b14", "#5b21b6", "#2563eb", "#9333ea", "#ea580c", "#db2777"];
 
 function Metric({ label, value, hint }: { label: string; value: string; hint?: string }) {
   return (
@@ -106,7 +106,7 @@ export function AnalyticsTab({ meetingId }: { meetingId: string }) {
                 <XAxis dataKey="minute" unit="m" fontSize={12} />
                 <YAxis domain={[0, 1]} fontSize={12} />
                 <Tooltip />
-                <Line type="monotone" dataKey="score" stroke="#00c8b4" strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="score" stroke="#6d28d9" strokeWidth={2} dot={false} />
               </LineChart>
             </ResponsiveContainer>
           </CardContent>
@@ -123,7 +123,7 @@ export function AnalyticsTab({ meetingId }: { meetingId: string }) {
                 <XAxis dataKey="minute" unit="m" fontSize={12} />
                 <YAxis domain={[0, 100]} fontSize={12} />
                 <Tooltip />
-                <Area type="monotone" dataKey="energy" stroke="#0a1628" fill="#00c8b4" fillOpacity={0.25} />
+                <Area type="monotone" dataKey="energy" stroke="#0b0b14" fill="#6d28d9" fillOpacity={0.25} />
               </AreaChart>
             </ResponsiveContainer>
           </CardContent>

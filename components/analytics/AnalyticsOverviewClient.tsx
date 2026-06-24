@@ -15,7 +15,7 @@ interface Overview {
   engagementTrend: { date: string; engagement: number }[];
 }
 
-const COLORS = ["#00c8b4", "#0a1628", "#2563eb", "#9333ea", "#ea580c", "#db2777", "#0891b2"];
+const COLORS = ["#6d28d9", "#0b0b14", "#2563eb", "#9333ea", "#ea580c", "#db2777", "#0891b2"];
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
@@ -64,7 +64,7 @@ export function AnalyticsOverviewClient() {
                 <XAxis dataKey="date" fontSize={12} />
                 <YAxis domain={[0, 100]} fontSize={12} />
                 <Tooltip />
-                <Line type="monotone" dataKey="engagement" stroke="#00c8b4" strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="engagement" stroke="#6d28d9" strokeWidth={2} dot={false} />
               </LineChart>
             </ResponsiveContainer>
           </CardContent>

@@ -40,7 +40,7 @@ export function EmptyState({
         {/* floating gradient tile */}
         <div
           className="clarix-float relative mb-6 grid size-[74px] place-items-center rounded-[20px] text-white"
-          style={{ background: "linear-gradient(135deg,#00C8B4,#0A1628)", animation: "clarix-float 4s ease-in-out infinite" }}
+          style={{ background: "linear-gradient(135deg,#6d28d9,#0b0b14)", animation: "clarix-float 4s ease-in-out infinite" }}
         >
           <Icon className="size-7" />
         </div>
@@ -51,7 +51,7 @@ export function EmptyState({
         {actionHref && actionLabel && (
           <Link
             href={actionHref}
-            className="clarix-glow relative mt-6 inline-flex items-center gap-2 rounded-xl bg-teal px-7 py-3.5 text-base font-bold text-navy"
+            className="clarix-glow relative mt-6 inline-flex items-center gap-2 rounded-xl bg-teal px-7 py-3.5 text-base font-bold text-white"
             style={{ animation: "clarix-glow 3.2s ease-in-out infinite" }}
           >
             {actionLabel}
@@ -76,7 +76,7 @@ export function EmptyState({
     <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border bg-card/50 px-6 py-16 text-center">
       <div
         className="mb-4 grid size-12 place-items-center rounded-xl text-white"
-        style={{ background: "linear-gradient(135deg,#00C8B4,#0A1628)" }}
+        style={{ background: "linear-gradient(135deg,#6d28d9,#0b0b14)" }}
       >
         <Icon className="size-6" />
       </div>

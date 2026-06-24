@@ -64,9 +64,9 @@ export function Sidebar({
       <Link href="/dashboard" className="mb-5 flex items-center gap-2.5 px-2">
         <span
           className="grid size-[30px] place-items-center rounded-[9px]"
-          style={{ background: "linear-gradient(135deg,#00C8B4,#0A1628)" }}
+          style={{ background: "linear-gradient(135deg,#6d28d9,#0b0b14)" }}
         >
-          <span className="size-2.5 rounded-full bg-white shadow-[0_0_0_3px_rgba(0,200,180,.5)]" />
+          <span className="size-2.5 rounded-full bg-white shadow-[0_0_0_3px_rgba(124,79,232,.5)]" />
         </span>
         <span className="text-[18px] font-extrabold tracking-tight text-white">CLARIX</span>
       </Link>
@@ -79,7 +79,7 @@ export function Sidebar({
               {label}
             </span>
             {badgeKey === "openActions" && openActions > 0 && (
-              <span className="rounded-full bg-teal px-2 py-0.5 text-xs font-semibold text-navy">
+              <span className="rounded-full bg-teal px-2 py-0.5 text-xs font-semibold text-white">
                 {openActions}
               </span>
             )}
@@ -109,7 +109,7 @@ export function Sidebar({
             </div>
             <Link
               href="/settings/billing"
-              className="block rounded-[9px] bg-teal py-2 text-center text-[12.5px] font-bold text-navy transition hover:bg-teal-600"
+              className="block rounded-[9px] bg-teal py-2 text-center text-[12.5px] font-bold text-white transition hover:bg-teal-600"
             >
               Upgrade plan
             </Link>
