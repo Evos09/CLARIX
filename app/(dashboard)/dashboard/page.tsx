@@ -6,6 +6,7 @@ import { UpcomingMeetings } from "@/components/calendar/UpcomingMeetings";
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import { MeetingTypeBreakdown } from "@/components/dashboard/MeetingTypeBreakdown";
 import { MeetingCard } from "@/components/meetings/MeetingCard";
+import { OnboardingChecklist, type OnboardingStep } from "@/components/dashboard/OnboardingChecklist";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { prisma } from "@/lib/prisma";
 import { getOrCreateContext, hasDb } from "@/lib/auth";
@@ -24,6 +25,7 @@ export default async function DashboardPage() {
   ];
   let breakdown: { name: string; value: number }[] = [];
   let recent: Awaited<ReturnType<typeof prisma.meeting.findMany>> = [];
+  let onboarding: OnboardingStep[] = [];
 
   if (hasDb) {
     const ctx = await getOrCreateContext();
@@ -32,14 +34,25 @@ export default async function DashboardPage() {
       monthStart.setDate(1);
       monthStart.setHours(0, 0, 0, 0);
 
-      const [monthCount, agg, totalActions, doneActions, grouped, recentMeetings] = await Promise.all([
+      const [monthCount, agg, totalActions, doneActions, grouped, recentMeetings, totalMeetings, completedCount, calendarConn, digest] = await Promise.all([
         prisma.meeting.count({ where: { orgId: ctx.orgId, createdAt: { gte: monthStart } } }),
         prisma.meeting.aggregate({ where: { orgId: ctx.orgId }, _sum: { duration: true }, _avg: { duration: true } }),
         prisma.actionItem.count({ where: { orgId: ctx.orgId } }),
         prisma.actionItem.count({ where: { orgId: ctx.orgId, completed: true } }),
         prisma.meeting.groupBy({ by: ["meetingType"], where: { orgId: ctx.orgId }, _count: { _all: true } }),
         prisma.meeting.findMany({ where: { orgId: ctx.orgId }, orderBy: { createdAt: "desc" }, take: 5 }),
+        prisma.meeting.count({ where: { orgId: ctx.orgId } }),
+        prisma.meeting.count({ where: { orgId: ctx.orgId, status: "COMPLETE" } }),
+        prisma.calendarConnection.findUnique({ where: { userId: ctx.userId }, select: { connected: true } }),
+        prisma.emailDigestSettings.findUnique({ where: { userId: ctx.userId }, select: { enabled: true } }),
       ]);
+
+      onboarding = [
+        { label: "Upload your first meeting", desc: "Drop an audio/video file or paste a link.", href: "/meetings/new", cta: "Upload", done: totalMeetings > 0 },
+        { label: "Get your first summary", desc: "CLARIX returns a TL;DR + action items in ~12s.", href: "/meetings", cta: "View", done: completedCount > 0 },
+        { label: "Connect your calendar", desc: "See upcoming meetings and enable auto-capture.", href: "/settings", cta: "Connect", done: Boolean(calendarConn?.connected) },
+        { label: "Turn on your action-item digest", desc: "Get open + overdue items emailed to you.", href: "/settings", cta: "Enable", done: Boolean(digest?.enabled) },
+      ];
 
       stats = [
         { label: "Meetings this month", value: String(monthCount), icon: "Mic" },
@@ -81,6 +94,9 @@ export default async function DashboardPage() {
             </Link>
           </div>
         </section>
+        {onboarding.length > 0 && onboarding.some((s) => !s.done) && (
+          <OnboardingChecklist steps={onboarding} />
+        )}
         <StatsGrid stats={stats} />
         <UpcomingMeetings />
         <div className="grid gap-6 lg:grid-cols-3">
