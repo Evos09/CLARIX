@@ -65,65 +65,75 @@ export default async function DashboardPage() {
     }
   }
 
+  const hasMeetings = recent.length > 0;
+
   return (
     <>
       <TopNav title="Dashboard" />
-      <main className="flex-1 space-y-6 p-4 md:p-6">
-        <section
-          className="relative overflow-hidden rounded-2xl border border-white/10 p-6 md:p-8"
-          style={{ background: "linear-gradient(120deg,#0b0b14,#15152a)" }}
-        >
-          <div
-            className="pointer-events-none absolute -right-16 -top-24 size-72 rounded-full blur-2xl"
-            style={{ background: "radial-gradient(circle,rgba(124,79,232,.22),transparent 65%)" }}
-          />
-          <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h2 className="text-2xl font-extrabold tracking-tight text-white">
-                Welcome to CLARIX <span className="align-middle">👋</span>
-              </h2>
-              <p className="mt-1.5 text-[15px] text-white/70">
-                Turn your next meeting into a summary and action items in ~12 seconds.
-              </p>
-            </div>
-            <Link
-              href="/meetings/new"
-              className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-teal px-5 py-3 text-sm font-bold text-white shadow-[0_6px_18px_rgba(124,79,232,.32)] transition hover:-translate-y-0.5 hover:bg-teal-600"
-            >
-              <Plus className="size-4" /> Upload meeting
-            </Link>
+      <main className="flex-1 space-y-8 p-4 md:p-8">
+        {/* Editorial header */}
+        <header className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <span className="inline-flex items-center gap-2 rounded-full border border-accent/20 bg-accent/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">
+              <span className="size-1.5 rounded-full bg-accent" /> Dashboard
+            </span>
+            <h1 className="mt-3 text-[28px] font-semibold leading-tight tracking-tight text-foreground sm:text-4xl">
+              Your meetings, <span className="font-display font-normal italic text-accent">handled</span>.
+            </h1>
+            <p className="mt-2 max-w-md text-[15px] text-muted-foreground">
+              Turn your next conversation into a summary and action items in about 12 seconds.
+            </p>
           </div>
-        </section>
+          <Link
+            href="/meetings/new"
+            className="inline-flex shrink-0 items-center gap-2 self-start rounded-xl bg-accent px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-teal-600 sm:self-auto"
+          >
+            <Plus className="size-4" /> Upload meeting
+          </Link>
+        </header>
+
         {onboarding.length > 0 && onboarding.some((s) => !s.done) && (
           <OnboardingChecklist steps={onboarding} />
         )}
+
         <StatsGrid stats={stats} />
-        <UpcomingMeetings />
-        <div className="grid gap-6 lg:grid-cols-3">
-          <Card className="lg:col-span-2">
-            <CardHeader><CardTitle>Recent meetings</CardTitle></CardHeader>
-            <CardContent>
-              {recent.length === 0 ? (
-                <EmptyState
-                  variant="hero"
-                  icon="UploadCloud"
-                  title="Upload your first meeting"
-                  description="Drop an audio or video file or paste a link — CLARIX returns a summary and action items in ~12 seconds."
-                  actionHref="/meetings/new"
-                  actionLabel="Upload your first meeting"
-                  chips={["MP3 · MP4 · WAV · M4A", "Zoom · Meet · Teams links", "3 free this month"]}
-                />
-              ) : (
-                <div className="grid gap-3 sm:grid-cols-2">
-                  {recent.map((m) => <MeetingCard key={m.id} meeting={m} />)}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader><CardTitle>Meeting types</CardTitle></CardHeader>
-            <CardContent><MeetingTypeBreakdown data={breakdown} /></CardContent>
-          </Card>
+
+        {/* Recent meetings — primary focus */}
+        <section className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold tracking-tight text-foreground">Recent meetings</h2>
+            {hasMeetings && (
+              <Link href="/meetings" className="text-sm font-medium text-accent hover:underline">
+                View all →
+              </Link>
+            )}
+          </div>
+          {hasMeetings ? (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {recent.map((m) => <MeetingCard key={m.id} meeting={m} />)}
+            </div>
+          ) : (
+            <EmptyState
+              variant="hero"
+              icon="UploadCloud"
+              title="Upload your first meeting"
+              description="Drop an audio or video file or paste a link — CLARIX returns a summary and action items in about 12 seconds."
+              actionHref="/meetings/new"
+              actionLabel="Upload your first meeting"
+              chips={["MP3 · MP4 · WAV · M4A", "Zoom · Meet · Teams links", "3 free this month"]}
+            />
+          )}
+        </section>
+
+        {/* Secondary: upcoming + meeting mix */}
+        <div className="grid gap-6 lg:grid-cols-2">
+          <UpcomingMeetings />
+          {breakdown.length > 0 && (
+            <Card>
+              <CardHeader><CardTitle>Meeting mix</CardTitle></CardHeader>
+              <CardContent><MeetingTypeBreakdown data={breakdown} /></CardContent>
+            </Card>
+          )}
         </div>
       </main>
     </>
