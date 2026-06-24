@@ -25,8 +25,8 @@ const TASKS = [
 ];
 
 const PROPS = [
-  { big: "10", small: "free meetings / month" },
-  { big: "6", small: "meeting types tuned" },
+  { big: "3", small: "free meetings / month" },
+  { big: "20+", small: "meeting types tuned" },
   { big: "30s", small: "to your first summary" },
 ];
 
@@ -56,7 +56,7 @@ export function AuthShell({
             </h1>
             <p className="mt-2 mb-7 text-[15px] leading-relaxed text-muted-foreground">
               {isSignUp
-                ? "10 free meetings every month. No credit card required."
+                ? "3 free meetings every month. No credit card required."
                 : "Sign in to your CLARIX workspace."}
             </p>
 

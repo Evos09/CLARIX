@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 export function AutoJoinCard() {
   const [autoJoin, setAutoJoin] = useState(false);
   const [calendarConnected, setCalendarConnected] = useState(true);
+  const [available, setAvailable] = useState(true);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
@@ -18,6 +19,7 @@ export function AutoJoinCard() {
         if (d) {
           setAutoJoin(Boolean(d.autoJoin));
           setCalendarConnected(Boolean(d.calendarConnected));
+          setAvailable(d.available !== false);
         }
       })
       .catch(() => {})
@@ -64,14 +66,16 @@ export function AutoJoinCard() {
             type="checkbox"
             className="accent-teal-600"
             checked={autoJoin}
-            disabled={loading || !calendarConnected}
+            disabled={loading || !calendarConnected || !available}
             onChange={(e) => toggle(e.target.checked)}
           />
           Auto-join meetings from my connected calendar
         </label>
-        {!calendarConnected && (
+        {!available ? (
+          <p className="text-xs text-amber-600">Auto-join is available on Starter and above. <a href="/settings/billing" className="font-semibold underline">Upgrade →</a></p>
+        ) : !calendarConnected ? (
           <p className="text-xs text-amber-600">Connect a calendar above to enable this.</p>
-        )}
+        ) : null}
         {msg && <p className="text-xs text-destructive">{msg}</p>}
         <p className="text-xs text-muted-foreground">Requires the meeting bot to be configured (Recall).</p>
       </CardContent>

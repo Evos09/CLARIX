@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { isRecallConfigured, detectPlatform, createBot } from "@/lib/recall";
-import { canCreateMeeting } from "@/lib/plan";
+import { canCreateMeeting, getOrgPlan } from "@/lib/plan";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -46,6 +46,11 @@ async function run(req: Request) {
   let skipped = 0;
 
   for (const conn of conns) {
+    const plan = await getOrgPlan(conn.user.orgId);
+    if (!plan.autoJoinBot) {
+      skipped++;
+      continue;
+    }
     const events = await prisma.calendarEvent.findMany({
       where: { userId: conn.userId, meetingId: null, startTime: { gte: now, lte: windowEnd } },
       take: 10,

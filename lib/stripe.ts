@@ -29,6 +29,8 @@ export interface PlanConfig {
   proVerticals: boolean;
   sso: boolean;
   customTemplates: boolean;
+  autoJoinBot: boolean; // calendar auto-join notetaker (Zoom/Meet/Teams)
+  foreverRetention: boolean; // audio library kept forever (vs best-effort on Free)
   priceEnv?: string; // env var holding the Stripe price id
   blurb: string;
 }
@@ -38,14 +40,16 @@ export const PLANS: Record<PlanId, PlanConfig> = {
     id: "FREE",
     name: "Free",
     price: 0,
-    meetingsPerMonth: 10,
+    meetingsPerMonth: 3,
     exports: [],
     allMeetingTypes: false,
     askClarix: false,
     proVerticals: false,
     sso: false,
     customTemplates: false,
-    blurb: "10 meetings/month, General type only.",
+    autoJoinBot: false,
+    foreverRetention: false,
+    blurb: "3 meetings/month, General type only.",
   },
   STARTER: {
     id: "STARTER",
@@ -58,8 +62,10 @@ export const PLANS: Record<PlanId, PlanConfig> = {
     proVerticals: false,
     sso: false,
     customTemplates: false,
+    autoJoinBot: true,
+    foreverRetention: true,
     priceEnv: "STRIPE_STARTER_PRICE_ID",
-    blurb: "20 meetings/month, all General types, PDF export.",
+    blurb: "20 meetings/month, all General types, PDF export, auto-join bot, forever library.",
   },
   PRO: {
     id: "PRO",
@@ -72,8 +78,10 @@ export const PLANS: Record<PlanId, PlanConfig> = {
     proVerticals: false,
     sso: false,
     customTemplates: false,
+    autoJoinBot: true,
+    foreverRetention: true,
     priceEnv: "STRIPE_PRO_PRICE_ID",
-    blurb: "Unlimited meetings, all types, all exports, Ask CLARIX.",
+    blurb: "Unlimited meetings, all types, all exports, Ask CLARIX, auto-join bot.",
   },
   ENTERPRISE: {
     id: "ENTERPRISE",
@@ -86,6 +94,8 @@ export const PLANS: Record<PlanId, PlanConfig> = {
     proVerticals: true,
     sso: true,
     customTemplates: true,
+    autoJoinBot: true,
+    foreverRetention: true,
     priceEnv: "STRIPE_ENTERPRISE_PRICE_ID",
     blurb: "Everything + Pro Verticals, SSO, custom templates, API, EHR/FHIR export.",
   },

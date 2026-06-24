@@ -31,7 +31,7 @@ export default async function MeetingsPage() {
             description="Drop an audio or video file, record in your browser, or paste a link — CLARIX returns a summary and action items in ~12 seconds."
             actionHref="/meetings/new"
             actionLabel="Upload your first meeting"
-            chips={["MP3 · MP4 · WAV · M4A", "Zoom · Meet · Teams links", "10 free this month"]}
+            chips={["MP3 · MP4 · WAV · M4A", "Zoom · Meet · Teams links", "3 free this month"]}
           />
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
