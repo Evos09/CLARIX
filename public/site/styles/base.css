@@ -1,0 +1,172 @@
+/* ==========================================================================
+   CLARIX — Base / Reset / Typography
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--fs-base);
+  line-height: 1.6;
+  color: var(--ink);
+  background: var(--paper);
+  font-feature-settings: 'cv11', 'ss01', 'ss03';
+}
+
+img, svg, video { display: block; max-width: 100%; }
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  color: inherit;
+}
+
+input, textarea, select {
+  font: inherit;
+  color: inherit;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  color: var(--ink);
+}
+
+h1 { font-size: clamp(var(--fs-4xl), 6vw, var(--fs-6xl)); letter-spacing: -0.035em; line-height: 0.98; font-weight: 600; }
+h2 { font-size: clamp(var(--fs-3xl), 4.5vw, var(--fs-5xl)); letter-spacing: -0.03em; line-height: 1.05; }
+h3 { font-size: var(--fs-2xl); letter-spacing: -0.02em; }
+h4 { font-size: var(--fs-xl); letter-spacing: -0.01em; }
+h5 { font-size: var(--fs-lg); }
+h6 { font-size: var(--fs-md); }
+
+p { margin: 0; }
+
+.serif { font-family: var(--font-display); font-weight: 400; letter-spacing: -0.02em; font-style: italic; }
+.mono  { font-family: var(--font-mono); }
+
+/* ----- Eyebrow label ----- */
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: 6px 12px;
+  background: var(--violet-50);
+  color: var(--violet-700);
+  border-radius: var(--r-full);
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border: 1px solid var(--violet-100);
+}
+
+.eyebrow--neutral {
+  background: var(--gray-50);
+  color: var(--gray-700);
+  border-color: var(--gray-200);
+}
+
+.eyebrow__dot {
+  width: 6px; height: 6px; border-radius: var(--r-full);
+  background: var(--violet-600);
+  box-shadow: 0 0 0 4px var(--violet-100);
+}
+
+/* ----- Section heading pattern ----- */
+.section-heading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+  max-width: 720px;
+  margin: 0 auto var(--sp-16);
+  text-align: center;
+  align-items: center;
+}
+
+.section-heading--left {
+  margin-left: 0;
+  margin-right: 0;
+  text-align: left;
+  align-items: flex-start;
+}
+
+.section-heading h2 { font-weight: 600; }
+.section-heading p  { color: var(--gray-600); font-size: var(--fs-md); line-height: 1.6; }
+
+/* ----- Layout helpers ----- */
+.container {
+  width: 100%;
+  max-width: var(--max-w);
+  margin: 0 auto;
+  padding: 0 var(--sp-6);
+}
+
+.container--narrow { max-width: var(--max-w-narrow); }
+
+.section {
+  padding: var(--sp-32) 0;
+}
+
+.section--tight { padding: var(--sp-20) 0; }
+
+.section--dark {
+  background: var(--ink);
+  color: var(--paper);
+}
+.section--dark h1, .section--dark h2, .section--dark h3 { color: var(--paper); }
+.section--dark p { color: var(--gray-300); }
+
+.section--soft { background: var(--paper-2); }
+
+/* ----- Grid ----- */
+.grid { display: grid; gap: var(--sp-6); }
+.grid-2 { grid-template-columns: repeat(2, 1fr); }
+.grid-3 { grid-template-columns: repeat(3, 1fr); }
+.grid-4 { grid-template-columns: repeat(4, 1fr); }
+
+@media (max-width: 980px) {
+  .grid-3, .grid-4 { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 640px) {
+  .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+}
+
+/* ----- Fade in on scroll ----- */
+.reveal {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 600ms var(--ease-out), transform 600ms var(--ease-out);
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* ----- Focus ring ----- */
+:focus-visible {
+  outline: 2px solid var(--violet-500);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* ----- Selection ----- */
+::selection { background: var(--violet-200); color: var(--violet-900); }
