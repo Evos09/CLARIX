@@ -15,6 +15,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { LogoMark } from "./LogoMark";
 import { PLANS, type PlanId } from "@/lib/stripe";
 
 type NavItem = { href: string; label: string; icon: LucideIcon; badgeKey?: "openActions" };
@@ -62,12 +63,7 @@ export function Sidebar({
     <aside className="hidden md:flex w-60 shrink-0 flex-col bg-navy px-4 py-5">
       {/* brand */}
       <Link href="/dashboard" className="mb-5 flex items-center gap-2.5 px-2">
-        <span
-          className="grid size-[30px] place-items-center rounded-[9px]"
-          style={{ background: "linear-gradient(135deg,#6d28d9,#0b0b14)" }}
-        >
-          <span className="size-2.5 rounded-full bg-white shadow-[0_0_0_3px_rgba(124,79,232,.5)]" />
-        </span>
+        <LogoMark size={30} />
         <span className="text-[18px] font-extrabold tracking-tight text-white">CLARIX</span>
       </Link>
 
