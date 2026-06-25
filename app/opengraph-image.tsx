@@ -20,8 +20,26 @@ export default function OgImage() {
           fontFamily: "sans-serif",
         }}
       >
-        <div style={{ fontSize: 40, fontWeight: 700, display: "flex" }}>
-          CLAR<span style={{ color: "#6d28d9" }}>IX</span>
+        <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
+          <div
+            style={{
+              width: 72,
+              height: 72,
+              borderRadius: 18,
+              background: "#6d28d9",
+              color: "#fafaf7",
+              fontSize: 48,
+              fontWeight: 800,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            C
+          </div>
+          <div style={{ fontSize: 40, fontWeight: 700, display: "flex" }}>
+            CLAR<span style={{ color: "#6d28d9" }}>IX</span>
+          </div>
         </div>
         <div style={{ fontSize: 64, fontWeight: 800, marginTop: 24, maxWidth: 900, display: "flex", flexWrap: "wrap", gap: 12 }}>
           Your AI assistant for <span style={{ color: "#6d28d9" }}>every meeting</span>
