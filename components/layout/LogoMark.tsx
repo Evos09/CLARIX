@@ -14,17 +14,13 @@ export function LogoMark({ size = 28, className }: { size?: number; className?: 
       className={className}
     >
       <rect width="32" height="32" rx="8" fill="#6D28D9" />
-      <text
-        x="16"
-        y="23"
-        textAnchor="middle"
-        fontFamily="var(--font-inter), system-ui, Arial, sans-serif"
-        fontWeight="800"
-        fontSize="21"
-        fill="#FAFAF7"
-      >
-        C
-      </text>
+      <path
+        d="M22.89 10.21 A9 9 0 1 0 22.89 21.79"
+        fill="none"
+        stroke="#FAFAF7"
+        strokeWidth="5"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
