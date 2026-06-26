@@ -67,6 +67,11 @@ export async function getOrCreateContext(): Promise<OrgUserContext | null> {
     return { orgId: org.id, userId: user.id };
   }
 
+  // If Clerk is enabled but we failed to get a user context, do NOT fall back to demo mode (production security)
+  if (hasClerk) {
+    return null;
+  }
+
   // Dev / demo mode
   const org = await prisma.organization.upsert({
     where: { clerkOrgId: DEMO_ORG },
