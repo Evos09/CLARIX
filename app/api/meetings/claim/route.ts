@@ -30,6 +30,11 @@ export async function POST(req: Request) {
 
   const anonCtx = await getOrCreateAnonymousContext();
 
+  // If the meeting is already claimed by this user, return success immediately
+  if (meeting.userId === ctx.userId && meeting.orgId === ctx.orgId) {
+    return NextResponse.json({ ok: true, id: meetingId });
+  }
+
   // Security check: Only allow claiming meetings owned by the anonymous user
   if (meeting.userId !== anonCtx.userId || meeting.orgId !== anonCtx.orgId) {
     return NextResponse.json(
