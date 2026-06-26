@@ -28,7 +28,6 @@ export const metadata: Metadata = {
   },
   description:
     "Transcribe, analyze, and turn any meeting into action — in minutes. Every Meeting. Captured. Understood. Done.",
-  icons: { icon: "/favicon.svg" },
   openGraph: {
     title: "CLARIX — Your AI Assistant for Every Meeting",
     description:
