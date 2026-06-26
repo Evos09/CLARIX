@@ -37,9 +37,27 @@ export async function getCurrentOrgUser() {
 const DEMO_ORG = "demo-org";
 const DEMO_USER = "demo-user";
 
+export const ANONYMOUS_ORG_CLERK_ID = "anonymous-org";
+export const ANONYMOUS_USER_CLERK_ID = "anonymous-user";
+
 export interface OrgUserContext {
   orgId: string;
   userId: string;
+}
+
+/** Returns the anonymous/public context for landing page users. */
+export async function getOrCreateAnonymousContext(): Promise<OrgUserContext> {
+  const org = await prisma.organization.upsert({
+    where: { clerkOrgId: ANONYMOUS_ORG_CLERK_ID },
+    update: {},
+    create: { clerkOrgId: ANONYMOUS_ORG_CLERK_ID, name: "Anonymous Demo Workspace", plan: "FREE" },
+  });
+  const user = await prisma.user.upsert({
+    where: { clerkId: ANONYMOUS_USER_CLERK_ID },
+    update: {},
+    create: { clerkId: ANONYMOUS_USER_CLERK_ID, email: "anonymous@clarix.local", role: "ADMIN", orgId: org.id },
+  });
+  return { orgId: org.id, userId: user.id };
 }
 
 /**
@@ -64,6 +82,41 @@ export async function getOrCreateContext(): Promise<OrgUserContext | null> {
       update: { email: ctx.email },
       create: { clerkId: ctx.clerkUserId, email: ctx.email, role: "ADMIN", orgId: org.id },
     });
+
+    // Auto-claim demo meeting if it exists in cookies
+    try {
+      const { cookies } = await import("next/headers");
+      const cookieStore = await cookies();
+      const demoMeetingId = cookieStore.get("clarix_demo_meeting_id")?.value;
+      if (demoMeetingId) {
+        const meeting = await prisma.meeting.findUnique({
+          where: { id: demoMeetingId },
+        });
+        if (meeting) {
+          const anonCtx = await getOrCreateAnonymousContext();
+          if (meeting.userId === anonCtx.userId && meeting.orgId === anonCtx.orgId) {
+            await prisma.$transaction([
+              prisma.meeting.update({
+                where: { id: demoMeetingId },
+                data: {
+                  userId: user.id,
+                  orgId: org.id,
+                },
+              }),
+              prisma.actionItem.updateMany({
+                where: { meetingId: demoMeetingId },
+                data: {
+                  orgId: org.id,
+                },
+              }),
+            ]);
+          }
+        }
+      }
+    } catch (e) {
+      console.error("Auto-claim during context resolution failed:", e);
+    }
+
     return { orgId: org.id, userId: user.id };
   }
 
@@ -85,3 +138,4 @@ export async function getOrCreateContext(): Promise<OrgUserContext | null> {
   });
   return { orgId: org.id, userId: user.id };
 }
+

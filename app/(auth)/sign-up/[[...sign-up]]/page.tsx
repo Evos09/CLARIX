@@ -20,7 +20,7 @@ export default function SignUpPage() {
             </div>
           </ClerkLoading>
           <ClerkLoaded>
-            <SignUp appearance={clerkAppearance} forceRedirectUrl="/onboarding" signInUrl="/sign-in" />
+            <SignUp appearance={clerkAppearance} forceRedirectUrl="/dashboard" signInUrl="/sign-in" />
           </ClerkLoaded>
         </>
       ) : (
@@ -29,8 +29,8 @@ export default function SignUpPage() {
             Add your Clerk keys to <code className="font-mono">.env</code> to enable sign-up. You can
             still explore the product in development.
           </p>
-          <Link href="/onboarding" className={buttonVariants({ variant: "accent" })}>
-            Try the onboarding flow
+          <Link href="/dashboard" className={buttonVariants({ variant: "accent" })}>
+            Try the dashboard flow
           </Link>
         </div>
       )}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Copy } from "lucide-react";
+import { Check, Copy, Lock } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import type { TranscriptSegment } from "@/lib/transcription";
@@ -12,9 +12,6 @@ import { RegenerateButton } from "./StructuredOutput/RegenerateButton";
 import { TranscriptViewer } from "./TranscriptViewer";
 import { AskClarix } from "./AskClarix";
 import { AnalyticsTab } from "./analytics/AnalyticsTab";
-
-const TABS = ["Summary", "Transcript", "Analytics", "Ask CLARIX", "Raw JSON"] as const;
-type Tab = (typeof TABS)[number];
 
 export function MeetingTabs({
   meetingId,
@@ -27,6 +24,7 @@ export function MeetingTabs({
   speakerMap,
   meetingType,
   status,
+  isDemo = false,
 }: {
   meetingId: string;
   segments: TranscriptSegment[];
@@ -38,39 +36,52 @@ export function MeetingTabs({
   speakerMap?: Record<string, string>;
   meetingType?: string;
   status?: string;
+  isDemo?: boolean;
 }) {
-  const [tab, setTab] = useState<Tab>(structuredOutput ? "Summary" : "Transcript");
+  const tabsList = isDemo
+    ? (["Summary", "Transcript", "Analytics 🔒", "Ask CLARIX 🔒", "Raw JSON"] as const)
+    : (["Summary", "Transcript", "Analytics", "Ask CLARIX", "Raw JSON"] as const);
+
+  type TabType = (typeof tabsList)[number];
+  const [tab, setTab] = useState<string>(structuredOutput ? "Summary" : "Transcript");
   const [copied, setCopied] = useState(false);
 
   const json = JSON.stringify(structuredOutput ?? {}, null, 2);
 
   return (
     <div className="space-y-4">
-      <div className="flex gap-1 border-b border-border">
-        {TABS.map((t) => (
-          <button
-            key={t}
-            onClick={() => setTab(t)}
-            className={cn(
-              "border-b-2 px-4 py-2 text-sm font-medium transition-colors",
-              tab === t ? "border-teal text-foreground" : "border-transparent text-muted-foreground hover:text-foreground",
-            )}
-          >
-            {t}
-          </button>
-        ))}
+      <div className="flex gap-1 border-b border-border overflow-x-auto">
+        {tabsList.map((t) => {
+          const isActive = tab === t || (t.startsWith("Analytics") && tab === "Analytics") || (t.startsWith("Ask CLARIX") && tab === "Ask CLARIX");
+          return (
+            <button
+              key={t}
+              onClick={() => {
+                if (t.startsWith("Analytics")) setTab("Analytics");
+                else if (t.startsWith("Ask CLARIX")) setTab("Ask CLARIX");
+                else setTab(t);
+              }}
+              className={cn(
+                "border-b-2 px-4 py-2 text-sm font-medium transition-colors whitespace-nowrap",
+                isActive ? "border-teal text-foreground" : "border-transparent text-muted-foreground hover:text-foreground",
+              )}
+            >
+              {t}
+            </button>
+          );
+        })}
       </div>
 
       {tab === "Summary" &&
         (structuredOutput ? (
-          <StructuredOutputView meetingId={meetingId} output={structuredOutput} />
+          <StructuredOutputView meetingId={meetingId} output={structuredOutput} isDemo={isDemo} meetingType={meetingType} />
         ) : (
           <Card>
             <CardContent className="space-y-4 p-6 text-sm text-muted-foreground">
               {claudeConfigured ? (
                 <>
                   <p>No AI analysis yet. Run it to extract a summary, action items, and decisions.</p>
-                  <RegenerateButton meetingId={meetingId} />
+                  {!isDemo && <RegenerateButton meetingId={meetingId} />}
                 </>
               ) : (
                 <p>Add <code className="font-mono">ANTHROPIC_API_KEY</code> to enable AI analysis.</p>
@@ -94,9 +105,43 @@ export function MeetingTabs({
         </Card>
       )}
 
-      {tab === "Ask CLARIX" && <AskClarix meetingId={meetingId} disabled={!claudeConfigured} meetingType={meetingType} status={status} />}
+      {tab === "Ask CLARIX" &&
+        (isDemo ? (
+          <Card>
+            <CardContent className="flex flex-col items-center justify-center p-12 text-center space-y-4">
+              <div className="grid size-12 place-items-center rounded-full bg-violet-100 text-violet-700">
+                <Lock className="size-6" />
+              </div>
+              <div className="max-w-md space-y-2">
+                <h3 className="text-lg font-semibold">Unlock Ask CLARIX AI Chat</h3>
+                <p className="text-sm text-muted-foreground">
+                  Ask questions, draft follow-up emails, extract specific lists, and search through your meeting transcripts using our powerful AI assistant.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        ) : (
+          <AskClarix meetingId={meetingId} disabled={!claudeConfigured} meetingType={meetingType} status={status} />
+        ))}
 
-      {tab === "Analytics" && <AnalyticsTab meetingId={meetingId} />}
+      {tab === "Analytics" &&
+        (isDemo ? (
+          <Card>
+            <CardContent className="flex flex-col items-center justify-center p-12 text-center space-y-4">
+              <div className="grid size-12 place-items-center rounded-full bg-violet-100 text-violet-700">
+                <Lock className="size-6" />
+              </div>
+              <div className="max-w-md space-y-2">
+                <h3 className="text-lg font-semibold">Unlock Meeting Analytics</h3>
+                <p className="text-sm text-muted-foreground">
+                  Get insights on team engagement, filler word usage, participant talk-time balance, and overall sentiment metrics.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        ) : (
+          <AnalyticsTab meetingId={meetingId} />
+        ))}
 
       {tab === "Raw JSON" && (
         <Card>
@@ -121,3 +166,4 @@ export function MeetingTabs({
     </div>
   );
 }
+

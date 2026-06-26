@@ -124,3 +124,153 @@ document.querySelectorAll('[data-record-demo]').forEach((btn) => {
     btn.classList.toggle('is-recording');
   });
 });
+
+// ---- Insta-Demo drag-and-drop file upload ----
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('demoFileInput');
+const card = document.getElementById('instaDemoCard');
+const progressContainer = document.getElementById('uploadProgressContainer');
+const progressBar = document.getElementById('uploadProgressFill');
+const percentageText = document.getElementById('uploadPercentageText');
+const statusText = document.getElementById('uploadStatusText');
+const errorDiv = document.getElementById('uploadError');
+
+if (dropZone && fileInput) {
+  // Prevent defaults for drag events
+  ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+    dropZone.addEventListener(eventName, e => {
+      e.preventDefault();
+      e.stopPropagation();
+    }, false);
+  });
+
+  ['dragenter', 'dragover'].forEach(eventName => {
+    dropZone.addEventListener(eventName, () => dropZone.classList.add('is-dragover'), false);
+  });
+
+  ['dragleave', 'drop'].forEach(eventName => {
+    dropZone.addEventListener(eventName, () => dropZone.classList.remove('is-dragover'), false);
+  });
+
+  dropZone.addEventListener('drop', e => {
+    const dt = e.dataTransfer;
+    const files = dt.files;
+    if (files.length) handleFile(files[0]);
+  });
+
+  dropZone.addEventListener('click', () => fileInput.click());
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files.length) handleFile(fileInput.files[0]);
+  });
+}
+
+function handleFile(file) {
+  if (!file) return;
+  
+  // Hide error
+  errorDiv.style.display = 'none';
+  errorDiv.textContent = '';
+  
+  // Validate size (15MB limit)
+  const MAX_SIZE = 15 * 1024 * 1024;
+  if (file.size > MAX_SIZE) {
+    showError('That file is too large. The demo maximum is 15 MB. Please sign up to upload larger files.');
+    return;
+  }
+
+  // Show progress and hide dropzone
+  dropZone.style.display = 'none';
+  progressContainer.style.display = 'block';
+  updateProgress(0, 'Preparing upload...');
+
+  // Start upload pipeline
+  uploadPipeline(file);
+}
+
+function showError(msg) {
+  errorDiv.textContent = msg;
+  errorDiv.style.display = 'block';
+  dropZone.style.display = 'flex';
+  progressContainer.style.display = 'none';
+}
+
+function updateProgress(pct, status) {
+  progressBar.style.width = `${pct}%`;
+  percentageText.textContent = `${pct}%`;
+  if (status) statusText.textContent = status;
+}
+
+async function uploadPipeline(file) {
+  try {
+    // 1. Get signed upload URL
+    updateProgress(5, 'Signing upload...');
+    const signRes = await fetch('/api/public/demo/upload', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ filename: file.name, contentType: file.type, size: file.size })
+    });
+    
+    if (!signRes.ok) {
+      const errData = await signRes.json().catch(() => ({}));
+      throw new Error(errData.error || 'Could not start upload signature');
+    }
+    
+    const { path, signedUrl } = await signRes.json();
+    
+    // 2. Upload file with progress
+    updateProgress(10, 'Uploading to storage...');
+    await new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('PUT', signedUrl);
+      if (file.type) xhr.setRequestHeader('Content-Type', file.type);
+      xhr.setRequestHeader('x-upsert', 'true');
+      
+      xhr.upload.onprogress = e => {
+        if (e.lengthComputable) {
+          const pct = Math.round((e.loaded / e.total) * 75) + 10; // scale progress from 10% to 85%
+          updateProgress(pct, 'Uploading recording...');
+        }
+      };
+      
+      xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) resolve();
+        else reject(new Error(`Storage upload failed (${xhr.status})`));
+      };
+      
+      xhr.onerror = () => reject(new Error('Network error during storage upload'));
+      xhr.send(file);
+    });
+
+    // 3. Create meeting row and trigger transcription
+    updateProgress(90, 'Starting analysis...');
+    const createRes = await fetch('/api/public/demo/meetings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        title: file.name.substring(0, file.name.lastIndexOf('.')) || file.name,
+        meetingType: 'GENERAL',
+        autoDetect: true,
+        storagePath: path,
+        audioSize: file.size,
+        audioFilename: file.name
+      })
+    });
+    
+    if (!createRes.ok) {
+      const errData = await createRes.json().catch(() => ({}));
+      throw new Error(errData.error || 'Failed to initialize meeting transcript');
+    }
+    
+    const meeting = await createRes.json();
+    updateProgress(100, 'Redirecting to results...');
+    
+    // Store demo meeting ID in a cookie for claiming later
+    document.cookie = `clarix_demo_meeting_id=${meeting.id}; path=/; max-age=604800; SameSite=Lax`;
+
+    // Redirect to demo details page
+    window.location.href = `/demo/${meeting.id}`;
+  } catch (err) {
+    showError(err.message || 'An error occurred during upload. Please try again.');
+  }
+}
+

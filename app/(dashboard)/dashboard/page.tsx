@@ -70,6 +70,15 @@ export default async function DashboardPage() {
   return (
     <>
       <TopNav title="Dashboard" />
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `
+            if (document.cookie.includes("clarix_demo_meeting_id")) {
+              document.cookie = "clarix_demo_meeting_id=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;";
+            }
+          `,
+        }}
+      />
       <main className="flex-1 space-y-8 p-4 md:p-8">
         {/* Editorial header */}
         <header className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
