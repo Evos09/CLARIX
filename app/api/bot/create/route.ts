@@ -10,7 +10,7 @@ const Body = z.object({ meetingUrl: z.string().url(), title: z.string().min(1).m
 export async function POST(req: Request) {
   const ctx = await getOrCreateContext();
   if (!ctx) return NextResponse.json({ error: "Database not configured" }, { status: 503 });
-  if (!isRecallConfigured()) return NextResponse.json({ error: "Meeting bot not configured (RECALL_API_KEY)" }, { status: 503 });
+  if (!isRecallConfigured()) return NextResponse.json({ error: "Meeting bot not configured (MEETING_BAAS_API_KEY)" }, { status: 503 });
 
   const parsed = Body.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "Paste a valid meeting URL" }, { status: 400 });

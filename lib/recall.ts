@@ -4,14 +4,18 @@ import type { TranscriptSegment } from "@/lib/transcription";
 import { processMeeting } from "@/lib/processing";
 import { isClaudeConfigured } from "@/lib/claude";
 
-const BASE = process.env.RECALL_API_BASE ?? "https://us-east-1.recall.ai/api/v1";
+const BASE = "https://api.meetingbaas.com/v2";
 
 export function isRecallConfigured(): boolean {
-  return Boolean(process.env.RECALL_API_KEY);
+  return Boolean(process.env.MEETING_BAAS_API_KEY ?? process.env.RECALL_API_KEY);
 }
 
 function headers() {
-  return { Authorization: `Token ${process.env.RECALL_API_KEY}`, "Content-Type": "application/json" };
+  const key = process.env.MEETING_BAAS_API_KEY ?? process.env.RECALL_API_KEY ?? "";
+  return {
+    "x-meeting-baas-api-key": key,
+    "Content-Type": "application/json",
+  };
 }
 
 export function detectPlatform(url: string): string {
@@ -23,53 +27,71 @@ export function detectPlatform(url: string): string {
 }
 
 export async function createBot(meetingUrl: string, title: string): Promise<{ id: string }> {
-  const res = await fetch(`${BASE}/bot`, {
+  const res = await fetch(`${BASE}/bots`, {
     method: "POST",
     headers: headers(),
     body: JSON.stringify({
       meeting_url: meetingUrl,
       bot_name: "CLARIX",
       recording_mode: "speaker_view",
-      transcription_options: { provider: "assembly_ai" },
-      automatic_leave: { silence_detection: { timeout: 300 } },
-      metadata: { title },
+      transcription_enabled: true,
+      transcription_config: { provider: "gladia" },
+      extra: { title },
     }),
   });
   const data = await res.json();
-  if (!res.ok) throw new Error(data.detail ?? data.message ?? "Recall bot create failed");
-  return { id: data.id };
+  if (!res.ok) throw new Error(data.message ?? "MeetingBaas bot create failed");
+  const botId = data.data?.bot_id;
+  if (!botId) throw new Error("No bot_id returned from MeetingBaas");
+  return { id: botId };
 }
 
 export async function getBot(botId: string): Promise<{ status_changes?: { code: string }[]; status?: { code: string } }> {
-  const res = await fetch(`${BASE}/bot/${botId}`, { headers: headers() });
-  if (!res.ok) throw new Error("Recall bot fetch failed");
-  return res.json();
+  const res = await fetch(`${BASE}/bots/${botId}`, { headers: headers() });
+  if (!res.ok) throw new Error("MeetingBaas bot fetch failed");
+  const data = await res.json();
+  const status = data.data?.status;
+  return {
+    status: {
+      code: status,
+    },
+  };
 }
 
 export async function leaveBot(botId: string): Promise<void> {
-  await fetch(`${BASE}/bot/${botId}/leave_call`, { method: "POST", headers: headers() }).catch(() => {});
+  await fetch(`${BASE}/bots/${botId}`, { method: "DELETE", headers: headers() }).catch(() => {});
 }
 
-interface RecallTranscriptEntry {
+interface BaasTranscriptSegment {
   speaker?: string;
-  words?: { text: string; start_timestamp?: number; end_timestamp?: number }[];
+  start?: number;
+  end?: number;
+  text?: string;
 }
 
-/** Pulls the Recall transcript, stores it on the meeting, and kicks off Claude processing. */
-export async function ingestBotTranscript(meetingId: string, botId: string): Promise<void> {
-  const res = await fetch(`${BASE}/bot/${botId}/transcript`, { headers: headers() });
-  if (!res.ok) return;
-  const entries = (await res.json()) as RecallTranscriptEntry[];
+interface BaasTranscriptResponse {
+  segments?: BaasTranscriptSegment[];
+}
 
-  const segments: TranscriptSegment[] = entries.map((e) => {
-    const words = e.words ?? [];
-    return {
-      speaker: e.speaker ?? "?",
-      text: words.map((w) => w.text).join(" "),
-      start: Math.round(words[0]?.start_timestamp ?? 0),
-      end: Math.round(words[words.length - 1]?.end_timestamp ?? 0),
-    };
-  });
+/** Pulls the MeetingBaas transcript, stores it on the meeting, and kicks off Claude processing. */
+export async function ingestBotTranscript(meetingId: string, botId: string): Promise<void> {
+  const res = await fetch(`${BASE}/bots/${botId}`, { headers: headers() });
+  if (!res.ok) return;
+  const botData = await res.json();
+  const transcriptUrl = botData.data?.transcription;
+  if (!transcriptUrl) return;
+
+  const transcriptRes = await fetch(transcriptUrl);
+  if (!transcriptRes.ok) return;
+  const transcriptData = (await transcriptRes.json()) as BaasTranscriptResponse;
+
+  const segments: TranscriptSegment[] = (transcriptData.segments ?? []).map((s) => ({
+    speaker: s.speaker ?? "?",
+    text: s.text ?? "",
+    start: Math.round(s.start ?? 0),
+    end: Math.round(s.end ?? 0),
+  }));
+
   const speakers = new Set(segments.map((s) => s.speaker));
   const rawTranscript = segments.map((s) => `Speaker ${s.speaker}: ${s.text}`).join("\n");
 
@@ -82,6 +104,7 @@ export async function ingestBotTranscript(meetingId: string, botId: string): Pro
       status: isClaudeConfigured() ? "PROCESSING" : "COMPLETE",
     },
   });
+
   if (isClaudeConfigured() && rawTranscript) {
     processMeeting(meetingId).catch(() => {});
   }

@@ -31,7 +31,7 @@ function extractMeetingUrl(...parts: (string | null | undefined)[]): string | nu
 
 async function run(req: Request) {
   if (!authorized(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  if (!isRecallConfigured()) return NextResponse.json({ error: "Meeting bot not configured (RECALL_API_KEY)" }, { status: 503 });
+  if (!isRecallConfigured()) return NextResponse.json({ error: "Meeting bot not configured (MEETING_BAAS_API_KEY)" }, { status: 503 });
 
   const now = new Date();
   const windowEnd = new Date(now.getTime() + 10 * 60 * 1000); // join meetings starting within 10 min

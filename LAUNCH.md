@@ -25,7 +25,7 @@ Status legend: ⬜ not done · ✅ done
 | `STRIPE_STARTER_PRICE_ID` / `STRIPE_PRO_PRICE_ID` / `STRIPE_ENTERPRISE_PRICE_ID` | billing | ⬜ See §2. |
 | `NEXT_PUBLIC_MAX_UPLOAD_MB` | uploads | Optional. Default `2048`. Lower it if your storage plan is small. |
 | `CRON_SECRET` | background jobs | ⬜ Random string (`openssl rand -hex 32`). Guards the digest cron — see §8. |
-| Integration keys (optional) | Slack/Notion/Linear/Google/CRM/Recall | ⬜ Only needed for the features you advertise. Each is dormant until its key is set. |
+| Integration keys (optional) | Slack/Notion/Linear/Google/CRM/MeetingBaas | ⬜ Only needed for the features you advertise. Each is dormant until its key is set. |
 
 ---
 
@@ -104,11 +104,11 @@ The digest email is live. To turn it on:
    ```
    Use Railway Cron, GitHub Actions, or cron-job.org. The endpoint returns `{ sent, skipped, evaluated }`.
 
-### Calendar auto-join (built ✅ — needs Recall + a scheduler)
+### Calendar auto-join (built ✅ — needs MeetingBaas + a scheduler)
 "Connect calendar → CLARIX auto-joins your meetings" — the highest-impact capture feature. The code,
 the `autoJoin` DB column (✅ applied), and the **Settings → Automation** toggle are all in place. To run it:
 1. ✅ DB column applied (`CalendarConnection.autoJoin`).
-2. ⬜ Set a **Recall.ai API key** (`RECALL_API_KEY`) — the bot that joins Zoom/Meet/Teams is a paid service.
+2. ⬜ Set a **MeetingBaas API key** (`MEETING_BAAS_API_KEY`) — the bot that joins Zoom/Meet/Teams.
 3. ⬜ Users connect a calendar and flip **Settings → Automation → Auto-join** on.
 4. ⬜ Point a scheduler at the endpoint every ~2–5 min:
    ```
