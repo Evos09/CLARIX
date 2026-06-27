@@ -399,10 +399,23 @@ export function GlobalChatClient({ usageThisMonth, usageLimit }: { usageThisMont
           </div>
           <div className="flex items-center gap-2">
             <button
-              onClick={() => setIsVoiceOpen(true)}
-              className="inline-flex items-center gap-1.5 rounded-md bg-teal px-3 py-1.5 text-xs font-semibold text-white hover:bg-teal/90 shadow-sm transition"
+              onClick={() => setIsVoiceOpen(!isVoiceOpen)}
+              className={cn(
+                "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-all duration-300",
+                isVoiceOpen
+                  ? "bg-rose-600 hover:bg-rose-700 ring-2 ring-rose-500/20"
+                  : "bg-teal hover:bg-teal/90"
+              )}
             >
-              <Mic className="size-3.5" /> Voice Mode (Active)
+              {isVoiceOpen ? (
+                <>
+                  <MicOff className="size-3.5 animate-pulse" /> Close Voice
+                </>
+              ) : (
+                <>
+                  <Mic className="size-3.5" /> Voice Mode (Active)
+                </>
+              )}
             </button>
             {messages.length > 0 && (
               <>
@@ -484,12 +497,12 @@ export function GlobalChatClient({ usageThisMonth, usageLimit }: { usageThisMont
           </div>
         </div>
       {isVoiceOpen && (
-        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#0B0B14]/95 text-white p-6 backdrop-blur-xl">
+        <aside className="w-80 shrink-0 border-l border-border bg-[#0B0B14] text-white flex flex-col items-center justify-between p-6 relative transition-all duration-300 shadow-2xl z-20">
           <style>{`
             @keyframes orb-pulse {
-              0% { transform: scale(1); box-shadow: 0 0 40px rgba(109,40,217,0.4), inset 0 0 20px rgba(109,40,217,0.2); }
-              50% { transform: scale(1.08); box-shadow: 0 0 70px rgba(109,40,217,0.8), inset 0 0 30px rgba(109,40,217,0.5); }
-              100% { transform: scale(1); box-shadow: 0 0 40px rgba(109,40,217,0.4), inset 0 0 20px rgba(109,40,217,0.2); }
+              0% { transform: scale(1); box-shadow: 0 0 30px rgba(109,40,217,0.3), inset 0 0 15px rgba(109,40,217,0.15); }
+              50% { transform: scale(1.06); box-shadow: 0 0 50px rgba(109,40,217,0.7), inset 0 0 25px rgba(109,40,217,0.4); }
+              100% { transform: scale(1); box-shadow: 0 0 30px rgba(109,40,217,0.3), inset 0 0 15px rgba(109,40,217,0.15); }
             }
             @keyframes ring-spin {
               0% { transform: rotate(0deg); }
@@ -508,37 +521,40 @@ export function GlobalChatClient({ usageThisMonth, usageLimit }: { usageThisMont
               animation: bar-rise 1.2s infinite ease-in-out alternate;
             }
             @keyframes bar-rise {
-              0% { height: 12px; }
-              100% { height: 56px; }
+              0% { height: 8px; }
+              100% { height: 36px; }
             }
           `}</style>
 
           {/* Close button top right */}
           <button
             onClick={() => setIsVoiceOpen(false)}
-            className="absolute top-6 right-6 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
-            title="Exit Voice Mode"
+            className="absolute top-4 right-4 p-1.5 rounded-full bg-white/5 hover:bg-white/15 text-white/70 hover:text-white transition-colors"
+            title="Close Voice Mode"
           >
-            <X className="size-6" />
+            <X className="size-4" />
           </button>
 
           {/* Top Status */}
-          <div className="absolute top-8 flex items-center gap-2">
-            <span className={cn(
-              "size-2.5 rounded-full",
-              voiceState === "listening" ? "bg-teal animate-pulse" :
-              voiceState === "thinking" ? "bg-amber-500 animate-spin" :
-              voiceState === "speaking" ? "bg-emerald-500 animate-pulse" : "bg-neutral-500"
-            )} />
-            <span className="text-sm font-semibold tracking-wide uppercase text-white/70">
-              {voiceState === "listening" ? "Listening · Just Talk" :
-               voiceState === "thinking" ? "CLARIX is thinking..." :
-               voiceState === "speaking" ? "CLARIX is speaking..." : "Voice Mode Connected"}
-            </span>
+          <div className="flex flex-col items-center gap-2 mt-2">
+            <div className="flex items-center gap-2">
+              <span className={cn(
+                "size-2 rounded-full",
+                voiceState === "listening" ? "bg-teal animate-pulse" :
+                voiceState === "thinking" ? "bg-amber-500 animate-spin" :
+                voiceState === "speaking" ? "bg-emerald-500 animate-pulse" : "bg-neutral-500"
+              )} />
+              <span className="text-xs font-semibold tracking-wider uppercase text-white/60">
+                {voiceState === "listening" ? "Listening" :
+                 voiceState === "thinking" ? "CLARIX is thinking" :
+                 voiceState === "speaking" ? "CLARIX is speaking" : "Voice Connected"}
+              </span>
+            </div>
+            <p className="text-[10px] text-white/40">Speak naturally at any time</p>
           </div>
 
-          {/* Center Orb & Rings */}
-          <div className="relative flex items-center justify-center my-12 size-80">
+          {/* Center Orb & Rings (scaled down for sidebar) */}
+          <div className="relative flex items-center justify-center my-6 size-48">
             {/* Outermost ring */}
             <div className={cn(
               "absolute inset-0 rounded-full border border-dashed border-teal/20 transition-all duration-1000",
@@ -547,74 +563,79 @@ export function GlobalChatClient({ usageThisMonth, usageLimit }: { usageThisMont
 
             {/* Inner ring */}
             <div className={cn(
-              "absolute inset-8 rounded-full border border-double border-teal/40 transition-all duration-700",
+              "absolute inset-4 rounded-full border border-double border-teal/40 transition-all duration-700",
               voiceState === "speaking" ? "animate-ring-spin-fast" : "animate-ring-spin-slow"
             )} />
 
             {/* Glowing Orb */}
             <div className={cn(
-              "absolute inset-16 rounded-full bg-gradient-to-tr from-violet-600 via-indigo-500 to-teal-500 flex items-center justify-center transition-all duration-500",
+              "absolute inset-8 rounded-full bg-gradient-to-tr from-violet-600 via-indigo-500 to-teal-500 flex items-center justify-center transition-all duration-500",
               voiceState !== "idle" && "animate-orb-pulse"
             )}>
               {/* Speaking Waveforms */}
               {voiceState === "speaking" && (
-                <div className="flex items-center gap-1.5 h-16">
-                  <div className="w-1.5 bg-white rounded-full animate-bar" style={{ animationDelay: "0.1s" }} />
-                  <div className="w-1.5 bg-white rounded-full animate-bar" style={{ animationDelay: "0.3s" }} />
-                  <div className="w-1.5 bg-white rounded-full animate-bar" style={{ animationDelay: "0.5s" }} />
-                  <div className="w-1.5 bg-white rounded-full animate-bar" style={{ animationDelay: "0.2s" }} />
-                  <div className="w-1.5 bg-white rounded-full animate-bar" style={{ animationDelay: "0.4s" }} />
+                <div className="flex items-center gap-1 h-10">
+                  <div className="w-1 bg-white rounded-full animate-bar" style={{ animationDelay: "0.1s" }} />
+                  <div className="w-1 bg-white rounded-full animate-bar" style={{ animationDelay: "0.3s" }} />
+                  <div className="w-1 bg-white rounded-full animate-bar" style={{ animationDelay: "0.5s" }} />
+                  <div className="w-1 bg-white rounded-full animate-bar" style={{ animationDelay: "0.2s" }} />
+                  <div className="w-1 bg-white rounded-full animate-bar" style={{ animationDelay: "0.4s" }} />
                 </div>
               )}
 
               {/* Thinking Loader */}
               {voiceState === "thinking" && (
-                <Loader2 className="size-12 animate-spin text-white" />
+                <Loader2 className="size-8 animate-spin text-white" />
               )}
 
               {/* Listening Icon */}
               {voiceState === "listening" && (
-                <Mic className="size-12 text-white animate-pulse" />
+                <Mic className="size-8 text-white animate-pulse" />
               )}
             </div>
           </div>
 
-          {/* Real-time Subtitles/Captions */}
-          <div className="max-w-2xl text-center space-y-4 px-4 h-24 overflow-y-auto mb-10">
+          {/* Real-time Subtitles/Captions (designed for sidebar) */}
+          <div className="w-full flex-1 flex flex-col justify-center max-h-36 text-center space-y-3 px-2 overflow-y-auto my-4 bg-white/5 rounded-lg p-3 border border-white/10">
             {voiceInput && (
-              <p className="text-white/60 text-sm italic">
+              <p className="text-white/60 text-xs italic break-words">
                 &ldquo;{voiceInput}&rdquo;
               </p>
             )}
             {voiceState === "speaking" && voiceOutput && (
-              <p className="text-white text-lg font-medium leading-relaxed">
+              <p className="text-white text-sm font-medium leading-relaxed break-words">
                 {voiceOutput}
+              </p>
+            )}
+            {!voiceInput && !(voiceState === "speaking" && voiceOutput) && (
+              <p className="text-white/30 text-xs italic">
+                Try asking: "What did we decide in yesterday's meeting?"
               </p>
             )}
           </div>
 
           {/* Controls Footer */}
-          <div className="absolute bottom-10 flex items-center gap-6">
+          <div className="w-full flex items-center justify-center gap-4 mt-auto pb-2">
             <button
               onClick={() => setIsMuted(!isMuted)}
               className={cn(
-                "p-4 rounded-full transition shadow-lg",
+                "p-3 rounded-full transition shadow-md",
                 isMuted ? "bg-red-500 hover:bg-red-600 text-white" : "bg-white/10 hover:bg-white/20 text-white"
               )}
               title={isMuted ? "Unmute Mic" : "Mute Mic"}
             >
-              {isMuted ? <MicOff className="size-6" /> : <Mic className="size-6" />}
+              {isMuted ? <MicOff className="size-5" /> : <Mic className="size-5" />}
             </button>
 
             <button
               onClick={() => setIsVoiceOpen(false)}
-              className="px-6 py-3 rounded-full bg-red-600 hover:bg-red-700 text-white font-semibold flex items-center gap-2 shadow-lg transition"
+              className="px-4 py-2.5 rounded-full bg-red-600 hover:bg-red-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-md transition"
               title="Hang Up"
             >
-              <PhoneOff className="size-5" /> Hang Up
+              <PhoneOff className="size-4" /> End Voice
             </button>
           </div>
-        </div>
+        </aside>
       )}
       </div>
     </div>
