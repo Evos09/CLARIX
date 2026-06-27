@@ -34,8 +34,6 @@ const NAV: NavItem[] = [
 
 const FOOTER_NAV: NavItem[] = [
   { href: "/settings", label: "Settings", icon: Settings },
-  { href: "/settings/billing", label: "Billing", icon: CreditCard },
-  { href: "/team", label: "Team", icon: Users },
 ];
 
 export function Sidebar({

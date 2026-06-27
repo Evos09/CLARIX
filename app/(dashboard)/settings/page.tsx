@@ -1,4 +1,3 @@
-import { TopNav } from "@/components/layout/TopNav";
 import { SettingsClient } from "@/components/settings/SettingsClient";
 import { IntegrationsClient } from "@/components/settings/IntegrationsClient";
 import { IntegrationsHub } from "@/components/settings/IntegrationsHub";
@@ -9,7 +8,7 @@ import { AutoJoinCard } from "@/components/settings/AutoJoinCard";
 import { prisma } from "@/lib/prisma";
 import { getOrCreateContext, hasDb } from "@/lib/auth";
 
-export const metadata = { title: "Settings" };
+export const metadata = { title: "Workspace Settings" };
 export const dynamic = "force-dynamic";
 
 export default async function SettingsPage() {
@@ -22,22 +21,19 @@ export default async function SettingsPage() {
     }
   }
   return (
-    <>
-      <TopNav title="Settings" />
-      <main className="flex-1 p-4 md:p-6">
-        <SettingsClient initialName={name} />
-        <h2 className="mb-3 mt-8 text-lg font-semibold">Integrations</h2>
-        <IntegrationsClient />
-        <h2 className="mb-3 mt-8 text-lg font-semibold">Push integrations</h2>
-        <IntegrationsHub />
-        <div className="mt-4"><CRMConnectionCard /></div>
-        <h2 className="mb-3 mt-8 text-lg font-semibold">Automation</h2>
-        <div className="space-y-4">
-          <AutoJoinCard />
-          <DigestCard />
-        </div>
-        <div className="mt-4"><DesktopAppCard /></div>
-      </main>
-    </>
+    <main className="flex-1 p-4 md:p-6">
+      <SettingsClient initialName={name} />
+      <h2 className="mb-3 mt-8 text-lg font-semibold">Integrations</h2>
+      <IntegrationsClient />
+      <h2 className="mb-3 mt-8 text-lg font-semibold">Push integrations</h2>
+      <IntegrationsHub />
+      <div className="mt-4"><CRMConnectionCard /></div>
+      <h2 className="mb-3 mt-8 text-lg font-semibold">Automation</h2>
+      <div className="space-y-4">
+        <AutoJoinCard />
+        <DigestCard />
+      </div>
+      <div className="mt-4"><DesktopAppCard /></div>
+    </main>
   );
 }
