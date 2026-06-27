@@ -20,7 +20,19 @@ export default function SignUpPage() {
             </div>
           </ClerkLoading>
           <ClerkLoaded>
-            <SignUp appearance={clerkAppearance} forceRedirectUrl="/dashboard" signInUrl="/sign-in" />
+            <div className="flex flex-col items-center gap-4 w-full">
+              <SignUp appearance={clerkAppearance} forceRedirectUrl="/dashboard" signInUrl="/sign-in" />
+              <p className="text-[11px] text-center text-muted-foreground max-w-[340px] leading-normal px-2">
+                By signing up, you agree to our{" "}
+                <Link href="/terms" className="underline hover:text-foreground">
+                  Terms of Service
+                </Link>{" "}
+                and acknowledge our{" "}
+                <Link href="/privacy" className="underline hover:text-foreground">
+                  Privacy Policy
+                </Link> (including binding arbitration and class action waiver).
+              </p>
+            </div>
           </ClerkLoaded>
         </>
       ) : (
