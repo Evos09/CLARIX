@@ -71,6 +71,9 @@ interface BaasTranscriptSegment {
 
 interface BaasTranscriptResponse {
   segments?: BaasTranscriptSegment[];
+  result?: {
+    utterances?: BaasTranscriptSegment[];
+  };
 }
 
 /** Pulls the MeetingBaas transcript, stores it on the meeting, and kicks off Claude processing. */
@@ -85,7 +88,8 @@ export async function ingestBotTranscript(meetingId: string, botId: string): Pro
   if (!transcriptRes.ok) return;
   const transcriptData = (await transcriptRes.json()) as BaasTranscriptResponse;
 
-  const segments: TranscriptSegment[] = (transcriptData.segments ?? []).map((s) => ({
+  const utterances = transcriptData.result?.utterances ?? transcriptData.segments ?? [];
+  const segments: TranscriptSegment[] = utterances.map((s) => ({
     speaker: s.speaker ?? "?",
     text: s.text ?? "",
     start: Math.round(s.start ?? 0),
