@@ -1,7 +1,9 @@
 import Anthropic from "@anthropic-ai/sdk";
 
-/** Model used across CLARIX for analysis, auto-detect, and Ask CLARIX. */
-export const CLAUDE_MODEL = "claude-sonnet-4-6";
+/** Models used across CLARIX for analysis, auto-detect, and Ask CLARIX. */
+export const CLAUDE_SONNET = "claude-3-5-sonnet-latest";
+export const CLAUDE_HAIKU = "claude-3-5-haiku-latest";
+export const CLAUDE_MODEL = CLAUDE_SONNET;
 
 let client: Anthropic | null = null;
 
@@ -28,9 +30,11 @@ export async function claudeText(opts: {
   prompt: string;
   maxTokens?: number;
   temperature?: number;
+  model?: string;
 }): Promise<string> {
+  const model = opts.model ?? CLAUDE_MODEL;
   const res = await getClaude().messages.create({
-    model: CLAUDE_MODEL,
+    model,
     max_tokens: opts.maxTokens ?? 4096,
     temperature: opts.temperature ?? 0.2,
     system: opts.system,
@@ -61,9 +65,11 @@ export async function claudeChat(opts: {
   system: string;
   messages: { role: "user" | "assistant"; content: string }[];
   maxTokens?: number;
+  model?: string;
 }): Promise<string> {
+  const model = opts.model ?? CLAUDE_MODEL;
   const res = await getClaude().messages.create({
-    model: CLAUDE_MODEL,
+    model,
     max_tokens: opts.maxTokens ?? 1024,
     system: opts.system,
     messages: opts.messages,

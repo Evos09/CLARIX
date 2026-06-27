@@ -84,7 +84,9 @@ ${meeting.rawTranscript}
 
   let reply: string;
   try {
-    reply = await claudeChat({ system, messages, maxTokens: 1024 });
+    const { CLAUDE_SONNET, CLAUDE_HAIKU } = await import("@/lib/claude");
+    const model = plan.id === "FREE" ? CLAUDE_HAIKU : CLAUDE_SONNET;
+    reply = await claudeChat({ system, messages, maxTokens: 1024, model });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Chat failed";
     return NextResponse.json({ error: message }, { status: 500 });

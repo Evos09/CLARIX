@@ -1,6 +1,6 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import { claudeText, parseJson, isClaudeConfigured } from "@/lib/claude";
+import { claudeText, parseJson, isClaudeConfigured, CLAUDE_SONNET, CLAUDE_HAIKU } from "@/lib/claude";
 import { getMeetingType } from "@/lib/meetingTypes";
 import { getPromptSpec } from "@/lib/prompts";
 import { buildProcessingPrompt, BASE_SYSTEM } from "@/lib/prompts/base";
@@ -14,7 +14,10 @@ import { extractKeyPoints } from "@/lib/keyPoints";
  */
 export async function processMeeting(meetingId: string, instruction?: string): Promise<BaseOutput> {
   if (!isClaudeConfigured()) throw new Error("ANTHROPIC_API_KEY is not set");
-  const meeting = await prisma.meeting.findUnique({ where: { id: meetingId } });
+  const meeting = await prisma.meeting.findUnique({ 
+    where: { id: meetingId },
+    include: { org: { select: { plan: true } } }
+  });
   if (!meeting) throw new Error("Meeting not found");
   if (!meeting.rawTranscript) throw new Error("No transcript to process");
 
@@ -36,7 +39,10 @@ export async function processMeeting(meetingId: string, instruction?: string): P
   });
 
   try {
-    const raw = await claudeText({ system: BASE_SYSTEM, prompt, maxTokens: 4096, temperature: 0.2 });
+    const plan = meeting.org?.plan ?? "FREE";
+    const model = plan === "FREE" ? CLAUDE_HAIKU : CLAUDE_SONNET;
+
+    const raw = await claudeText({ system: BASE_SYSTEM, prompt, maxTokens: 4096, temperature: 0.2, model });
     const output = parseJson<BaseOutput>(raw);
     await prisma.meeting.update({
       where: { id: meetingId },
