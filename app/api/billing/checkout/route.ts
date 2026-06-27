@@ -3,7 +3,10 @@ import { z } from "zod";
 import { getOrCreateContext } from "@/lib/auth";
 import { getStripe, isStripeConfigured, PLANS, type PlanId } from "@/lib/stripe";
 
-const Body = z.object({ plan: z.enum(["STARTER", "PRO", "ENTERPRISE"]) });
+const Body = z.object({
+  plan: z.enum(["STARTER", "PRO", "ENTERPRISE"]),
+  billingPeriod: z.enum(["monthly", "yearly"]).optional().default("monthly"),
+});
 
 export async function POST(req: Request) {
   if (!isStripeConfigured()) return NextResponse.json({ error: "Billing not configured" }, { status: 503 });
@@ -14,7 +17,9 @@ export async function POST(req: Request) {
   if (!parsed.success) return NextResponse.json({ error: "Invalid input" }, { status: 400 });
 
   const planId = parsed.data.plan as PlanId;
-  const priceEnv = PLANS[planId].priceEnv;
+  const billingPeriod = parsed.data.billingPeriod;
+  const planCfg = PLANS[planId];
+  const priceEnv = billingPeriod === "yearly" ? planCfg.annualPriceEnv : planCfg.priceEnv;
   const price = priceEnv ? process.env[priceEnv] : undefined;
   if (!price) return NextResponse.json({ error: `Missing price id (${priceEnv})` }, { status: 503 });
 

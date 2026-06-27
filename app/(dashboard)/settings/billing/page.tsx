@@ -1,5 +1,4 @@
 import { PricingTable } from "@/components/marketing/PricingTable";
-import { BillingActions } from "@/components/marketing/BillingActions";
 import { PlanBadge } from "@/components/layout/PlanBadge";
 import { getOrCreateContext, hasDb } from "@/lib/auth";
 import { getOrgPlan } from "@/lib/plan";
@@ -26,8 +25,7 @@ export default async function BillingPage() {
           Add Stripe keys + price IDs to <code className="font-mono">.env.local</code> to enable checkout.
         </p>
       )}
-      <BillingActions />
-      <PricingTable highlight="PRO" />
+      <PricingTable highlight="PRO" currentPlan={planId} />
     </main>
   );
 }

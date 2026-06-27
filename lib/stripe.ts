@@ -21,7 +21,8 @@ export type PlanId = "FREE" | "STARTER" | "PRO" | "ENTERPRISE";
 export interface PlanConfig {
   id: PlanId;
   name: string;
-  price: number; // USD per user / month
+  price: number; // USD per user / month (monthly billing)
+  annualPrice?: number; // USD per user / month (annual billing)
   meetingsPerMonth: number | null; // null = unlimited
   exports: ("PDF" | "DOCX" | "CSV" | "JSON" | "EHR_HL7")[];
   allMeetingTypes: boolean; // false = General only
@@ -32,6 +33,7 @@ export interface PlanConfig {
   autoJoinBot: boolean; // calendar auto-join notetaker (Zoom/Meet/Teams)
   foreverRetention: boolean; // audio library kept forever (vs best-effort on Free)
   priceEnv?: string; // env var holding the Stripe price id
+  annualPriceEnv?: string; // env var holding the Stripe annual price id
   blurb: string;
 }
 
@@ -55,6 +57,7 @@ export const PLANS: Record<PlanId, PlanConfig> = {
     id: "STARTER",
     name: "Starter",
     price: 19,
+    annualPrice: 15,
     meetingsPerMonth: 20,
     exports: ["PDF"],
     allMeetingTypes: true,
@@ -65,12 +68,14 @@ export const PLANS: Record<PlanId, PlanConfig> = {
     autoJoinBot: true,
     foreverRetention: true,
     priceEnv: "STRIPE_STARTER_PRICE_ID",
+    annualPriceEnv: "STRIPE_STARTER_ANNUAL_PRICE_ID",
     blurb: "20 meetings/month, all General types, PDF export, auto-join bot, forever library.",
   },
   PRO: {
     id: "PRO",
     name: "Pro",
     price: 49,
+    annualPrice: 39,
     meetingsPerMonth: null,
     exports: ["PDF", "DOCX", "CSV", "JSON"],
     allMeetingTypes: true,
@@ -81,12 +86,14 @@ export const PLANS: Record<PlanId, PlanConfig> = {
     autoJoinBot: true,
     foreverRetention: true,
     priceEnv: "STRIPE_PRO_PRICE_ID",
+    annualPriceEnv: "STRIPE_PRO_ANNUAL_PRICE_ID",
     blurb: "Unlimited meetings, all types, all exports, Ask CLARIX, auto-join bot.",
   },
   ENTERPRISE: {
     id: "ENTERPRISE",
     name: "Enterprise",
     price: 89,
+    annualPrice: 69,
     meetingsPerMonth: null,
     exports: ["PDF", "DOCX", "CSV", "JSON", "EHR_HL7"],
     allMeetingTypes: true,
@@ -97,6 +104,7 @@ export const PLANS: Record<PlanId, PlanConfig> = {
     autoJoinBot: true,
     foreverRetention: true,
     priceEnv: "STRIPE_ENTERPRISE_PRICE_ID",
+    annualPriceEnv: "STRIPE_ENTERPRISE_ANNUAL_PRICE_ID",
     blurb: "Everything + Pro Verticals, SSO, custom templates, API, EHR/FHIR export.",
   },
 };
