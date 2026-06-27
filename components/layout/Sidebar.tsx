@@ -32,9 +32,6 @@ const NAV: NavItem[] = [
   { href: "/action-items", label: "Action Items", icon: ListTodo, badgeKey: "openActions" },
 ];
 
-const FOOTER_NAV: NavItem[] = [
-  { href: "/settings", label: "Settings", icon: Settings },
-];
 
 export function Sidebar({
   plan = "FREE",
@@ -150,30 +147,28 @@ export function Sidebar({
             )}
           </Link>
         ))}
-        
-        <div className="my-3 border-t border-white/10 shrink-0" />
-        
-        {FOOTER_NAV.map(({ href, label, icon: Icon }) => (
-          <Link
-            key={href}
-            href={href}
-            className={linkClass(href)}
-            title={isCollapsed ? label : undefined}
-          >
-            <span className={cn("flex items-center w-full", isCollapsed ? "relative justify-center" : "")}>
-              <Icon className="size-4 shrink-0" />
-              <span
-                className={cn(
-                  "transition-all duration-300 whitespace-nowrap overflow-hidden text-left",
-                  isCollapsed ? "max-w-0 opacity-0 ml-0" : "max-w-[150px] opacity-100 ml-3"
-                )}
-              >
-                {label}
-              </span>
-            </span>
-          </Link>
-        ))}
       </nav>
+
+      {/* Settings pinned to bottom above usage meter */}
+      <div className="mt-auto pt-2 shrink-0">
+        <Link
+          href="/settings"
+          className={linkClass("/settings")}
+          title={isCollapsed ? "Settings" : undefined}
+        >
+          <span className={cn("flex items-center w-full", isCollapsed ? "relative justify-center" : "gap-3")}>
+            <Settings className="size-4 shrink-0" />
+            <span
+              className={cn(
+                "transition-all duration-300 whitespace-nowrap overflow-hidden text-left",
+                isCollapsed ? "max-w-0 opacity-0 ml-0" : "max-w-[150px] opacity-100 ml-3"
+              )}
+            >
+              Settings
+            </span>
+          </span>
+        </Link>
+      </div>
 
       {/* usage meter / plan card */}
       <div
