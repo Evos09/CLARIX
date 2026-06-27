@@ -16,6 +16,10 @@ const hasClerk = Boolean(process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY);
 
 export default hasClerk
   ? clerkMiddleware(async (auth, req) => {
+      const { userId } = await auth();
+      if (userId && req.nextUrl.pathname === "/") {
+        return NextResponse.redirect(new URL("/dashboard", req.url));
+      }
       if (isProtectedRoute(req)) await auth.protect();
     })
   : function middleware() {

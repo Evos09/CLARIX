@@ -398,6 +398,7 @@ export function GlobalChatClient({ usageThisMonth, usageLimit }: { usageThisMont
             <span className="text-sm font-semibold">CLARIX Chat</span>
           </div>
           <div className="flex items-center gap-2">
+            {/* Voice Mode button commented out as it is framed as Coming Soon / Private Beta
             <button
               onClick={() => setIsVoiceOpen(!isVoiceOpen)}
               className={cn(
@@ -417,6 +418,7 @@ export function GlobalChatClient({ usageThisMonth, usageLimit }: { usageThisMont
                 </>
               )}
             </button>
+            */}
             {messages.length > 0 && (
               <>
                 <button onClick={() => navigator.clipboard.writeText(asText())} className="inline-flex items-center gap-1 rounded border border-border px-2 py-1.5 text-xs hover:bg-muted">
