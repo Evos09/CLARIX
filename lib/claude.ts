@@ -1,8 +1,8 @@
 import Anthropic from "@anthropic-ai/sdk";
 
 /** Models used across CLARIX for analysis, auto-detect, and Ask CLARIX. */
-export const CLAUDE_SONNET = "claude-3-5-sonnet-latest";
-export const CLAUDE_HAIKU = "claude-3-5-haiku-latest";
+export const CLAUDE_SONNET = "claude-sonnet-4-6";
+export const CLAUDE_HAIKU = "claude-haiku-4-5";
 export const CLAUDE_MODEL = CLAUDE_SONNET;
 
 let client: Anthropic | null = null;
