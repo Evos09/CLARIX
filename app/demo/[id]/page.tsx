@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { format } from "date-fns";
 import { Clock, Users, Globe, ArrowLeft } from "lucide-react";
 import Link from "next/link";
@@ -30,7 +30,19 @@ export default async function DemoDetailPage({ params }: Params) {
     where: { id },
   });
 
-  if (!meeting || meeting.orgId !== anonCtx.orgId) {
+  if (!meeting) {
+    notFound();
+  }
+
+  if (meeting.orgId !== anonCtx.orgId) {
+    if (authCtx) {
+      const dbUser = await prisma.user.findUnique({
+        where: { clerkId: authCtx.clerkUserId },
+      });
+      if (dbUser && meeting.userId === dbUser.id) {
+        redirect(`/meetings/${id}`);
+      }
+    }
     notFound();
   }
 
