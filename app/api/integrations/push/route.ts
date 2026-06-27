@@ -10,17 +10,49 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   const ctx = await getOrCreateContext();
   if (!ctx) return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+  
   const [slack, notion, linear] = await Promise.all([
-    prisma.slackConnection.findUnique({ where: { userId: ctx.userId }, select: { teamName: true, connected: true } }),
-    prisma.notionConnection.findUnique({ where: { userId: ctx.userId }, select: { workspaceName: true, connected: true } }),
-    prisma.linearConnection.findUnique({ where: { userId: ctx.userId }, select: { organizationName: true, connected: true } }),
+    prisma.slackConnection.findUnique({ 
+      where: { userId: ctx.userId }, 
+      select: { teamName: true, connected: true, autoPostEnabled: true, autoPostChannelId: true } 
+    }),
+    prisma.notionConnection.findUnique({ 
+      where: { userId: ctx.userId }, 
+      select: { workspaceName: true, connected: true } 
+    }),
+    prisma.linearConnection.findUnique({ 
+      where: { userId: ctx.userId }, 
+      select: { organizationName: true, connected: true } 
+    }),
   ]);
+  
   return NextResponse.json({
     configured: { slack: isSlackConfigured(), notion: isNotionConfigured(), linear: isLinearConfigured() },
     slack,
     notion,
     linear,
   });
+}
+
+export async function POST(req: Request) {
+  const ctx = await getOrCreateContext();
+  if (!ctx) return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+
+  const body = await req.json().catch(() => null);
+  const { platform, autoPostEnabled, autoPostChannelId } = body || {};
+
+  if (platform === "slack") {
+    const updated = await prisma.slackConnection.update({
+      where: { userId: ctx.userId },
+      data: {
+        autoPostEnabled: Boolean(autoPostEnabled),
+        autoPostChannelId: autoPostChannelId ? String(autoPostChannelId).trim() : null,
+      },
+    });
+    return NextResponse.json({ success: true, slack: updated });
+  }
+
+  return NextResponse.json({ error: "Unknown platform" }, { status: 400 });
 }
 
 export async function DELETE(req: Request) {

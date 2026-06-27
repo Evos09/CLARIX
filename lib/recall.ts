@@ -26,7 +26,16 @@ export function detectPlatform(url: string): string {
   return "UNKNOWN";
 }
 
-export async function createBot(meetingUrl: string, title: string): Promise<{ id: string }> {
+export async function createBot(meetingUrl: string, title: string, orgId?: string): Promise<{ id: string }> {
+  let vocabulary: string[] = [];
+  if (orgId) {
+    const org = await prisma.organization.findUnique({
+      where: { id: orgId },
+      select: { customVocabulary: true },
+    });
+    vocabulary = org?.customVocabulary ?? [];
+  }
+
   const res = await fetch(`${BASE}/bots`, {
     method: "POST",
     headers: headers(),
@@ -35,7 +44,13 @@ export async function createBot(meetingUrl: string, title: string): Promise<{ id
       bot_name: "CLARIX",
       recording_mode: "speaker_view",
       transcription_enabled: true,
-      transcription_config: { provider: "gladia" },
+      transcription_config: { 
+        provider: "gladia",
+        ...(vocabulary.length > 0 ? {
+          custom_vocabulary: true,
+          custom_vocabulary_config: { vocabulary }
+        } : {})
+      },
       extra: { title },
     }),
   });

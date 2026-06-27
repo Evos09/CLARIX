@@ -29,7 +29,7 @@ export async function POST(req: Request) {
   });
 
   try {
-    const bot = await createBot(parsed.data.meetingUrl, parsed.data.title);
+    const bot = await createBot(parsed.data.meetingUrl, parsed.data.title, ctx.orgId);
     await prisma.meetingBot.create({
       data: { recallBotId: bot.id, meetingId: meeting.id, platform, meetingUrl: parsed.data.meetingUrl, status: "JOINING" },
     });

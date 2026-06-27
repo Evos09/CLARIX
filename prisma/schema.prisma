@@ -17,6 +17,7 @@ model Organization {
   useCase    String? // primary use case picked at onboarding
   stripeId   String?
   createdAt  DateTime @default(now())
+  customVocabulary String[] @default([])
 
   users              User[]
   meetings           Meeting[]
@@ -398,6 +399,8 @@ model SlackConnection {
   teamName    String
   botUserId   String
   connected   Boolean  @default(true)
+  autoPostChannelId String?
+  autoPostEnabled   Boolean  @default(false)
   createdAt   DateTime @default(now())
 }
 

@@ -79,7 +79,7 @@ async function run(req: Request) {
           },
           select: { id: true },
         });
-        const bot = await createBot(url, ev.title || "Meeting");
+        const bot = await createBot(url, ev.title || "Meeting", conn.user.orgId);
         await prisma.meetingBot.create({
           data: { recallBotId: bot.id, meetingId: meeting.id, platform: detectPlatform(url), meetingUrl: url, status: "JOINING" },
         });

@@ -64,6 +64,28 @@ export async function processMeeting(meetingId: string, instruction?: string): P
     const owner = await prisma.user.findUnique({ where: { id: meeting.userId } });
     if (owner?.email) await sendMeetingComplete({ to: owner.email, title: meeting.title, meetingId });
 
+    // Auto-post to Slack if configured
+    try {
+      const slackConn = await prisma.slackConnection.findUnique({
+        where: { userId: meeting.userId },
+      });
+      if (slackConn && slackConn.connected && slackConn.autoPostEnabled && slackConn.autoPostChannelId) {
+        const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+        const meetingUrl = `${appUrl}/meetings/${meetingId}`;
+        const { pushToSlack } = await import("@/lib/push/slack");
+        const { decryptToken } = await import("@/lib/crypto");
+        await pushToSlack(
+          decryptToken(slackConn.accessToken),
+          slackConn.autoPostChannelId,
+          meeting.title,
+          meetingUrl,
+          output
+        );
+      }
+    } catch (slackErr) {
+      console.error("Failed to auto-post to Slack:", slackErr);
+    }
+
     return output;
   } catch (err) {
     // Transcript remains available; leave the meeting COMPLETE so it isn't stuck.

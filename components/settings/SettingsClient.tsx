@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Trash2, Plus, Loader2, Check } from "lucide-react";
+import { Trash2, Plus, Loader2, Check, X } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import { GENERAL_TYPES, PRO_TYPES } from "@/lib/meetingTypes";
 
 interface Template {
@@ -26,8 +27,15 @@ export function SettingsClient({ initialName }: { initialName: string }) {
   const [tPrompt, setTPrompt] = useState("");
   const [adding, setAdding] = useState(false);
 
+  const [vocabulary, setVocabulary] = useState<string[]>([]);
+  const [newWord, setNewWord] = useState("");
+
   useEffect(() => {
     fetch("/api/templates").then((r) => (r.ok ? r.json() : [])).then(setTemplates).catch(() => {});
+    fetch("/api/settings/vocabulary")
+      .then((r) => (r.ok ? r.json() : { customVocabulary: [] }))
+      .then((d) => setVocabulary(d.customVocabulary ?? []))
+      .catch(() => {});
   }, []);
 
   async function saveName() {
@@ -65,6 +73,29 @@ export function SettingsClient({ initialName }: { initialName: string }) {
   async function remove(id: string) {
     setTemplates((t) => t.filter((x) => x.id !== id));
     await fetch(`/api/templates?id=${id}`, { method: "DELETE" }).catch(() => {});
+  }
+
+  async function addWord() {
+    const word = newWord.trim();
+    if (!word || vocabulary.includes(word)) return;
+    const next = [...vocabulary, word];
+    setVocabulary(next);
+    setNewWord("");
+    await fetch("/api/settings/vocabulary", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ customVocabulary: next }),
+    }).catch(() => {});
+  }
+
+  async function removeWord(word: string) {
+    const next = vocabulary.filter((w) => w !== word);
+    setVocabulary(next);
+    await fetch("/api/settings/vocabulary", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ customVocabulary: next }),
+    }).catch(() => {});
   }
 
   return (
@@ -117,6 +148,38 @@ export function SettingsClient({ initialName }: { initialName: string }) {
             />
             <Button variant="outline" size="sm" onClick={addTemplate} disabled={adding}>
               {adding ? <Loader2 className="size-4 animate-spin" /> : <Plus className="size-4" />} Add instruction
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader><CardTitle>Workspace Dictionary (Custom Jargon Boost)</CardTitle></CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-sm text-muted-foreground">
+            Add custom brand names, product acronyms, or teammate names. CLARIX will boost spelling accuracy for these terms in meeting recordings.
+          </p>
+          <div className="flex flex-wrap gap-2 min-h-8">
+            {vocabulary.map((word) => (
+              <Badge key={word} className="flex items-center gap-1 bg-muted text-muted-foreground ring-border">
+                {word}
+                <button onClick={() => removeWord(word)} className="text-muted-foreground hover:text-destructive">
+                  <X className="size-3" />
+                </button>
+              </Badge>
+            ))}
+            {vocabulary.length === 0 && <span className="text-xs text-muted-foreground text-slate-400">No vocabulary words added yet.</span>}
+          </div>
+          <div className="flex gap-2">
+            <Input
+              placeholder="e.g. Clarix, HubSpot, Svelte"
+              value={newWord}
+              onChange={(e) => setNewWord(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && addWord()}
+              className="max-w-xs"
+            />
+            <Button variant="outline" size="sm" onClick={addWord}>
+              Add Word
             </Button>
           </div>
         </CardContent>
