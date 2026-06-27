@@ -20,6 +20,8 @@ import { Logo } from "@/components/layout/Logo";
 
 type Params = { params: Promise<{ id: string }> };
 
+export const dynamic = "force-dynamic";
+
 export default async function DemoDetailPage({ params }: Params) {
   const { id } = await params;
   const anonCtx = await getOrCreateAnonymousContext();

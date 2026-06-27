@@ -4,6 +4,8 @@ import { format } from "date-fns";
 import { prisma } from "@/lib/prisma";
 import { PublicChecklist } from "@/components/meetings/PublicChecklist";
 
+export const dynamic = "force-dynamic";
+
 type Params = { params: Promise<{ shareToken: string }> };
 
 export async function generateMetadata({ params }: Params) {
