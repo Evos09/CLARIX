@@ -11,7 +11,6 @@ export const HTML = `
         <li><a class="nav__link" href="/meeting-types">Meeting Types</a></li>
         <li><a class="nav__link" href="/pricing">Pricing</a></li>
         <li><a class="nav__link" href="/integrations">Integrations</a></li>
-        <li><a class="nav__link" href="/blog">Blog</a></li>
       </ul>
       <div class="nav__cta">
         <a class="nav__signin" href="/sign-in">Sign In</a>
