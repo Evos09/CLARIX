@@ -69,7 +69,7 @@ export default async function DashboardPage() {
 
   return (
     <>
-      <TopNav title="Dashboard" />
+      <TopNav title="Dashboard" showNewMeeting={false} />
       <script
         dangerouslySetInnerHTML={{
           __html: `

@@ -6,7 +6,7 @@ export const metadata = { title: "New Meeting" };
 export default function NewMeetingPage() {
   return (
     <>
-      <TopNav title="New Meeting" />
+      <TopNav title="New Meeting" showNewMeeting={false} />
       <main className="flex-1 p-4 md:p-6">
         <NewMeetingWithBot />
       </main>
