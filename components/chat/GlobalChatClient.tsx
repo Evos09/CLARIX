@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Plus, Trash2, Send, Loader2, FileText, Download, Copy } from "lucide-react";
+import { Plus, Trash2, Send, Loader2, FileText, Download, Copy, Mic, MicOff, Volume2, VolumeX, PhoneOff, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { MarkdownView } from "./MarkdownView";
 
@@ -43,6 +43,242 @@ export function GlobalChatClient({ usageThisMonth, usageLimit }: { usageThisMont
   const [usage, setUsage] = useState(usageThisMonth);
   const [mode, setMode] = useState<Mode>("focused");
   const endRef = useRef<HTMLDivElement>(null);
+
+  // --- VOICE MODE CORE LOGIC ---
+  const [isVoiceOpen, setIsVoiceOpen] = useState(false);
+  const [voiceState, setVoiceState] = useState<"idle" | "listening" | "thinking" | "speaking">("idle");
+  const [voiceInput, setVoiceInput] = useState("");
+  const [voiceOutput, setVoiceOutput] = useState("");
+  const [isMuted, setIsMuted] = useState(false);
+
+  const recognitionRef = useRef<any>(null);
+  const currentUtteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const activeIdRef = useRef<string | null>(activeId);
+  const voiceStateRef = useRef(voiceState);
+
+  useEffect(() => {
+    activeIdRef.current = activeId;
+  }, [activeId]);
+
+  useEffect(() => {
+    voiceStateRef.current = voiceState;
+  }, [voiceState]);
+
+  useEffect(() => {
+    return () => {
+      if (typeof window !== "undefined" && window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, []);
+
+  const startRecognition = () => {
+    if (isMuted) return;
+    if (!recognitionRef.current) return;
+    try {
+      recognitionRef.current.start();
+    } catch (err) {
+      console.log("Start recognition error:", err);
+    }
+  };
+
+  const stopRecognition = () => {
+    if (recognitionRef.current) {
+      try {
+        recognitionRef.current.stop();
+      } catch (err) {
+        console.log("Stop recognition error:", err);
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) return;
+
+    const rec = new SpeechRecognition();
+    rec.continuous = false;
+    rec.interimResults = true;
+    rec.lang = "en-US";
+
+    rec.onstart = () => {
+      setVoiceState("listening");
+    };
+
+    rec.onresult = (event: any) => {
+      if (window.speechSynthesis && window.speechSynthesis.speaking) {
+        window.speechSynthesis.cancel();
+        setVoiceState("listening");
+        setVoiceOutput("");
+      }
+
+      let interim = "";
+      let final = "";
+      for (let i = event.resultIndex; i < event.results.length; ++i) {
+        if (event.results[i].isFinal) {
+          final += event.results[i][0].transcript;
+        } else {
+          interim += event.results[i][0].transcript;
+        }
+      }
+
+      if (final) {
+        setVoiceInput(final);
+        void processVoiceSpoken(final);
+      } else if (interim) {
+        setVoiceInput(interim);
+      }
+    };
+
+    rec.onerror = (event: any) => {
+      console.error("Speech recognition error", event);
+      if (event.error === "not-allowed") {
+        alert("Microphone permission denied. Please allow microphone access in your browser.");
+        setIsVoiceOpen(false);
+      }
+    };
+
+    rec.onend = () => {
+      if (isVoiceOpen && !isMuted) {
+        setTimeout(() => {
+          if (voiceStateRef.current === "listening" || voiceStateRef.current === "idle") {
+            startRecognition();
+          }
+        }, 300);
+      }
+    };
+
+    recognitionRef.current = rec;
+
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.abort();
+      }
+    };
+  }, [isVoiceOpen, isMuted]);
+
+  useEffect(() => {
+    if (isVoiceOpen) {
+      setVoiceState("listening");
+      setVoiceInput("");
+      setVoiceOutput("");
+      setTimeout(() => {
+        startRecognition();
+      }, 500);
+    } else {
+      if (recognitionRef.current) {
+        recognitionRef.current.abort();
+      }
+      if (typeof window !== "undefined" && window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+      setVoiceState("idle");
+    }
+  }, [isVoiceOpen]);
+
+  async function processVoiceSpoken(text: string) {
+    const query = text.trim();
+    if (!query) return;
+
+    setVoiceState("thinking");
+    stopRecognition();
+
+    let sid = activeIdRef.current;
+    if (!sid) {
+      try {
+        const r = await fetch("/api/chat/sessions", { method: "POST" });
+        if (!r.ok) {
+          setVoiceState("listening");
+          startRecognition();
+          return;
+        }
+        sid = (await r.json()).sessionId as string;
+        setActiveId(sid);
+        activeIdRef.current = sid;
+      } catch {
+        setVoiceState("listening");
+        startRecognition();
+        return;
+      }
+    }
+
+    setMessages((m) => [...m, { role: "user", content: query }]);
+
+    try {
+      const r = await fetch(`/api/chat/sessions/${sid}/messages`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: query, mode }),
+      });
+      const d = await r.json();
+      if (!r.ok) {
+        const errMsg = d.error ?? "Something went wrong.";
+        setMessages((m) => [...m, { role: "assistant", content: errMsg }]);
+        speakVoice(errMsg);
+      } else {
+        const responseText = d.message.content;
+        setMessages((m) => [...m, { role: "assistant", content: responseText, citations: d.citations }]);
+        setUsage((u) => u + 1);
+        void loadSessions();
+        speakVoice(responseText);
+      }
+    } catch {
+      const errText = "Network error occurred.";
+      setMessages((m) => [...m, { role: "assistant", content: errText }]);
+      speakVoice(errText);
+    }
+  }
+
+  function speakVoice(text: string) {
+    if (typeof window === "undefined" || !window.speechSynthesis) {
+      setVoiceState("listening");
+      startRecognition();
+      return;
+    }
+
+    window.speechSynthesis.cancel();
+
+    const cleanText = text
+      .replace(/\*\*|__/g, "")
+      .replace(/[*#-]/g, "")
+      .replace(/\[([^\]]+)\]\([^\)]+\)/g, "$1")
+      .trim();
+
+    setVoiceOutput(cleanText);
+    setVoiceState("speaking");
+
+    const utterance = new SpeechSynthesisUtterance(cleanText);
+    const voices = window.speechSynthesis.getVoices();
+    const preferredVoice = voices.find(
+      (v) =>
+        v.lang.startsWith("en") &&
+        (v.name.includes("Natural") || v.name.includes("Google") || v.name.includes("Samantha"))
+    ) || voices.find((v) => v.lang.startsWith("en"));
+
+    if (preferredVoice) {
+      utterance.voice = preferredVoice;
+    }
+
+    utterance.onend = () => {
+      if (isVoiceOpen) {
+        setVoiceState("listening");
+        startRecognition();
+      }
+    };
+
+    utterance.onerror = (err) => {
+      console.error("Speech synthesis error", err);
+      if (isVoiceOpen) {
+        setVoiceState("listening");
+        startRecognition();
+      }
+    };
+
+    currentUtteranceRef.current = utterance;
+    window.speechSynthesis.speak(utterance);
+  }
+  // --- END VOICE MODE CORE LOGIC ---
 
   async function loadSessions() {
     const r = await fetch("/api/chat/sessions");
@@ -156,16 +392,30 @@ export function GlobalChatClient({ usageThisMonth, usageLimit }: { usageThisMont
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        {messages.length > 0 && (
-          <div className="flex items-center justify-end gap-2 border-b border-border px-4 py-2">
-            <button onClick={() => navigator.clipboard.writeText(asText())} className="inline-flex items-center gap-1 rounded border border-border px-2 py-1 text-xs hover:bg-muted">
-              <Copy className="size-3" /> Copy all
-            </button>
-            <button onClick={exportMarkdown} className="inline-flex items-center gap-1 rounded border border-border px-2 py-1 text-xs hover:bg-muted">
-              <Download className="size-3" /> Export .md
-            </button>
+        <div className="flex items-center justify-between border-b border-border px-4 py-3 bg-card shrink-0">
+          <div className="flex items-center gap-2">
+            <span className="size-2 rounded-full bg-teal animate-pulse" />
+            <span className="text-sm font-semibold">CLARIX Chat</span>
           </div>
-        )}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setIsVoiceOpen(true)}
+              className="inline-flex items-center gap-1.5 rounded-md bg-teal px-3 py-1.5 text-xs font-semibold text-white hover:bg-teal/90 shadow-sm transition"
+            >
+              <Mic className="size-3.5" /> Voice Mode (Active)
+            </button>
+            {messages.length > 0 && (
+              <>
+                <button onClick={() => navigator.clipboard.writeText(asText())} className="inline-flex items-center gap-1 rounded border border-border px-2 py-1.5 text-xs hover:bg-muted">
+                  <Copy className="size-3" /> Copy all
+                </button>
+                <button onClick={exportMarkdown} className="inline-flex items-center gap-1 rounded border border-border px-2 py-1.5 text-xs hover:bg-muted">
+                  <Download className="size-3" /> Export .md
+                </button>
+              </>
+            )}
+          </div>
+        </div>
         <div className="flex-1 overflow-y-auto p-4 md:p-8">
           {messages.length === 0 ? (
             <div className="mx-auto mt-10 max-w-2xl text-center">
@@ -233,6 +483,139 @@ export function GlobalChatClient({ usageThisMonth, usageLimit }: { usageThisMont
             </div>
           </div>
         </div>
+      {isVoiceOpen && (
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#0B0B14]/95 text-white p-6 backdrop-blur-xl">
+          <style>{`
+            @keyframes orb-pulse {
+              0% { transform: scale(1); box-shadow: 0 0 40px rgba(109,40,217,0.4), inset 0 0 20px rgba(109,40,217,0.2); }
+              50% { transform: scale(1.08); box-shadow: 0 0 70px rgba(109,40,217,0.8), inset 0 0 30px rgba(109,40,217,0.5); }
+              100% { transform: scale(1); box-shadow: 0 0 40px rgba(109,40,217,0.4), inset 0 0 20px rgba(109,40,217,0.2); }
+            }
+            @keyframes ring-spin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
+            .animate-orb-pulse {
+              animation: orb-pulse 3s infinite ease-in-out;
+            }
+            .animate-ring-spin-slow {
+              animation: ring-spin 12s infinite linear;
+            }
+            .animate-ring-spin-fast {
+              animation: ring-spin 3s infinite linear;
+            }
+            .animate-bar {
+              animation: bar-rise 1.2s infinite ease-in-out alternate;
+            }
+            @keyframes bar-rise {
+              0% { height: 12px; }
+              100% { height: 56px; }
+            }
+          `}</style>
+
+          {/* Close button top right */}
+          <button
+            onClick={() => setIsVoiceOpen(false)}
+            className="absolute top-6 right-6 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+            title="Exit Voice Mode"
+          >
+            <X className="size-6" />
+          </button>
+
+          {/* Top Status */}
+          <div className="absolute top-8 flex items-center gap-2">
+            <span className={cn(
+              "size-2.5 rounded-full",
+              voiceState === "listening" ? "bg-teal animate-pulse" :
+              voiceState === "thinking" ? "bg-amber-500 animate-spin" :
+              voiceState === "speaking" ? "bg-emerald-500 animate-pulse" : "bg-neutral-500"
+            )} />
+            <span className="text-sm font-semibold tracking-wide uppercase text-white/70">
+              {voiceState === "listening" ? "Listening · Just Talk" :
+               voiceState === "thinking" ? "CLARIX is thinking..." :
+               voiceState === "speaking" ? "CLARIX is speaking..." : "Voice Mode Connected"}
+            </span>
+          </div>
+
+          {/* Center Orb & Rings */}
+          <div className="relative flex items-center justify-center my-12 size-80">
+            {/* Outermost ring */}
+            <div className={cn(
+              "absolute inset-0 rounded-full border border-dashed border-teal/20 transition-all duration-1000",
+              voiceState === "speaking" ? "animate-ring-spin-slow" : "animate-ring-spin-fast"
+            )} />
+
+            {/* Inner ring */}
+            <div className={cn(
+              "absolute inset-8 rounded-full border border-double border-teal/40 transition-all duration-700",
+              voiceState === "speaking" ? "animate-ring-spin-fast" : "animate-ring-spin-slow"
+            )} />
+
+            {/* Glowing Orb */}
+            <div className={cn(
+              "absolute inset-16 rounded-full bg-gradient-to-tr from-violet-600 via-indigo-500 to-teal-500 flex items-center justify-center transition-all duration-500",
+              voiceState !== "idle" && "animate-orb-pulse"
+            )}>
+              {/* Speaking Waveforms */}
+              {voiceState === "speaking" && (
+                <div className="flex items-center gap-1.5 h-16">
+                  <div className="w-1.5 bg-white rounded-full animate-bar" style={{ animationDelay: "0.1s" }} />
+                  <div className="w-1.5 bg-white rounded-full animate-bar" style={{ animationDelay: "0.3s" }} />
+                  <div className="w-1.5 bg-white rounded-full animate-bar" style={{ animationDelay: "0.5s" }} />
+                  <div className="w-1.5 bg-white rounded-full animate-bar" style={{ animationDelay: "0.2s" }} />
+                  <div className="w-1.5 bg-white rounded-full animate-bar" style={{ animationDelay: "0.4s" }} />
+                </div>
+              )}
+
+              {/* Thinking Loader */}
+              {voiceState === "thinking" && (
+                <Loader2 className="size-12 animate-spin text-white" />
+              )}
+
+              {/* Listening Icon */}
+              {voiceState === "listening" && (
+                <Mic className="size-12 text-white animate-pulse" />
+              )}
+            </div>
+          </div>
+
+          {/* Real-time Subtitles/Captions */}
+          <div className="max-w-2xl text-center space-y-4 px-4 h-24 overflow-y-auto mb-10">
+            {voiceInput && (
+              <p className="text-white/60 text-sm italic">
+                &ldquo;{voiceInput}&rdquo;
+              </p>
+            )}
+            {voiceState === "speaking" && voiceOutput && (
+              <p className="text-white text-lg font-medium leading-relaxed">
+                {voiceOutput}
+              </p>
+            )}
+          </div>
+
+          {/* Controls Footer */}
+          <div className="absolute bottom-10 flex items-center gap-6">
+            <button
+              onClick={() => setIsMuted(!isMuted)}
+              className={cn(
+                "p-4 rounded-full transition shadow-lg",
+                isMuted ? "bg-red-500 hover:bg-red-600 text-white" : "bg-white/10 hover:bg-white/20 text-white"
+              )}
+              title={isMuted ? "Unmute Mic" : "Mute Mic"}
+            >
+              {isMuted ? <MicOff className="size-6" /> : <Mic className="size-6" />}
+            </button>
+
+            <button
+              onClick={() => setIsVoiceOpen(false)}
+              className="px-6 py-3 rounded-full bg-red-600 hover:bg-red-700 text-white font-semibold flex items-center gap-2 shadow-lg transition"
+              title="Hang Up"
+            >
+              <PhoneOff className="size-5" /> Hang Up
+            </button>
+          </div>
+        </div>
+      )}
       </div>
     </div>
   );
