@@ -1,1 +1,583 @@
-export const HTML = "\n\n  <!-- ====================== NAV ====================== -->\n  <nav class=\"nav nav--solid\">\n    <div class=\"container nav__inner\">\n      <a href=\"/\" class=\"nav__brand\">\n        <svg width=\"28\" height=\"28\" viewBox=\"0 0 32 32\" aria-hidden=\"true\" style=\"border-radius:8px;display:block\"><rect width=\"32\" height=\"32\" rx=\"8\" fill=\"#6D28D9\"/><path d=\"M22.89 10.21 A9 9 0 1 0 22.89 21.79\" fill=\"none\" stroke=\"#FAFAF7\" stroke-width=\"5\" stroke-linecap=\"round\"/></svg>\n        <span>CLARIX</span>\n      </a>\n      <ul class=\"nav__links\">\n        <li><a class=\"nav__link\" href=\"/features\">Features</a></li>\n        <li><a class=\"nav__link\" href=\"/meeting-types\">Meeting Types</a></li>\n        <li><a class=\"nav__link\" href=\"/pricing\">Pricing</a></li>\n        <li><a class=\"nav__link\" href=\"/integrations\">Integrations</a></li>\n      </ul>\n      <div class=\"nav__cta\">\n        <a  class=\"nav__signin\" href=\"/sign-in\">Sign In</a>\n        <a  class=\"btn btn--accent btn--sm\" href=\"/sign-up\">Get Started Free</a>\n      </div>\n    </div>\n  </nav>\n\n  <!-- ====================== HERO ====================== -->\n  <section class=\"hero\">\n    <div class=\"container hero__inner\">\n      <div class=\"hero__copy\">\n        <span class=\"eyebrow\"><span class=\"eyebrow__dot\" style=\"background: var(--violet-400); box-shadow: 0 0 0 4px rgba(255,255,255,0.1);\"></span>Coming Soon · Join Waitlist</span>\n        <h1 class=\"hero__title\">\n          The AI that <span class=\"accent\">handles</span> every meeting you never have time to recap.\n        </h1>\n        <p class=\"hero__sub\">\n          CLARIX joins your calls, listens, and turns every conversation into a clean brief — action items, decisions, summaries — in under 60 seconds. Then you can <em>talk to it</em> about what was decided.\n        </p>\n        <div class=\"hero__cta\">\n          <a  class=\"btn btn--primary btn--lg\" href=\"/sign-up\">\n            Join Waitlist\n            <svg class=\"btn__icon btn__icon--arrow\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M5 12h14M13 5l7 7-7 7\"/></svg>\n          </a>\n          <a  class=\"btn btn--secondary btn--lg\" href=\"/sign-up\">\n            <svg class=\"btn__icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><polygon points=\"10 8 16 12 10 16 10 8\" fill=\"currentColor\"/></svg>\n            Watch Demo\n          </a>\n        </div>\n        <!-- Insta-Demo Upload Zone -->\n        <div class=\"insta-demo-card\" id=\"instaDemoCard\">\n          <div class=\"insta-demo-card__dropzone\" id=\"dropZone\">\n            <div class=\"insta-demo-card__icon\">\n              <svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12\"/></svg>\n            </div>\n            <div class=\"insta-demo-card__text\">\n              <strong>Drop audio file here</strong> to transcribe instantly\n            </div>\n            <div class=\"insta-demo-card__sub\">Supports MP3, WAV, M4A up to 15MB</div>\n            <input type=\"file\" id=\"demoFileInput\" accept=\"audio/*\" style=\"display: none;\" />\n          </div>\n          <div class=\"insta-demo-card__progress\" id=\"uploadProgressContainer\" style=\"display: none;\">\n            <div class=\"insta-demo-card__progress-header\">\n              <span id=\"uploadStatusText\">Uploading meeting...</span>\n              <span id=\"uploadPercentageText\">0%</span>\n            </div>\n            <div class=\"insta-demo-card__progress-bar\">\n              <div class=\"insta-demo-card__progress-fill\" id=\"uploadProgressFill\"></div>\n            </div>\n          </div>\n          <div class=\"insta-demo-card__error\" id=\"uploadError\" style=\"display: none;\"></div>\n        </div>\n        <div class=\"hero__trust\">\n          \n          <span>Free 3 meetings/mo</span>\n        </div>\n      </div>\n\n      <!-- Hero Visual: transcript -> summary transformation -->\n      <div class=\"hero-visual reveal\">\n        <!-- Raw transcript floating left -->\n        <div class=\"hv__transcript\">\n          <div style=\"display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--gray-100);font-family:var(--font-sans);\">\n            <span style=\"font-weight:600;font-size:11px;\">raw_transcript.txt</span>\n            <span class=\"badge badge--processing\"><span class=\"badge__dot\"></span>Recording</span>\n          </div>\n          <div class=\"hv__line\"><span class=\"hv__who\">Sarah:</span><span class=\"hv__text\">So the Q3 launch is locked for Sep 15 unless we...</span></div>\n          <div class=\"hv__line\"><span class=\"hv__who\">Mike:</span><span class=\"hv__text\">Yeah but legal hasn't signed off on the pricing yet</span></div>\n          <div class=\"hv__line\"><span class=\"hv__who\">Priya:</span><span class=\"hv__text\">I can have the deck done by Friday, maybe Thursday</span></div>\n          <div class=\"hv__line\"><span class=\"hv__who\">Sarah:</span><span class=\"hv__text\">Great. And someone needs to ping Marcus about...</span></div>\n          <div class=\"hv__line\"><span class=\"hv__who\">Mike:</span><span class=\"hv__text\">right the API integration, I'll loop in Daniel too</span></div>\n          <div class=\"hv__line\"><span class=\"hv__who\">Priya:</span><span class=\"hv__text\">ok and we should probably revisit the onboarding</span></div>\n          <div class=\"hv__line\"><span class=\"hv__who\">Sarah:</span><span class=\"hv__text\">flow — yeah let's table that for next week...</span></div>\n        </div>\n\n        <!-- Transformation arrow -->\n        <div class=\"hv__arrow\" aria-hidden=\"true\">\n          <svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.4\"><path d=\"M5 12h14M13 5l7 7-7 7\"/></svg>\n        </div>\n\n        <!-- CLARIX summary card floating right -->\n        <div class=\"hv__summary summary\">\n          <div class=\"summary__header\">\n            <div class=\"summary__title\">\n              <svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z\"/></svg>\n              Q3 Launch Sync — Aug 14\n            </div>\n            <span class=\"badge badge--complete\"><span class=\"badge__dot\"></span>Complete</span>\n          </div>\n          <div class=\"summary__body\">\n            <div class=\"summary__section\">\n              <h6>TLDR</h6>\n              <p class=\"summary__tldr\">Q3 launch targets Sep 15. Priya's deck is on track for Thu/Fri. Pricing is blocked on legal review.</p>\n            </div>\n            <div class=\"summary__section\">\n              <h6>Action Items</h6>\n              <ul class=\"summary__list\">\n                <li>\n                  <svg class=\"check\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M20 6L9 17l-5-5\"/></svg>\n                  <div style=\"display:flex;justify-content:space-between;gap:12px;width:100%;\">\n                    <span class=\"summary__action-text\">Ping Marcus about API integration & loop in Daniel</span>\n                    <span class=\"summary__action-owner\">Mike</span>\n                  </div>\n                </li>\n                <li>\n                  <svg class=\"check\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M20 6L9 17l-5-5\"/></svg>\n                  <div style=\"display:flex;justify-content:space-between;gap:12px;width:100%;\">\n                    <span class=\"summary__action-text\">Finish Q3 launch deck</span>\n                    <span class=\"summary__action-owner\">Priya</span>\n                  </div>\n                </li>\n                <li>\n                  <svg class=\"check\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M20 6L9 17l-5-5\"/></svg>\n                  <div style=\"display:flex;justify-content:space-between;gap:12px;width:100%;\">\n                    <span class=\"summary__action-text\">Get legal sign-off on pricing</span>\n                    <span class=\"summary__action-owner\">Sarah</span>\n                  </div>\n                </li>\n              </ul>\n            </div>\n          </div>\n        </div>\n\n        <!-- Animated waveform bottom -->\n        <div class=\"hv__waveform\" aria-hidden=\"true\">\n          <span></span><span></span><span></span><span></span><span></span>\n          <span></span><span></span><span></span><span></span><span></span>\n          <span></span><span></span><span></span><span></span>\n        </div>\n      </div>\n    </div>\n  </section>\n\n  <!-- ====================== TICKER ====================== -->\n  \n\n  <!-- ====================== CORE FEATURES ====================== -->\n  <section class=\"section\">\n    <div class=\"container\">\n      <div class=\"section-heading reveal\">\n        <span class=\"eyebrow\"><span class=\"eyebrow__dot\" style=\"background: var(--violet-400); box-shadow: 0 0 0 4px rgba(255,255,255,0.1);\"></span>Coming Soon · Join Waitlist</span>\n        <h2>Every meeting, fully understood.</h2>\n        <p>CLARIX doesn't just transcribe. It listens, decides what matters, and produces the brief you would have written if you'd had an extra hour after every call.</p>\n      </div>\n\n      <div class=\"grid grid-3 reveal\">\n        <div class=\"card card--feature card--hover\">\n          <div class=\"feature-card__icon\">\n            <svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\"><path d=\"M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z\"/><path d=\"M19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8\"/></svg>\n          </div>\n          <h3 class=\"feature-card__title\">AI transcription for any meeting</h3>\n          <p class=\"feature-card__desc\">Industry-leading speech recognition across accents, languages, and noisy rooms. Speaker labels included.</p>\n        </div>\n\n        <div class=\"card card--feature card--hover\">\n          <div class=\"feature-card__icon\">\n            <svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\"><rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"2\"/><path d=\"M9 9h6v6H9z\"/><path d=\"M3 9h18M9 3v18\"/></svg>\n          </div>\n          <h3 class=\"feature-card__title\">20+ meeting types, auto-detected</h3>\n          <p class=\"feature-card__desc\">Standup, sales call, board meeting, interview — CLARIX detects the type and tailors the output format automatically.</p>\n        </div>\n\n        <div class=\"card card--feature card--hover\">\n          <div class=\"feature-card__icon\">\n            <svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\"><path d=\"M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z\"/><polyline points=\"14 2 14 8 20 8\"/><path d=\"M9 13l2 2 4-4\"/></svg>\n          </div>\n          <h3 class=\"feature-card__title\">Action items & decisions extracted</h3>\n          <p class=\"feature-card__desc\">Every meeting gets a clean TLDR, an action-items list with owners, and a list of decisions — no manual tagging.</p>\n        </div>\n\n        <div class=\"card card--feature card--hover\">\n          <div class=\"feature-card__icon\">\n            <svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\"><path d=\"M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z\"/></svg>\n          </div>\n          <h3 class=\"feature-card__title\">Ask CLARIX — chat with your meeting</h3>\n          <p class=\"feature-card__desc\">\"Who owns the Q3 deliverable?\" \"Write a follow-up email.\" Get instant answers from any past meeting.</p>\n        </div>\n\n        <div class=\"card card--feature card--hover\">\n          <div class=\"feature-card__icon\">\n            <svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><circle cx=\"12\" cy=\"12\" r=\"4\"/><circle cx=\"12\" cy=\"12\" r=\"1\" fill=\"currentColor\"/></svg>\n          </div>\n          <h3 class=\"feature-card__title\">Advanced Voice Mode</h3>\n          <p class=\"feature-card__desc\">Have a real-time spoken conversation with CLARIX. Interrupt any time. Hands-free meeting intelligence.</p>\n        </div>\n\n        <div class=\"card card--feature card--hover\">\n          <div class=\"feature-card__icon\">\n            <svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\"><rect x=\"2\" y=\"3\" width=\"20\" height=\"14\" rx=\"2\"/><line x1=\"8\" y1=\"21\" x2=\"16\" y2=\"21\"/><line x1=\"12\" y1=\"17\" x2=\"12\" y2=\"21\"/></svg>\n          </div>\n          <h3 class=\"feature-card__title\">Works everywhere you meet</h3>\n          <p class=\"feature-card__desc\">Record in browser, upload any audio, or let the CLARIX bot auto-join Zoom, Meet, and Teams.</p>\n        </div>\n      </div>\n    </div>\n  </section>\n\n  <!-- ====================== HOW IT WORKS ====================== -->\n  <section class=\"section section--soft\">\n    <div class=\"container\">\n      <div class=\"section-heading reveal\">\n        <span class=\"eyebrow eyebrow--neutral\"><span class=\"eyebrow__dot\" style=\"background: var(--ink); box-shadow: 0 0 0 4px var(--gray-200);\"></span>How it works</span>\n        <h2>From chaos to brief, in three steps.</h2>\n        <p>Press record, walk into your meeting, walk out. CLARIX does the rest.</p>\n      </div>\n\n      <div class=\"steps reveal\">\n        <div class=\"step\">\n          <div class=\"step__num\">01</div>\n          <h4 class=\"step__title\">Record or auto-join</h4>\n          <p class=\"step__desc\">Click record in your browser, upload any audio file, or invite the CLARIX bot to your meeting — it joins, records, and leaves quietly.</p>\n        </div>\n        <div class=\"step\">\n          <div class=\"step__num\">02</div>\n          <h4 class=\"step__title\">CLARIX transcribes & analyzes</h4>\n          <p class=\"step__desc\">We transcribe, identify speakers, detect the meeting type, and extract every action item, decision, and open question.</p>\n        </div>\n        <div class=\"step\">\n          <div class=\"step__num\">03</div>\n          <h4 class=\"step__title\">Get a structured brief instantly</h4>\n          <p class=\"step__desc\">A clean summary lands in your library in under 60 seconds. Push it to Slack, Notion, Linear, or your CRM in one click.</p>\n        </div>\n      </div>\n\n      <!-- Before / After -->\n      <div class=\"ba reveal\" style=\"margin-top: var(--sp-16);\">\n        <div class=\"ba__pane ba__pane--before\">\n          <div class=\"ba__label\">Before — raw recording</div>\n          <div>[00:00] Sarah: ok so let's talk about the launch...<br/>\n          [00:14] Mike: yeah but legal hasn't approved the...<br/>\n          [00:32] Priya: I can probably get the deck done by...<br/>\n          [00:48] Sarah: ok great... and someone should...<br/>\n          [01:02] Mike: yeah I'll loop in Daniel on the...<br/>\n          [01:30] Priya: we should also revisit the...<br/>\n          [01:55] Sarah: yeah let's table that for...<br/>\n          [02:18] Mike: actually one more thing about the...<br/>\n          [02:45] Sarah: ok cool, thanks everyone</div>\n        </div>\n        <div class=\"ba__pane ba__pane--after\">\n          <div class=\"summary\" style=\"border:0;box-shadow:none;\">\n            <div class=\"summary__header\">\n              <div class=\"summary__title\">\n                <svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z\"/></svg>\n                After — CLARIX brief\n              </div>\n              <span class=\"badge badge--violet\">Team Standup · 4 speakers</span>\n            </div>\n            <div class=\"summary__body\">\n              <div class=\"summary__section\">\n                <h6>TLDR</h6>\n                <p class=\"summary__tldr\">Q3 launch on track for Sep 15. Priya shipping the deck Thu/Fri. Pricing blocked on legal sign-off.</p>\n              </div>\n              <div class=\"summary__section\">\n                <h6>Action Items · 3</h6>\n                <ul class=\"summary__list\">\n                  <li>\n                    <svg class=\"check\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M20 6L9 17l-5-5\"/></svg>\n                    <div class=\"summary__action\">\n                      <span class=\"summary__action-text\">Ping Marcus about API integration & loop in Daniel</span>\n                      <span class=\"summary__action-owner\">Mike</span>\n                    </div>\n                  </li>\n                  <li>\n                    <svg class=\"check\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M20 6L9 17l-5-5\"/></svg>\n                    <div class=\"summary__action\">\n                      <span class=\"summary__action-text\">Finish Q3 launch deck</span>\n                      <span class=\"summary__action-owner\">Priya</span>\n                    </div>\n                  </li>\n                  <li>\n                    <svg class=\"check\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M20 6L9 17l-5-5\"/></svg>\n                    <div class=\"summary__action\">\n                      <span class=\"summary__action-text\">Get legal sign-off on pricing</span>\n                      <span class=\"summary__action-owner\">Sarah</span>\n                    </div>\n                  </li>\n                </ul>\n              </div>\n            </div>\n          </div>\n        </div>\n      </div>\n    </div>\n  </section>\n\n  <!-- ====================== MEETING TYPES ====================== -->\n  <section class=\"section\">\n    <div class=\"container\">\n      <div class=\"section-heading reveal\">\n        <span class=\"eyebrow\"><span class=\"eyebrow__dot\"></span>Built for every meeting</span>\n        <h2>20+ meeting types. One intelligent layer.</h2>\n        <p>CLARIX knows the difference between a standup, a sales call, and a board meeting — and structures every brief accordingly.</p>\n      </div>\n\n      <div class=\"mt-grid reveal\">\n        <div class=\"tile\"><div class=\"tile__icon\">📊</div><div class=\"tile__title\">Team Standup</div><div class=\"tile__desc\">Yesterday / today / blockers per person</div></div>\n        <div class=\"tile\"><div class=\"tile__icon\">💼</div><div class=\"tile__title\">Sales Call</div><div class=\"tile__desc\">Deal stage, objections, next steps</div></div>\n        <div class=\"tile\"><div class=\"tile__icon\">🤝</div><div class=\"tile__title\">1:1 Meeting</div><div class=\"tile__desc\">Action items for both sides</div></div>\n        <div class=\"tile\"><div class=\"tile__icon\">🏢</div><div class=\"tile__title\">Client Meeting</div><div class=\"tile__desc\">Decisions, deliverables, follow-ups</div></div>\n        <div class=\"tile\"><div class=\"tile__icon\">🎯</div><div class=\"tile__title\">Interview</div><div class=\"tile__desc\">Candidate highlights, scoring</div></div>\n        <div class=\"tile\"><div class=\"tile__icon\">🏛️</div><div class=\"tile__title\">Board Meeting</div><div class=\"tile__desc\">Resolutions, votes, financials</div></div>\n        <div class=\"tile\"><div class=\"tile__icon\">🔍</div><div class=\"tile__title\">Discovery Call</div><div class=\"tile__desc\">Pain points, fit signals, requirements</div></div>\n        <div class=\"tile\"><div class=\"tile__icon\">🔁</div><div class=\"tile__title\">Retrospective</div><div class=\"tile__desc\">What worked / didn't / next experiments</div></div>\n        <div class=\"tile\"><div class=\"tile__icon\">💡</div><div class=\"tile__title\">Brainstorm</div><div class=\"tile__desc\">All ideas captured, top picks highlighted</div></div>\n        <div class=\"tile\"><div class=\"tile__icon\">📈</div><div class=\"tile__title\">Investor Update</div><div class=\"tile__desc\">KPIs, asks, follow-up items</div></div>\n        <div class=\"tile\"><div class=\"tile__icon\">🗓️</div><div class=\"tile__title\">Sprint Planning</div><div class=\"tile__desc\">Stories, owners, estimates</div></div>\n        <div class=\"tile\"><div class=\"tile__icon\">🚀</div><div class=\"tile__title\">Project Kickoff</div><div class=\"tile__desc\">Scope, owners, milestones</div></div>\n        <div class=\"tile\"><div class=\"tile__icon\">📦</div><div class=\"tile__title\">Product Review</div><div class=\"tile__desc\">Feedback, decisions, roadmap signals</div></div>\n        <div class=\"tile\"><div class=\"tile__icon\">🧭</div><div class=\"tile__title\">Strategy Session</div><div class=\"tile__desc\">Goals, options chosen, rationale</div></div>\n        <div class=\"tile\"><div class=\"tile__icon\">⭐</div><div class=\"tile__title\">Performance Review</div><div class=\"tile__desc\">Wins, gaps, growth areas</div></div>\n        <div class=\"tile\"><div class=\"tile__icon\">📞</div><div class=\"tile__title\">Vendor Call</div><div class=\"tile__desc\">Pricing, terms, deliverables</div></div>\n        <div class=\"tile\"><div class=\"tile__icon\">🌐</div><div class=\"tile__title\">All Hands</div><div class=\"tile__desc\">Announcements, Q&A items</div></div>\n        <div class=\"tile\"><div class=\"tile__icon\">🎓</div><div class=\"tile__title\">Training Workshop</div><div class=\"tile__desc\">Materials, action steps</div></div>\n        <div class=\"tile\"><div class=\"tile__icon\">📋</div><div class=\"tile__title\">General Meeting</div><div class=\"tile__desc\">Generic but still structured</div></div>\n        <div class=\"tile\"><span class=\"tile__badge\">Pro</span><div class=\"tile__icon\">🩺</div><div class=\"tile__title\">Medical Appointment</div><div class=\"tile__desc\">SOAP notes, ICD-10, medications</div></div>\n        <div class=\"tile\"><span class=\"tile__badge\">Pro</span><div class=\"tile__icon\">⚖️</div><div class=\"tile__title\">Legal Deposition</div><div class=\"tile__desc\">Statements, exhibits, timeline</div></div>\n        <div class=\"tile\"><span class=\"tile__badge\">Pro</span><div class=\"tile__icon\">💵</div><div class=\"tile__title\">Financial Advisory</div><div class=\"tile__desc\">Suitability, compliance flags</div></div>\n      </div>\n\n      <div style=\"text-align:center;margin-top: var(--sp-10);\">\n        <a class=\"btn btn--secondary\" href=\"/meeting-types\">See all meeting types\n          <svg class=\"btn__icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M5 12h14M13 5l7 7-7 7\"/></svg>\n        </a>\n      </div>\n    </div>\n  </section>\n\n  <!-- ====================== ASK CLARIX ====================== -->\n  <section class=\"section section--soft\">\n    <div class=\"container\">\n      <div class=\"ask-block reveal\">\n        <div class=\"ask-block__copy\">\n          <span class=\"eyebrow\"><span class=\"eyebrow__dot\"></span>Ask CLARIX</span>\n          <h2 style=\"margin-top: var(--sp-4);\">Chat with any meeting, after it ends.</h2>\n          <p>Every meeting has its own AI. Ask it who owns what, draft a follow-up, surface the open questions, or summarize a section — with citations back to the exact transcript.</p>\n          <div class=\"ask-block__suggestions\">\n            <span class=\"ask-pill\">/follow-up email</span>\n            <span class=\"ask-pill\">/decisions</span>\n            <span class=\"ask-pill\">/risks</span>\n            <span class=\"ask-pill\">/who owns X?</span>\n            <span class=\"ask-pill\">/summarize for the CEO</span>\n          </div>\n        </div>\n\n        <div class=\"card\" style=\"padding: var(--sp-5); background: var(--paper);\">\n          <div class=\"chat\">\n            <div class=\"chat__msg chat__msg--user\">\n              <div class=\"chat__avatar avatar avatar--violet\">SM</div>\n              <div>\n                <div class=\"chat__bubble\">Who owns the Q3 pricing decision and what's blocking it?</div>\n                <div class=\"chat__meta\" style=\"text-align:right;\">2:14 PM</div>\n              </div>\n            </div>\n            <div class=\"chat__msg chat__msg--clarix\">\n              <div class=\"chat__avatar\" style=\"background: linear-gradient(135deg, var(--violet-600), var(--violet-400)); color: white;\">C</div>\n              <div>\n                <div class=\"chat__bubble\">\n                  <strong style=\"display:block;margin-bottom:4px;\">Sarah owns pricing sign-off.</strong>\n                  She mentioned legal hasn't reviewed the new tier structure yet — that's the blocker. Mike offered to introduce her to Daniel on the legal team.\n                  <div style=\"margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--gray-200); font-size: 11px; color: var(--gray-500); font-family: var(--font-mono);\">\n                    ↳ Q3 Launch Sync · 14:32:18\n                  </div>\n                </div>\n                <div class=\"chat__meta\">CLARIX · streaming</div>\n              </div>\n            </div>\n            <div class=\"chat__msg chat__msg--user\">\n              <div class=\"chat__avatar avatar avatar--violet\">SM</div>\n              <div>\n                <div class=\"chat__bubble\">Draft a follow-up email to the team.</div>\n              </div>\n            </div>\n            <div class=\"chat__msg chat__msg--clarix\">\n              <div class=\"chat__avatar\" style=\"background: linear-gradient(135deg, var(--violet-600), var(--violet-400)); color: white;\">C</div>\n              <div>\n                <div class=\"chat__bubble\">\n                  Here's a draft — ready to send:\n                  <div style=\"margin-top:8px; padding:12px; background: var(--paper-2); border-radius: 8px; font-size: 12px; line-height:1.5;\">\n                    <strong>Subject:</strong> Q3 Launch — next steps<br/><br/>\n                    Hey team — quick recap from today's sync…\n                  </div>\n                </div>\n              </div>\n            </div>\n          </div>\n        </div>\n      </div>\n    </div>\n  </section>\n\n  <!-- ====================== VOICE MODE ====================== -->\n  <section class=\"section section--dark\" style=\"padding-top:0; padding-bottom: 0;\">\n    <div style=\"padding-top: var(--sp-20); padding-bottom: var(--sp-20); background:\n      radial-gradient(ellipse 60% 50% at 50% 0%, rgba(124, 79, 232, 0.18), transparent 60%);\">\n      <div class=\"container\">\n        <div class=\"voice-demo__inner\">\n          <div class=\"voice-demo__copy reveal\">\n            <span class=\"eyebrow\"><span class=\"eyebrow__dot\" style=\"background: var(--violet-400); box-shadow: 0 0 0 4px rgba(255,255,255,0.1);\"></span>Coming Soon · Join Waitlist</span>\n            <h2 style=\"margin-top: var(--sp-4);\">Talk to CLARIX, out loud.</h2>\n            <p style=\"margin-top: var(--sp-4); font-size: var(--fs-md);\">A real-time spoken conversation with the AI that knows every meeting you've ever had. Interrupt any time. Hands-free meeting intelligence.</p>\n            <ul class=\"split__list\" style=\"margin-top: var(--sp-6);\">\n              <li>\n                <svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M20 6L9 17l-5-5\"/></svg>\n                <span>Ask \"What did I miss in yesterday's 1:1 with Marcus?\" while you make coffee.</span>\n              </li>\n              <li>\n                <svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M20 6L9 17l-5-5\"/></svg>\n                <span>Start a recording hands-free: \"CLARIX, start a standup.\"</span>\n              </li>\n              <li>\n                <svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M20 6L9 17l-5-5\"/></svg>\n                <span>Get a spoken recap of any past meeting while driving home.</span>\n              </li>\n              <li>\n                <svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M20 6L9 17l-5-5\"/></svg>\n                <span>Voice activity streaming with sub-300ms response time.</span>\n              </li>\n            </ul>\n            <div style=\"margin-top: var(--sp-8);\">\n              <a  class=\"btn btn--accent btn--lg\" href=\"/sign-up\">Join Waitlist\n                <svg class=\"btn__icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><polygon points=\"10 8 16 12 10 16 10 8\" fill=\"currentColor\"/></svg>\n              </a>\n            </div>\n          </div>\n\n          <div class=\"voice-demo__visual reveal\">\n            <div class=\"orb\">\n              <div class=\"orb__ring\"></div>\n              <div class=\"orb__ring orb__ring--2\"></div>\n              <div class=\"orb__ring orb__ring--3\"></div>\n              <div class=\"orb__core\"></div>\n              <div class=\"orb__bars\">\n                <span></span><span></span><span></span><span></span><span></span>\n                <span></span><span></span><span></span><span></span><span></span>\n                <span></span><span></span><span></span><span></span>\n              </div>\n            </div>\n            <div class=\"chat\" style=\"margin-top: var(--sp-10); max-width: 460px; margin-left: auto; margin-right: auto;\">\n              <div class=\"chat__msg chat__msg--user\">\n                <div class=\"chat__bubble\" style=\"background: rgba(255,255,255,0.08); color: var(--paper); border: 1px solid rgba(255,255,255,0.1); border-top-right-radius: 4px;\">CLARIX, what did I commit to in last Tuesday's standup?</div>\n              </div>\n              <div class=\"chat__msg chat__msg--clarix\">\n                <div class=\"chat__bubble\" style=\"background: rgba(124, 79, 232, 0.2); color: var(--paper); border: 1px solid rgba(124, 79, 232, 0.4); border-top-left-radius: 4px;\">You committed to ship the auth refactor by Friday, and Priya owns the dashboard mocks. Want the full action list?</div>\n              </div>\n            </div>\n          </div>\n        </div>\n      </div>\n    </div>\n  </section>\n\n  <!-- ====================== INTEGRATIONS ====================== -->\n  <section class=\"section\">\n    <div class=\"container\">\n      <div class=\"section-heading reveal\">\n        <span class=\"eyebrow\"><span class=\"eyebrow__dot\"></span>Integrations</span>\n        <h2>Plays nicely with everything you already use.</h2>\n        <p>CLARIX joins your existing meeting tools, then pushes structured outputs into your team's workflow. No new tabs to check.</p>\n      </div>\n\n      <div class=\"grid grid-4 reveal\">\n        <div class=\"integration-card\">\n          <div class=\"integration-card__logo\" style=\"color:#2D8CFF;\"><svg viewBox=\"0 0 24 24\" fill=\"currentColor\"><path d=\"M2 16c0-1.1.9-2 2-2h2v6H4a2 2 0 0 1-2-2zM8 10h2v12H8zM14 6h2v16h-2zM20 2h2v20h-2z\"/></svg></div>\n          <div class=\"integration-card__name\">Zoom</div>\n          <div class=\"integration-card__desc\">Bot auto-joins your Zoom meetings to record and transcribe.</div>\n        </div>\n        <div class=\"integration-card\">\n          <div class=\"integration-card__logo\" style=\"color:#00897B;\"><svg viewBox=\"0 0 24 24\" fill=\"currentColor\"><path d=\"M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm-1 14H7v-2h4v2zm0-4H7v-2h4v2zm0-4H7V6h4v2zm6 8h-4v-2h4v2zm0-4h-4v-2h4v2zm0-4h-4V6h4v2z\"/></svg></div>\n          <div class=\"integration-card__name\">Google Meet</div>\n          <div class=\"integration-card__desc\">Auto-record Meet calls with calendar awareness.</div>\n        </div>\n        <div class=\"integration-card\">\n          <div class=\"integration-card__logo\" style=\"color:#5059C9;\"><svg viewBox=\"0 0 24 24\" fill=\"currentColor\"><path d=\"M20 8h-3V4H3v13h2a3 3 0 0 0 6 0h6a3 3 0 0 0 6 0h2v-5l-5-4zM6 18.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm12 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z\"/></svg></div>\n          <div class=\"integration-card__name\">Microsoft Teams</div>\n          <div class=\"integration-card__desc\">Full Teams bot integration for enterprise.</div>\n        </div>\n        <div class=\"integration-card\">\n          <div class=\"integration-card__logo\" style=\"color:#4A154B;\"><svg viewBox=\"0 0 24 24\" fill=\"currentColor\"><path d=\"M5 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm14 0a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM12 4l-7 7h14zM5 17h14l-7 4z\"/></svg></div>\n          <div class=\"integration-card__name\">Slack</div>\n          <div class=\"integration-card__desc\">Post summaries and action items to any channel.</div>\n        </div>\n        <div class=\"integration-card\">\n          <div class=\"integration-card__logo\" style=\"color:#000;\"><svg viewBox=\"0 0 24 24\" fill=\"currentColor\"><path d=\"M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7H7z\"/></svg></div>\n          <div class=\"integration-card__name\">Notion</div>\n          <div class=\"integration-card__desc\">Create structured meeting pages in your workspace.</div>\n        </div>\n        <div class=\"integration-card\">\n          <div class=\"integration-card__logo\" style=\"color:#5E6AD2;\"><svg viewBox=\"0 0 24 24\" fill=\"currentColor\"><circle cx=\"12\" cy=\"12\" r=\"10\"/></svg></div>\n          <div class=\"integration-card__name\">Linear</div>\n          <div class=\"integration-card__desc\">Turn meeting action items into Linear issues.</div>\n        </div>\n        <div class=\"integration-card\">\n          <div class=\"integration-card__logo\" style=\"color:#00A1E0;\"><svg viewBox=\"0 0 24 24\" fill=\"currentColor\"><path d=\"M12 2L2 7l10 5 10-5-10-5zm0 13L2 10v7l10 5 10-5v-7l-10 5z\"/></svg></div>\n          <div class=\"integration-card__name\">Salesforce</div>\n          <div class=\"integration-card__desc\">Push meeting notes and tasks to activities.</div>\n        </div>\n        <div class=\"integration-card\">\n          <div class=\"integration-card__logo\" style=\"color:#FF7A59;\"><svg viewBox=\"0 0 24 24\" fill=\"currentColor\"><circle cx=\"12\" cy=\"12\" r=\"10\"/></svg></div>\n          <div class=\"integration-card__name\">HubSpot</div>\n          <div class=\"integration-card__desc\">Log meetings and create tasks in your CRM.</div>\n        </div>\n      </div>\n\n      <div style=\"text-align:center;margin-top: var(--sp-10);\">\n        <a class=\"btn btn--secondary\" href=\"/integrations\">See all 14 integrations\n          <svg class=\"btn__icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M5 12h14M13 5l7 7-7 7\"/></svg>\n        </a>\n      </div>\n    </div>\n  </section>\n\n  <!-- ====================== TESTIMONIALS ====================== -->\n  \n\n  <!-- ====================== STATS ====================== -->\n  \n\n  <!-- ====================== PRICING ====================== -->\n  <section class=\"section section--soft\">\n    <div class=\"container\">\n      <div class=\"section-heading reveal\">\n        <span class=\"eyebrow eyebrow--neutral\"><span class=\"eyebrow__dot\" style=\"background: var(--ink); box-shadow: 0 0 0 4px var(--gray-200);\"></span>Pricing</span>\n        <h2>Simple pricing. Scales with your team.</h2>\n        <p>Start free. Upgrade when you need more meetings, more integrations, or Pro Verticals.</p>\n      </div>\n\n      <div class=\"grid grid-4 reveal\">\n        <div class=\"plan\">\n          <div class=\"plan__name\">Free</div>\n          <div class=\"plan__price\">\n            <span class=\"plan__amount\">$0</span>\n            <span class=\"plan__period\">/mo</span>\n          </div>\n          <p class=\"plan__desc\">For trying CLARIX on your own meetings.</p>\n          <ul class=\"plan__features\">\n            <li class=\"plan__feature\"><svg class=\"plan__check\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M20 6L9 17l-5-5\"/></svg>3 meetings / month</li>\n            <li class=\"plan__feature\"><svg class=\"plan__check\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M20 6L9 17l-5-5\"/></svg>All general meeting types</li>\n            <li class=\"plan__feature\"><svg class=\"plan__check\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M20 6L9 17l-5-5\"/></svg>Summary + action items</li>\n            <li class=\"plan__feature\"><svg class=\"plan__check\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M20 6L9 17l-5-5\"/></svg>In-browser recording</li>\n          </ul>\n          <a  class=\"btn btn--secondary btn--full\" href=\"/sign-up\">Join Waitlist</a>\n        </div>\n\n        <div class=\"plan\">\n          <div class=\"plan__name\">Starter</div>\n          <div class=\"plan__price\">\n            <span class=\"plan__amount\">$19</span>\n            <span class=\"plan__period\">/user / mo</span>\n          </div>\n          <p class=\"plan__desc\">For small teams running a few meetings a week.</p>\n          <ul class=\"plan__features\">\n            <li class=\"plan__feature\"><svg class=\"plan__check\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M20 6L9 17l-5-5\"/></svg>20 meetings / user / mo</li>\n            <li class=\"plan__feature\"><svg class=\"plan__check\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M20 6L9 17l-5-5\"/></svg>All 20+ meeting types</li>\n            <li class=\"plan__feature\"><svg class=\"plan__check\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M20 6L9 17l-5-5\"/></svg>PDF export</li>\n            <li class=\"plan__feature\"><svg class=\"plan__check\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M20 6L9 17l-5-5\"/></svg>Team sharing</li>\n            <li class=\"plan__feature\"><svg class=\"plan__check\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M20 6L9 17l-5-5\"/></svg>Email integration</li>\n          </ul>\n          <a  class=\"btn btn--primary btn--full\" href=\"/sign-up\">Join Waitlist</a>\n        </div>\n\n        <div class=\"plan plan--featured\">\n          <span class=\"plan__badge\">Most Popular</span>\n          <div class=\"plan__name\">Pro</div>\n          <div class=\"plan__price\">\n            <span class=\"plan__amount\">$49</span>\n            <span class=\"plan__period\">/user / mo</span>\n          </div>\n          <p class=\"plan__desc\">For teams that live in meetings and demand more.</p>\n          <ul class=\"plan__features\">\n            <li class=\"plan__feature\"><svg class=\"plan__check\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M20 6L9 17l-5-5\"/></svg>Unlimited meetings</li>\n            <li class=\"plan__feature\"><svg class=\"plan__check\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M20 6L9 17l-5-5\"/></svg>All exports — PDF, DOCX, CSV</li>\n            <li class=\"plan__feature\"><svg class=\"plan__check\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M20 6L9 17l-5-5\"/></svg>Ask CLARIX AI chat</li>\n            <li class=\"plan__feature\"><svg class=\"plan__check\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M20 6L9 17l-5-5\"/></svg>Advanced Voice Mode</li>\n            <li class=\"plan__feature\"><svg class=\"plan__check\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M20 6L9 17l-5-5\"/></svg>Calendar + Slack + Notion + Linear</li>\n            <li class=\"plan__feature\"><svg class=\"plan__check\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M20 6L9 17l-5-5\"/></svg>Audio library with reprocessing</li>\n            <li class=\"plan__feature\"><svg class=\"plan__check\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M20 6L9 17l-5-5\"/></svg>Live captions + coaching</li>\n          </ul>\n          <a  class=\"btn btn--accent btn--full\" href=\"/sign-up\">Join Waitlist</a>\n        </div>\n\n        <div class=\"plan\">\n          <div class=\"plan__name\">Enterprise</div>\n          <div class=\"plan__price\">\n            <span class=\"plan__amount\">$89</span>\n            <span class=\"plan__period\">/user / mo</span>\n          </div>\n          <p class=\"plan__desc\">For regulated industries and large organizations.</p>\n          <ul class=\"plan__features\">\n            <li class=\"plan__feature\"><svg class=\"plan__check\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M20 6L9 17l-5-5\"/></svg>Everything in Pro</li>\n            <li class=\"plan__feature\"><svg class=\"plan__check\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M20 6L9 17l-5-5\"/></svg>Healthcare / Legal / Financial Pro Verticals</li>\n            <li class=\"plan__feature\"><svg class=\"plan__check\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M20 6L9 17l-5-5\"/></svg>Bot joins Zoom / Meet / Teams</li>\n            <li class=\"plan__feature\"><svg class=\"plan__check\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M20 6L9 17l-5-5\"/></svg>Salesforce + HubSpot CRM</li>\n            <li class=\"plan__feature\"><svg class=\"plan__check\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M20 6L9 17l-5-5\"/></svg>SSO / SAML</li>\n            <li class=\"plan__feature\"><svg class=\"plan__check\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M20 6L9 17l-5-5\"/></svg>EHR / FHIR export</li>\n            <li class=\"plan__feature\"><svg class=\"plan__check\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M20 6L9 17l-5-5\"/></svg>SLA + priority support</li>\n          </ul>\n          <a  class=\"btn btn--primary btn--full\" href=\"/sign-up\">Talk to Sales</a>\n        </div>\n      </div>\n    </div>\n  </section>\n\n  <!-- ====================== FINAL CTA ====================== -->\n  <section class=\"section\">\n    <div class=\"container\">\n      <div class=\"cta reveal\">\n        <span class=\"eyebrow\"><span class=\"eyebrow__dot\"></span>Ready when you are</span>\n        <h2 style=\"margin-top: var(--sp-4);\">Your next meeting, already written up.</h2>\n        <p>Stop taking notes. Stop losing action items. Start with 3 free meetings a month — no credit card.</p>\n        <div class=\"cta__actions\">\n          <a  class=\"btn btn--primary btn--xl\" href=\"/sign-up\">Join Waitlist\n            <svg class=\"btn__icon btn__icon--arrow\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M5 12h14M13 5l7 7-7 7\"/></svg>\n          </a>\n        </div>\n        <p class=\"cta__sub\">14-day Pro trial included · No setup required</p>\n      </div>\n    </div>\n  </section>\n\n  <!-- ====================== FOOTER ====================== -->\n  <footer class=\"footer\">\n    <div class=\"container\">\n      <div class=\"footer__top\">\n        <div class=\"footer__brand-block\">\n          <a href=\"/\" class=\"nav__brand\" style=\"color: var(--paper);\">\n            <svg width=\"28\" height=\"28\" viewBox=\"0 0 32 32\" aria-hidden=\"true\" style=\"border-radius:8px;display:block\"><rect width=\"32\" height=\"32\" rx=\"8\" fill=\"#6D28D9\"/><path d=\"M22.89 10.21 A9 9 0 1 0 22.89 21.79\" fill=\"none\" stroke=\"#FAFAF7\" stroke-width=\"5\" stroke-linecap=\"round\"/></svg>\n            <span>CLARIX</span>\n          </a>\n          <p class=\"footer__tagline\">The AI meeting assistant for teams that ship. Record, transcribe, and act on every conversation — automatically.</p>\n          <div class=\"footer__compliance\">\n            \n            \n            \n          </div>\n        </div>\n        <div class=\"footer__columns\">\n          <div class=\"footer__col\">\n            <h6>Product</h6>\n            <ul class=\"footer__list\">\n              <li><a href=\"/features\">Features</a></li>\n              <li><a href=\"/meeting-types\">Meeting Types</a></li>\n              <li><a href=\"/pricing\">Pricing</a></li>\n              <li><a href=\"/integrations\">Integrations</a></li>\n              <li><a  href=\"/sign-up\">Changelog</a></li>\n            </ul>\n          </div>\n          <div class=\"footer__col\">\n            <h6>Company</h6>\n            <ul class=\"footer__list\">\n              <li><a  href=\"/sign-up\">About</a></li>\n              \n              <li><a  href=\"/sign-up\">Careers</a></li>\n              <li><a  href=\"/sign-up\">Customers</a></li>\n              <li><a  href=\"/sign-up\">Contact</a></li>\n            </ul>\n          </div>\n          <div class=\"footer__col\">\n            <h6>Resources</h6>\n            <ul class=\"footer__list\">\n              <li><a  href=\"/sign-up\">Help Center</a></li>\n              <li><a  href=\"/sign-up\">API Docs</a></li>\n              <li><a  href=\"/sign-up\">Templates</a></li>\n              <li><a  href=\"/sign-up\">Community</a></li>\n              <li><a  href=\"/sign-up\">Status</a></li>\n            </ul>\n          </div>\n          <div class=\"footer__col\">\n            <h6>Legal</h6>\n            <ul class=\"footer__list\">\n              <li><a href=\"/privacy\">Privacy</a></li>\n              <li><a href=\"/terms\">Terms</a></li>\n              <li><a href=\"/hipaa\">HIPAA</a></li>\n              <li><a  href=\"/sign-up\">Security</a></li>\n              <li><a  href=\"/sign-up\">DPA</a></li>\n            </ul>\n          </div>\n        </div>\n      </div>\n      <div class=\"footer__bottom\">\n        <span>© 2026 CLARIX, Inc. All rights reserved.</span>\n        <div class=\"footer__social\">\n          <a  href=\"/sign-up\" aria-label=\"Twitter\"><svg viewBox=\"0 0 24 24\" fill=\"currentColor\"><path d=\"M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z\"/></svg></a>\n          <a  href=\"/sign-up\" aria-label=\"LinkedIn\"><svg viewBox=\"0 0 24 24\" fill=\"currentColor\"><path d=\"M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.063 2.063 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z\"/></svg></a>\n          <a  href=\"/sign-up\" aria-label=\"GitHub\"><svg viewBox=\"0 0 24 24\" fill=\"currentColor\"><path d=\"M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.4 3-.405 1.02.005 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12\"/></svg></a>\n        </div>\n      </div>\n    </div>\n  </footer>\n\n  \n";
+export const HTML = `
+  <!-- ====================== NAV ====================== -->
+  <nav class="nav nav--solid-on-dark nav--on-dark">
+    <div class="container nav__inner">
+      <a href="/" class="nav__brand">
+        <svg width="28" height="28" viewBox="0 0 32 32" aria-hidden="true" style="border-radius:8px;display:block">
+          <rect width="32" height="32" rx="8" fill="#00F2FE"/>
+          <path d="M22.89 10.21 A9 9 0 1 0 22.89 21.79" fill="none" stroke="#05050A" stroke-width="5" stroke-linecap="round"/>
+        </svg>
+        <span style="color: var(--ink); font-weight: 700; letter-spacing: -0.03em;">CLARIX</span>
+      </a>
+      <ul class="nav__links">
+        <li><a class="nav__link" href="/features">Features</a></li>
+        <li><a class="nav__link" href="/meeting-types">Document Types</a></li>
+        <li><a class="nav__link" href="/pricing">Pricing</a></li>
+        <li><a class="nav__link" href="/integrations">Integrations</a></li>
+      </ul>
+      <div class="nav__cta">
+        <a class="nav__signin" href="/sign-in">Sign In</a>
+        <a class="btn btn--accent btn--sm" href="/sign-up" style="background: var(--violet-400); color: var(--paper); border: none;">Start Free Analysis</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ====================== HERO ====================== -->
+  <section class="hero" style="padding-top: calc(var(--nav-h) + var(--sp-20)); padding-bottom: var(--sp-16); background: radial-gradient(circle at 50% 0%, rgba(0, 242, 254, 0.08), transparent 50%), var(--paper);">
+    <div class="container hero__inner" style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: var(--sp-8);">
+      <div class="hero__copy" style="max-width: 800px; display: flex; flex-direction: column; align-items: center;">
+        <span class="eyebrow" style="background: rgba(0, 242, 254, 0.08); color: var(--violet-400); border-color: rgba(0, 242, 254, 0.25);">
+          <span class="eyebrow__dot" style="background: var(--violet-400); box-shadow: 0 0 0 4px rgba(0, 242, 254, 0.25);"></span>
+          Enterprise Document Intelligence
+        </span>
+        <h1 class="hero__title" style="margin-top: var(--sp-4); font-size: clamp(2.5rem, 5vw, 4.25rem); font-weight: 800; line-height: 1.05; letter-spacing: -0.03em; color: var(--ink);">
+          Understand Business Documents <span style="background: linear-gradient(120deg, #00F2FE, #00D2DD); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">in Seconds</span>
+        </h1>
+        <p class="hero__sub" style="margin-top: var(--sp-6); font-size: var(--fs-md); color: var(--gray-600); line-height: 1.6; max-width: 680px;">
+          Clarix uses AI to analyze contracts, reports, invoices, and operational documents to uncover risks, insights, and critical business information instantly.
+        </p>
+        <div class="hero__cta" style="margin-top: var(--sp-8); display: flex; gap: var(--sp-4); flex-wrap: wrap; justify-content: center;">
+          <a class="btn btn--primary btn--lg" href="/sign-up" style="background: var(--violet-400); color: var(--paper); border: none; font-weight: 600; padding: 14px 28px;">
+            Start Free Analysis
+            <svg class="btn__icon btn__icon--arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          </a>
+          <a class="btn btn--secondary btn--lg" href="#demo" style="background: rgba(255, 255, 255, 0.05); color: var(--ink); border: 1px solid rgba(255, 255, 255, 0.1); padding: 14px 28px;">
+            View Live Demo
+          </a>
+        </div>
+      </div>
+
+      <!-- ====================== HERO VISUAL: DASHBOARD PREVIEW ====================== -->
+      <div class="hero-visual reveal" style="width: 100%; max-width: 1100px; background: var(--gray-25); border: 1px solid var(--gray-200); border-radius: var(--r-lg); box-shadow: var(--sh-xl), 0 0 80px rgba(0, 242, 254, 0.05); overflow: hidden; display: flex; flex-direction: column; text-align: left;">
+        <!-- Window Header -->
+        <div style="background: var(--gray-50); border-bottom: 1px solid var(--gray-100); padding: var(--sp-3) var(--sp-5); display: flex; align-items: center; justify-content: space-between;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="width: 12px; height: 12px; border-radius: 50%; background: #EF4444; display: block;"></span>
+            <span style="width: 12px; height: 12px; border-radius: 50%; background: #F59E0B; display: block;"></span>
+            <span style="width: 12px; height: 12px; border-radius: 50%; background: #10B981; display: block;"></span>
+            <span style="font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--gray-500); margin-left: 12px;">doc_intelligence_v2.clarix</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <span class="badge badge--complete" style="background: rgba(16, 185, 129, 0.1); color: var(--mint); border: 1px solid rgba(16, 185, 129, 0.2);"><span class="badge__dot" style="background: var(--mint);"></span>Analysis Complete</span>
+          </div>
+        </div>
+
+        <!-- Dashboard Workspace -->
+        <div style="display: grid; grid-template-columns: 240px 1fr 320px; min-height: 520px; background: var(--paper-2);">
+          
+          <!-- Left Panel: Document List -->
+          <div style="border-right: 1px solid var(--gray-100); padding: var(--sp-4); display: flex; flex-direction: column; gap: var(--sp-4);">
+            <div style="font-size: var(--fs-xs); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--gray-500);">Workspace Files</div>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <div style="padding: 10px; background: rgba(0, 242, 254, 0.08); border: 1px solid rgba(0, 242, 254, 0.2); border-radius: var(--r-md); display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                <span style="font-size: var(--fs-lg);">📄</span>
+                <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                  <div style="font-size: var(--fs-xs); font-weight: 600; color: var(--ink);">MSA_Draft_v4.pdf</div>
+                  <div style="font-size: 10px; color: var(--gray-500);">Contract · 4.2 MB</div>
+                </div>
+              </div>
+              <div style="padding: 10px; border: 1px solid transparent; border-radius: var(--r-md); display: flex; align-items: center; gap: 10px; cursor: pointer; transition: background 0.2s;">
+                <span style="font-size: var(--fs-lg);">📊</span>
+                <div>
+                  <div style="font-size: var(--fs-xs); font-weight: 500; color: var(--gray-600);">Q2_Financials.xlsx</div>
+                  <div style="font-size: 10px; color: var(--gray-500);">Spreadsheet · 1.8 MB</div>
+                </div>
+              </div>
+              <div style="padding: 10px; border: 1px solid transparent; border-radius: var(--r-md); display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                <span style="font-size: var(--fs-lg);">🧾</span>
+                <div>
+                  <div style="font-size: var(--fs-xs); font-weight: 500; color: var(--gray-600);">Inv_8204_Unpaid.pdf</div>
+                  <div style="font-size: 10px; color: var(--gray-500);">Invoice · 820 KB</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Middle Panel: Document Viewer -->
+          <div style="padding: var(--sp-6); overflow-y: auto; display: flex; flex-direction: column; gap: var(--sp-5); max-height: 520px;">
+            <div style="font-size: var(--fs-base); font-weight: 700; color: var(--ink); border-bottom: 1px solid var(--gray-100); padding-bottom: var(--sp-3);">Master Services Agreement (Draft)</div>
+            
+            <div style="font-family: var(--font-sans); font-size: var(--fs-sm); color: var(--gray-700); line-height: 1.7; display: flex; flex-direction: column; gap: var(--sp-4);">
+              <p>This Master Services Agreement ("Agreement") is entered into as of the Effective Date by and between the parties.</p>
+              
+              <!-- Highlighted Clause -->
+              <div style="background: rgba(244, 63, 94, 0.08); border-left: 3px solid var(--rose); padding: var(--sp-3) var(--sp-4); border-radius: 0 var(--r-md) var(--r-md) 0;">
+                <strong style="color: var(--ink);">Section 8.2: Indemnification.</strong> The Service Provider agrees to indemnify, defend, and hold harmless the Customer, its affiliates, and officers from and against any and all claims, damages, liabilities, losses, and expenses arising out of or resulting from the performance of services under this Agreement.
+              </div>
+
+              <p><strong>Section 9.1: Term and Termination.</strong> Either party may terminate this Agreement at any time with or without cause by providing fifteen (15) days written notice to the other party.</p>
+              
+              <!-- Second Highlighted Clause -->
+              <div style="background: rgba(245, 158, 11, 0.08); border-left: 3px solid var(--amber); padding: var(--sp-3) var(--sp-4); border-radius: 0 var(--r-md) var(--r-md) 0;">
+                <strong>Section 10.4: Governing Law.</strong> This Agreement shall be governed by, and construed in accordance with, the laws of the State of Delaware, without giving effect to conflict of laws principles. Any legal action arising hereunder shall be brought in courts located in Wilmington, Delaware.
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Panel: AI Insights -->
+          <div style="border-left: 1px solid var(--gray-100); padding: var(--sp-4); background: var(--gray-25); display: flex; flex-direction: column; gap: var(--sp-4); overflow-y: auto; max-height: 520px;">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <span style="font-size: var(--fs-xs); font-weight: 600; text-transform: uppercase; color: var(--gray-500);">Risk Analysis</span>
+              <span style="font-size: var(--fs-xs); font-weight: 700; color: var(--rose); background: rgba(244, 63, 94, 0.1); padding: 2px 6px; border-radius: 4px;">74 / 100 Risk Score</span>
+            </div>
+
+            <!-- Risk Cards -->
+            <div style="display: flex; flex-direction: column; gap: var(--sp-3);">
+              <!-- High Risk -->
+              <div style="background: var(--paper-2); border: 1px solid var(--gray-200); border-radius: var(--r-md); padding: var(--sp-3); display: flex; flex-direction: column; gap: 4px;">
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <span style="width: 8px; height: 8px; border-radius: 50%; background: var(--rose); display: block;"></span>
+                  <span style="font-size: var(--fs-xs); font-weight: 700; color: var(--ink);">Uncapped Indemnification</span>
+                </div>
+                <p style="font-size: 11px; color: var(--gray-500); line-height: 1.4;">Section 8.2 has no cap on indemnification liability. This exposes the provider to unlimited financial claims.</p>
+              </div>
+              
+              <!-- Medium Risk -->
+              <div style="background: var(--paper-2); border: 1px solid var(--gray-200); border-radius: var(--r-md); padding: var(--sp-3); display: flex; flex-direction: column; gap: 4px;">
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <span style="width: 8px; height: 8px; border-radius: 50%; background: var(--amber); display: block;"></span>
+                  <span style="font-size: var(--fs-xs); font-weight: 700; color: var(--ink);">Short Termination Notice</span>
+                </div>
+                <p style="font-size: 11px; color: var(--gray-500); line-height: 1.4;">15-day termination notice without cause is unusually short for enterprise services. Standard is 30-90 days.</p>
+              </div>
+            </div>
+
+            <!-- Key Extract Box -->
+            <div style="border-top: 1px solid var(--gray-100); padding-top: var(--sp-3); display: flex; flex-direction: column; gap: var(--sp-2);">
+              <span style="font-size: var(--fs-xs); font-weight: 600; text-transform: uppercase; color: var(--gray-500);">Extracted Fields</span>
+              <div style="display: flex; flex-direction: column; gap: 6px; font-size: 11px;">
+                <div style="display: flex; justify-content: space-between;"><span style="color: var(--gray-500);">Governing Law</span><span style="color: var(--ink); font-weight: 500;">Delaware, US</span></div>
+                <div style="display: flex; justify-content: space-between;"><span style="color: var(--gray-500);">Payment Terms</span><span style="color: var(--ink); font-weight: 500;">Net 30</span></div>
+                <div style="display: flex; justify-content: space-between;"><span style="color: var(--gray-500);">Liability Cap</span><span style="color: var(--rose); font-weight: 600;">None</span></div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================== TRUST & COMPLIANCE SECTION ====================== -->
+  <section class="section section--soft" style="border-top: 1px solid var(--gray-100); border-bottom: 1px solid var(--gray-100);">
+    <div class="container" style="display: flex; flex-direction: column; align-items: center; gap: var(--sp-8);">
+      <div style="text-align: center; max-width: 600px;">
+        <span class="eyebrow eyebrow--neutral">Privacy & Security First</span>
+        <h2 style="margin-top: var(--sp-4); font-size: var(--fs-3xl); font-weight: 800; color: var(--ink);">Enterprise-grade Document Security</h2>
+        <p style="margin-top: var(--sp-3); font-size: var(--fs-base); color: var(--gray-505);">We process high-stakes financial, legal, and operational documents. Your data security is our foundational architecture.</p>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: var(--sp-6); width: 100%;">
+        <div class="card" style="padding: var(--sp-6); background: var(--gray-25); border: 1px solid var(--gray-100); border-radius: var(--r-md); display: flex; flex-direction: column; gap: var(--sp-2);">
+          <div style="font-size: 24px; color: var(--violet-400);">🔒</div>
+          <h4 style="font-size: var(--fs-base); font-weight: 700; color: var(--ink);">Fully Encrypted</h4>
+          <p style="font-size: var(--fs-sm); color: var(--gray-500); line-height: 1.5;">Documents are encrypted at rest using AES-256 and in transit via TLS 1.3. Your files remain under isolation.</p>
+        </div>
+        <div class="card" style="padding: var(--sp-6); background: var(--gray-25); border: 1px solid var(--gray-100); border-radius: var(--r-md); display: flex; flex-direction: column; gap: var(--sp-2);">
+          <div style="font-size: 24px; color: var(--violet-400);">🛡️</div>
+          <h4 style="font-size: var(--fs-base); font-weight: 700; color: var(--ink);">Zero AI Model Training</h4>
+          <p style="font-size: var(--fs-sm); color: var(--gray-500); line-height: 1.5;">Your documents are never used to train LLMs or public AI engines. Your proprietary business data stays private.</p>
+        </div>
+        <div class="card" style="padding: var(--sp-6); background: var(--gray-25); border: 1px solid var(--gray-100); border-radius: var(--r-md); display: flex; flex-direction: column; gap: var(--sp-2);">
+          <div style="font-size: 24px; color: var(--violet-400);">⚡</div>
+          <h4 style="font-size: var(--fs-base); font-weight: 700; color: var(--ink);">99.99% Guaranteed Uptime</h4>
+          <p style="font-size: var(--fs-sm); color: var(--gray-500); line-height: 1.5;">Backed by enterprise-grade SLAs. Reliable, distributed cloud infrastructure engineered for instant audits.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================== LIVE INTERACTIVE DEMO ====================== -->
+  <section class="section" id="demo">
+    <div class="container" style="display: flex; flex-direction: column; align-items: center; gap: var(--sp-8);">
+      <div style="text-align: center; max-width: 680px;">
+        <span class="eyebrow" style="background: rgba(0, 242, 254, 0.08); color: var(--violet-400); border-color: rgba(0, 242, 254, 0.25);">Interactive Sandbox</span>
+        <h2 style="margin-top: var(--sp-4); font-size: var(--fs-3xl); font-weight: 800; color: var(--ink);">See Clarix in Action</h2>
+        <p style="margin-top: var(--sp-3); font-size: var(--fs-base); color: var(--gray-500);">Simulate the document scan pipeline below to see how Clarix extracts risks and summaries.</p>
+      </div>
+
+      <!-- Live Demo Widget -->
+      <div style="width: 100%; max-width: 800px; background: var(--gray-25); border: 1px solid var(--gray-200); border-radius: var(--r-lg); overflow: hidden; display: flex; flex-direction: column; min-height: 400px;" id="demoWidget">
+        
+        <!-- Tab Bar -->
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); background: var(--gray-50); border-bottom: 1px solid var(--gray-100); font-family: var(--font-sans); font-size: var(--fs-xs); text-align: center;">
+          <div id="tab1" style="padding: var(--sp-3); border-right: 1px solid var(--gray-100); font-weight: 700; color: var(--violet-400); background: var(--paper-2); cursor: pointer;">1. Upload Document</div>
+          <div id="tab2" style="padding: var(--sp-3); border-right: 1px solid var(--gray-100); font-weight: 500; color: var(--gray-500); cursor: not-allowed;">2. Scanning Pipeline</div>
+          <div id="tab3" style="padding: var(--sp-3); border-right: 1px solid var(--gray-100); font-weight: 500; color: var(--gray-500); cursor: not-allowed;">3. Risk Highlighting</div>
+          <div id="tab4" style="padding: var(--sp-3); font-weight: 500; color: var(--gray-500); cursor: not-allowed;">4. Insights Report</div>
+        </div>
+
+        <!-- Content Area -->
+        <div id="demoContent" style="padding: var(--sp-8); flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 300px; background: var(--paper-2);">
+          
+          <!-- Step 1: Upload Mockup -->
+          <div id="step1Content" style="width: 100%; display: flex; flex-direction: column; align-items: center; gap: var(--sp-5);">
+            <div style="border: 2px dashed rgba(0, 242, 254, 0.3); border-radius: var(--r-md); padding: var(--sp-8) var(--sp-4); width: 100%; max-width: 500px; text-align: center; background: rgba(0, 242, 254, 0.02); display: flex; flex-direction: column; align-items: center; gap: var(--sp-3);">
+              <span style="font-size: 36px;">📄</span>
+              <div>
+                <div style="font-size: var(--fs-base); font-weight: 600; color: var(--ink);">agreement_draft_final.pdf</div>
+                <div style="font-size: var(--fs-xs); color: var(--gray-500); margin-top: 4px;">Master Services Contract · 8 pages</div>
+              </div>
+            </div>
+            <button id="startScanBtn" class="btn btn--primary" style="background: var(--violet-400); color: var(--paper); border: none; font-weight: 600; padding: 12px 32px; border-radius: var(--r-md);">
+              Analyze Contract Risks
+            </button>
+          </div>
+
+          <!-- Step 2: Scanning (Hidden initially) -->
+          <div id="step2Content" style="display: none; width: 100%; flex-direction: column; align-items: center; gap: var(--sp-5);">
+            <div style="width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: var(--sp-2);">
+              <div style="display: flex; justify-content: space-between; font-size: var(--fs-xs); font-family: var(--font-mono); color: var(--gray-500);">
+                <span id="scanStatus">Initializing risk scan...</span>
+                <span id="scanPct">0%</span>
+              </div>
+              <div style="width: 100%; height: 6px; background: var(--gray-100); border-radius: var(--r-full); overflow: hidden; position: relative;">
+                <div id="scanBar" style="width: 0%; height: 100%; background: var(--violet-400); border-radius: var(--r-full); transition: width 0.2s linear;"></div>
+              </div>
+            </div>
+            <div style="font-family: var(--font-mono); font-size: 11px; color: var(--gray-500); width: 100%; max-width: 480px; height: 100px; background: var(--gray-25); border: 1px solid var(--gray-100); padding: var(--sp-3); border-radius: var(--r-sm); overflow-y: auto; display: flex; flex-direction: column; gap: 4px;" id="scanLogs">
+            </div>
+          </div>
+
+          <!-- Step 3: Highlights (Hidden initially) -->
+          <div id="step3Content" style="display: none; width: 100%; grid-template-columns: 1fr 280px; gap: var(--sp-6);">
+            <div style="background: var(--gray-25); border: 1px solid var(--gray-100); border-radius: var(--r-md); padding: var(--sp-5); max-height: 250px; overflow-y: auto; font-size: var(--fs-sm); color: var(--gray-700); line-height: 1.6;">
+              <p style="margin-bottom: 12px;"><strong>Section 14. Limitation of Liability.</strong></p>
+              <div style="background: rgba(244, 63, 94, 0.1); border-left: 3px solid var(--rose); padding: 8px 12px; border-radius: 4px; margin-bottom: 12px;">
+                IN NO EVENT SHALL EITHER PARTY BE LIABLE FOR SPECIAL, INDIRECT, OR CONSEQUENTIAL DAMAGES. PROVIDER'S TOTAL LIABILITY FOR CLAIMS UNDER THIS AGREEMENT IS UNLIMITED.
+              </div>
+              <p>Either party may request an audit of records with 48 hours notice.</p>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: var(--sp-3);">
+              <div style="border: 1px solid var(--rose); background: rgba(244, 63, 94, 0.05); border-radius: var(--r-md); padding: 12px; display: flex; flex-direction: column; gap: 4px;">
+                <span style="font-size: 10px; font-weight: 700; color: var(--rose); text-transform: uppercase;">⚠️ HIGH RISK EXPOSURE</span>
+                <div style="font-size: var(--fs-xs); font-weight: 600; color: var(--ink);">Unlimited Liability Cap</div>
+                <p style="font-size: 10px; color: var(--gray-500); line-height: 1.3; margin: 0;">Exposes your company to uncapped claims in the event of default.</p>
+              </div>
+              <button id="nextDemoBtn" class="btn btn--primary" style="background: var(--violet-400); color: var(--paper); border: none; font-weight: 600; padding: 10px; border-radius: var(--r-md); font-size: var(--fs-xs);">
+                Generate Summary & Insights
+              </button>
+            </div>
+          </div>
+
+          <!-- Step 4: Insights (Hidden initially) -->
+          <div id="step4Content" style="display: none; width: 100%; flex-direction: column; gap: var(--sp-4);">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-4);">
+              <div style="background: var(--gray-25); border: 1px solid var(--gray-100); border-radius: var(--r-md); padding: var(--sp-4);">
+                <div style="font-size: var(--fs-xs); font-weight: 700; color: var(--ink); text-transform: uppercase; margin-bottom: 6px;">Executive TLDR</div>
+                <p style="font-size: var(--fs-xs); color: var(--gray-500); line-height: 1.5; margin: 0;">Standard vendor MSA. Key risks include uncapped provider liability and short termination notice. Net payment terms are standard Net 30.</p>
+              </div>
+              <div style="background: var(--gray-25); border: 1px solid var(--gray-100); border-radius: var(--r-md); padding: var(--sp-4);">
+                <div style="font-size: var(--fs-xs); font-weight: 700; color: var(--ink); text-transform: uppercase; margin-bottom: 6px;">Action Items</div>
+                <ul style="font-size: var(--fs-xs); color: var(--gray-500); padding-left: 12px; margin: 0; line-height: 1.5;">
+                  <li>Negotiate a 1x contract value liability cap.</li>
+                  <li>Increase termination notice from 15 to 30 days.</li>
+                </ul>
+              </div>
+            </div>
+            <div style="display: flex; gap: var(--sp-3); justify-content: center; margin-top: var(--sp-2);">
+              <a href="/sign-up" class="btn btn--primary" style="background: var(--violet-400); color: var(--paper); border: none; font-weight: 600; padding: 10px 24px; border-radius: var(--r-md); font-size: var(--fs-xs);">Start Free Analysis</a>
+              <button id="resetDemoBtn" class="btn btn--secondary" style="background: rgba(255, 255, 255, 0.05); color: var(--ink); border: 1px solid rgba(255, 255, 255, 0.1); padding: 10px 24px; border-radius: var(--r-md); font-size: var(--fs-xs);">Restart Demo</button>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================== USE CASES ====================== -->
+  <section class="section">
+    <div class="container" style="display: flex; flex-direction: column; gap: var(--sp-12);">
+      <div class="section-heading reveal" style="text-align: center; margin-bottom: 0;">
+        <span class="eyebrow"><span class="eyebrow__dot" style="background: var(--violet-400);"></span>Enterprise Scope</span>
+        <h2>Built for Precision. Focused on Outcomes.</h2>
+        <p>Generic AI tools write summaries. Clarix audits structure, checks compliance, and reports risk.</p>
+      </div>
+
+      <div class="grid grid-3 reveal" style="gap: var(--sp-6);">
+        <!-- Contract Review -->
+        <div class="card card--feature card--hover" style="padding: var(--sp-6); background: var(--paper-2); border: 1px solid var(--gray-200); border-radius: var(--r-lg);">
+          <div style="font-size: 24px; margin-bottom: var(--sp-3);">📋</div>
+          <h3 class="feature-card__title" style="font-size: var(--fs-base); font-weight: 700; color: var(--ink);">Contract Review</h3>
+          <p class="feature-card__desc" style="font-size: var(--fs-sm); color: var(--gray-500); line-height: 1.5; margin-top: var(--sp-2);">Scan master agreements, NDAs, and SLAs for missing limits, governing law issues, and termination liability.</p>
+          <div style="margin-top: var(--sp-4); padding-top: var(--sp-3); border-top: 1px solid var(--gray-100); font-size: var(--fs-xs); color: var(--violet-400); font-weight: 600;">Outcome: 80% reduction in legal turnaround time</div>
+        </div>
+
+        <!-- Invoice Auditing -->
+        <div class="card card--feature card--hover" style="padding: var(--sp-6); background: var(--paper-2); border: 1px solid var(--gray-200); border-radius: var(--r-lg);">
+          <div style="font-size: 24px; margin-bottom: var(--sp-3);">🧾</div>
+          <h3 class="feature-card__title" style="font-size: var(--fs-base); font-weight: 700; color: var(--ink);">Invoice Auditing</h3>
+          <p class="feature-card__desc" style="font-size: var(--fs-sm); color: var(--gray-500); line-height: 1.5; margin-top: var(--sp-2);">Cross-check billing statements, purchase orders, and receipts to flag price inflation or duplicate itemizations.</p>
+          <div style="margin-top: var(--sp-4); padding-top: var(--sp-3); border-top: 1px solid var(--gray-100); font-size: var(--fs-xs); color: var(--violet-400); font-weight: 600;">Outcome: Detect overbilling errors instantly</div>
+        </div>
+
+        <!-- Risk Detection -->
+        <div class="card card--feature card--hover" style="padding: var(--sp-6); background: var(--paper-2); border: 1px solid var(--gray-200); border-radius: var(--r-lg);">
+          <div style="font-size: 24px; margin-bottom: var(--sp-3);">🔍</div>
+          <h3 class="feature-card__title" style="font-size: var(--fs-base); font-weight: 700; color: var(--ink);">Risk Detection</h3>
+          <p class="feature-card__desc" style="font-size: var(--fs-sm); color: var(--gray-500); line-height: 1.5; margin-top: var(--sp-2);">Isolate hidden commitments, governing jurisdiction issues, or regulatory exposures automatically.</p>
+          <div style="margin-top: var(--sp-4); padding-top: var(--sp-3); border-top: 1px solid var(--gray-100); font-size: var(--fs-xs); color: var(--violet-400); font-weight: 600;">Outcome: Block financial and operational liability</div>
+        </div>
+
+        <!-- Compliance Analysis -->
+        <div class="card card--feature card--hover" style="padding: var(--sp-6); background: var(--paper-2); border: 1px solid var(--gray-200); border-radius: var(--r-lg);">
+          <div style="font-size: 24px; margin-bottom: var(--sp-3);">🛡️</div>
+          <h3 class="feature-card__title" style="font-size: var(--fs-base); font-weight: 700; color: var(--ink);">Compliance Analysis</h3>
+          <p class="feature-card__desc" style="font-size: var(--fs-sm); color: var(--gray-500); line-height: 1.5; margin-top: var(--sp-2);">Check operational policies, SOC 2 reports, and vendor documentation against internal compliance checklists.</p>
+          <div style="margin-top: var(--sp-4); padding-top: var(--sp-3); border-top: 1px solid var(--gray-100); font-size: var(--fs-xs); color: var(--violet-400); font-weight: 600;">Outcome: Continuous alignment for audits</div>
+        </div>
+
+        <!-- Business Reports -->
+        <div class="card card--feature card--hover" style="padding: var(--sp-6); background: var(--paper-2); border: 1px solid var(--gray-200); border-radius: var(--r-lg);">
+          <div style="font-size: 24px; margin-bottom: var(--sp-3);">📈</div>
+          <h3 class="feature-card__title" style="font-size: var(--fs-base); font-weight: 700; color: var(--ink);">Business Reports</h3>
+          <p class="feature-card__desc" style="font-size: var(--fs-sm); color: var(--gray-500); line-height: 1.5; margin-top: var(--sp-2);">Extract KPIs, financial summaries, and executive metrics from multi-page PDFs in seconds.</p>
+          <div style="margin-top: var(--sp-4); padding-top: var(--sp-3); border-top: 1px solid var(--gray-100); font-size: var(--fs-xs); color: var(--violet-400); font-weight: 600;">Outcome: Actionable insights without manual synthesis</div>
+        </div>
+
+        <!-- Operational Insights -->
+        <div class="card card--feature card--hover" style="padding: var(--sp-6); background: var(--paper-2); border: 1px solid var(--gray-200); border-radius: var(--r-lg);">
+          <div style="font-size: 24px; margin-bottom: var(--sp-3);">🧭</div>
+          <h3 class="feature-card__title" style="font-size: var(--fs-base); font-weight: 700; color: var(--ink);">Operational Insights</h3>
+          <p class="feature-card__desc" style="font-size: var(--fs-sm); color: var(--gray-500); line-height: 1.5; margin-top: var(--sp-2);">Uncover inefficiencies, bottlenecks, and policy gaps in internal guides and runbooks.</p>
+          <div style="margin-top: var(--sp-4); padding-top: var(--sp-3); border-top: 1px solid var(--gray-100); font-size: var(--fs-xs); color: var(--violet-400); font-weight: 600;">Outcome: Streamlined business processes</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================== DIFFERENTIATION ====================== -->
+  <section class="section section--soft" style="border-top: 1px solid var(--gray-100); border-bottom: 1px solid var(--gray-100);">
+    <div class="container" style="display: flex; flex-direction: column; align-items: center; gap: var(--sp-8);">
+      <div style="text-align: center; max-width: 600px;">
+        <span class="eyebrow eyebrow--neutral">Structured Intelligence</span>
+        <h2 style="margin-top: var(--sp-4); font-size: var(--fs-3xl); font-weight: 800; color: var(--ink);">Why Clarix instead of ChatGPT?</h2>
+        <p style="margin-top: var(--sp-3); font-size: var(--fs-base); color: var(--gray-500);">Generic chatbots analyze one prompt at a time. Clarix builds structured business workflows with isolated document security.</p>
+      </div>
+
+      <div style="width: 100%; max-width: 900px; overflow-x: auto; background: var(--gray-25); border: 1px solid var(--gray-200); border-radius: var(--r-lg); box-shadow: var(--sh-md);">
+        <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: var(--fs-sm);">
+          <thead>
+            <tr style="border-bottom: 1px solid var(--gray-200); background: var(--gray-50);">
+              <th style="padding: var(--sp-4) var(--sp-6); font-weight: 700; color: var(--ink);">Capabilities</th>
+              <th style="padding: var(--sp-4) var(--sp-6); font-weight: 700; color: var(--violet-400);">Clarix Platform</th>
+              <th style="padding: var(--sp-4) var(--sp-6); font-weight: 500; color: var(--gray-500);">Generic AI Chatbots</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom: 1px solid var(--gray-100);">
+              <td style="padding: var(--sp-4) var(--sp-6); font-weight: 600; color: var(--ink);">Structured Audit Workflows</td>
+              <td style="padding: var(--sp-4) var(--sp-6); color: var(--violet-400); font-weight: 600;">✅ Yes, built-in</td>
+              <td style="padding: var(--sp-4) var(--sp-6); color: var(--gray-500);">❌ Chat prompts only</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--gray-100);">
+              <td style="padding: var(--sp-4) var(--sp-6); font-weight: 600; color: var(--ink);">Automated Risk Scoring</td>
+              <td style="padding: var(--sp-4) var(--sp-6); color: var(--violet-400); font-weight: 600;">✅ Yes, 0-100 score</td>
+              <td style="padding: var(--sp-4) var(--sp-6); color: var(--gray-500);">❌ Not available</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--gray-100);">
+              <td style="padding: var(--sp-4) var(--sp-6); font-weight: 600; color: var(--ink);">Isolated Workspace Memory</td>
+              <td style="padding: var(--sp-4) var(--sp-6); color: var(--violet-400); font-weight: 600;">✅ Yes, persistent</td>
+              <td style="padding: var(--sp-4) var(--sp-6); color: var(--gray-500);">❌ Session-only</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--gray-100);">
+              <td style="padding: var(--sp-4) var(--sp-6); font-weight: 600; color: var(--ink);">Audit Trail Logging</td>
+              <td style="padding: var(--sp-4) var(--sp-6); color: var(--violet-400); font-weight: 600;">✅ Yes, compliance-ready</td>
+              <td style="padding: var(--sp-4) var(--sp-6); color: var(--gray-500);">❌ None</td>
+            </tr>
+            <tr>
+              <td style="padding: var(--sp-4) var(--sp-6); font-weight: 600; color: var(--ink);">Corporate Privacy Isolation</td>
+              <td style="padding: var(--sp-4) var(--sp-6); color: var(--violet-400); font-weight: 600;">✅ Guaranteed zero-training</td>
+              <td style="padding: var(--sp-4) var(--sp-6); color: var(--gray-500);">❌ Opt-out required</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================== SOCIAL PROOF ====================== -->
+  <section class="section">
+    <div class="container" style="display: flex; flex-direction: column; align-items: center; gap: var(--sp-8);">
+      <div style="text-align: center; max-width: 600px;">
+        <span class="eyebrow"><span class="eyebrow__dot" style="background: var(--violet-400);"></span>Metrics & Validation</span>
+        <h2 style="margin-top: var(--sp-4); font-size: var(--fs-3xl); font-weight: 800; color: var(--ink);">Trusted by High-growth Teams</h2>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-6); width: 100%; text-align: center; margin-bottom: var(--sp-6);">
+        <div style="background: var(--gray-25); border: 1px solid var(--gray-100); border-radius: var(--r-md); padding: var(--sp-6);">
+          <div style="font-size: var(--fs-4xl); font-weight: 800; color: var(--violet-400);">1.2M+</div>
+          <div style="font-size: var(--fs-sm); color: var(--gray-500); font-weight: 500; margin-top: 4px;">Clauses Analyzed</div>
+        </div>
+        <div style="background: var(--gray-25); border: 1px solid var(--gray-100); border-radius: var(--r-md); padding: var(--sp-6);">
+          <div style="font-size: var(--fs-4xl); font-weight: 800; color: var(--violet-400);">98.7%</div>
+          <div style="font-size: var(--fs-sm); color: var(--gray-500); font-weight: 500; margin-top: 4px;">Risk Identification Accuracy</div>
+        </div>
+        <div style="background: var(--gray-25); border: 1px solid var(--gray-100); border-radius: var(--r-md); padding: var(--sp-6);">
+          <div style="font-size: var(--fs-4xl); font-weight: 800; color: var(--violet-400);">15,000+</div>
+          <div style="font-size: var(--fs-sm); color: var(--gray-500); font-weight: 500; margin-top: 4px;">Hours Saved in Audit Prep</div>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-6); width: 100%;">
+        <div class="card" style="padding: var(--sp-6); background: var(--paper-2); border: 1px solid var(--gray-200); border-radius: var(--r-lg); display: flex; flex-direction: column; gap: var(--sp-4);">
+          <p style="font-size: var(--fs-sm); color: var(--ink-2); line-height: 1.6; font-style: italic;">"Before Clarix, legal reviews of our vendor service agreements took weeks of back-and-forth. Now, our operations team performs initial risk assessments in seconds, highlighting liability holes immediately."</p>
+          <div>
+            <div style="font-size: var(--fs-xs); font-weight: 700; color: var(--ink);">Sarah Jenkins</div>
+            <div style="font-size: 10px; color: var(--gray-500);">VP Operations, ScaleFlow AI</div>
+          </div>
+        </div>
+        <div class="card" style="padding: var(--sp-6); background: var(--paper-2); border: 1px solid var(--gray-200); border-radius: var(--r-lg); display: flex; flex-direction: column; gap: var(--sp-4);">
+          <p style="font-size: var(--fs-sm); color: var(--ink-2); line-height: 1.6; font-style: italic;">"We handle dozens of subcontractor agreements. Clarix has saved us hundreds of billing audit hours by flagging governing law and insurance coverage inconsistencies automatically."</p>
+          <div>
+            <div style="font-size: var(--fs-xs); font-weight: 700; color: var(--ink);">Marcus Chen</div>
+            <div style="font-size: 10px; color: var(--gray-500);">Founder, Apex Build Group</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================== PRICING ====================== -->
+  <section class="section section--soft" style="border-top: 1px solid var(--gray-100); border-bottom: 1px solid var(--gray-100);">
+    <div class="container" style="display: flex; flex-direction: column; align-items: center; gap: var(--sp-8);">
+      <div style="text-align: center; max-width: 600px;">
+        <span class="eyebrow eyebrow--neutral">ROI-focused Plans</span>
+        <h2 style="margin-top: var(--sp-4); font-size: var(--fs-3xl); font-weight: 800; color: var(--ink);">Transparent, Value-driven Pricing</h2>
+        <p style="margin-top: var(--sp-3); font-size: var(--fs-base); color: var(--gray-500);">Start free. Upgrade when you need advanced risk templates, team memory, or custom integration workflows.</p>
+      </div>
+
+      <div class="grid grid-3 reveal" style="width: 100%; gap: var(--sp-6); align-items: stretch;">
+        <!-- Starter Plan -->
+        <div class="plan" style="background: var(--paper-2); border: 1px solid var(--gray-200); border-radius: var(--r-lg); padding: var(--sp-6); display: flex; flex-direction: column; gap: var(--sp-5);">
+          <div>
+            <div class="plan__name" style="font-size: var(--fs-lg); font-weight: 700; color: var(--ink);">Starter</div>
+            <div class="plan__price" style="margin-top: var(--sp-2);">
+              <span class="plan__amount" style="font-size: var(--fs-4xl); font-weight: 800; color: var(--ink);">$19</span>
+              <span class="plan__period" style="font-size: var(--fs-xs); color: var(--gray-500);">/ mo</span>
+            </div>
+            <p style="font-size: var(--fs-xs); color: var(--gray-500); margin-top: var(--sp-2);">For small operations teams and founders auditing incoming vendor documents.</p>
+          </div>
+          <ul class="plan__features" style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: var(--sp-3); font-size: var(--fs-xs); color: var(--gray-700);">
+            <li style="display: flex; align-items: center; gap: 8px;"><svg class="plan__check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color: var(--violet-400);"><path d="M20 6L9 17l-5-5"/></svg> Up to 50 documents / mo</li>
+            <li style="display: flex; align-items: center; gap: 8px;"><svg class="plan__check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color: var(--violet-400);"><path d="M20 6L9 17l-5-5"/></svg> Standard Risk Audit models</li>
+            <li style="display: flex; align-items: center; gap: 8px;"><svg class="plan__check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color: var(--violet-400);"><path d="M20 6L9 17l-5-5"/></svg> PDF, DOCX support</li>
+            <li style="display: flex; align-items: center; gap: 8px;"><svg class="plan__check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color: var(--violet-400);"><path d="M20 6L9 17l-5-5"/></svg> Email integration</li>
+          </ul>
+          <a class="btn btn--secondary btn--full" href="/sign-up" style="background: rgba(255, 255, 255, 0.05); color: var(--ink); border: 1px solid rgba(255, 255, 255, 0.1); margin-top: auto; text-align: center;">Get Started Free</a>
+        </div>
+
+        <!-- Pro Plan -->
+        <div class="plan plan--featured" style="background: var(--paper-2); border: 2px solid var(--violet-400); border-radius: var(--r-lg); padding: var(--sp-6); display: flex; flex-direction: column; gap: var(--sp-5); position: relative; box-shadow: 0 0 40px rgba(0, 242, 254, 0.05);">
+          <span style="position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--violet-400); color: var(--paper); font-size: 10px; font-weight: 700; text-transform: uppercase; padding: 2px 10px; border-radius: var(--r-full); letter-spacing: 0.05em;">Most Popular</span>
+          <div>
+            <div class="plan__name" style="font-size: var(--fs-lg); font-weight: 700; color: var(--ink);">Pro</div>
+            <div class="plan__price" style="margin-top: var(--sp-2);">
+              <span class="plan__amount" style="font-size: var(--fs-4xl); font-weight: 800; color: var(--ink);">$49</span>
+              <span class="plan__period" style="font-size: var(--fs-xs); color: var(--gray-500);">/ mo</span>
+            </div>
+            <p style="font-size: var(--fs-xs); color: var(--gray-500); margin-top: var(--sp-2);">For growing companies seeking custom analysis rules and unified workspace intelligence.</p>
+          </div>
+          <ul class="plan__features" style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: var(--sp-3); font-size: var(--fs-xs); color: var(--gray-700);">
+            <li style="display: flex; align-items: center; gap: 8px;"><svg class="plan__check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color: var(--violet-400);"><path d="M20 6L9 17l-5-5"/></svg> <strong>Unlimited documents</strong></li>
+            <li style="display: flex; align-items: center; gap: 8px;"><svg class="plan__check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color: var(--violet-400);"><path d="M20 6L9 17l-5-5"/></svg> Custom Risk Policy rules</li>
+            <li style="display: flex; align-items: center; gap: 8px;"><svg class="plan__check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color: var(--violet-400);"><path d="M20 6L9 17l-5-5"/></svg> Cross-document semantic chat</li>
+            <li style="display: flex; align-items: center; gap: 8px;"><svg class="plan__check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color: var(--violet-400);"><path d="M20 6L9 17l-5-5"/></svg> Notion, Slack, Drive integrations</li>
+            <li style="display: flex; align-items: center; gap: 8px;"><svg class="plan__check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color: var(--violet-400);"><path d="M20 6L9 17l-5-5"/></svg> CSV, JSON, DOCX report exports</li>
+          </ul>
+          <a class="btn btn--accent btn--full" href="/sign-up" style="background: var(--violet-400); color: var(--paper); border: none; font-weight: 600; margin-top: auto; text-align: center;">Start 14-Day Free Trial</a>
+        </div>
+
+        <!-- Business Plan -->
+        <div class="plan" style="background: var(--paper-2); border: 1px solid var(--gray-200); border-radius: var(--r-lg); padding: var(--sp-6); display: flex; flex-direction: column; gap: var(--sp-5);">
+          <div>
+            <div class="plan__name" style="font-size: var(--fs-lg); font-weight: 700; color: var(--ink);">Business</div>
+            <div class="plan__price" style="margin-top: var(--sp-2);">
+              <span class="plan__amount" style="font-size: var(--fs-3xl); font-weight: 800; color: var(--ink);">Custom</span>
+            </div>
+            <p style="font-size: var(--fs-xs); color: var(--gray-500); margin-top: var(--sp-2);">For large institutions needing specialized security compliance and dedicated infrastructure.</p>
+          </div>
+          <ul class="plan__features" style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: var(--sp-3); font-size: var(--fs-xs); color: var(--gray-700);">
+            <li style="display: flex; align-items: center; gap: 8px;"><svg class="plan__check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color: var(--violet-400);"><path d="M20 6L9 17l-5-5"/></svg> Everything in Pro</li>
+            <li style="display: flex; align-items: center; gap: 8px;"><svg class="plan__check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color: var(--violet-400);"><path d="M20 6L9 17l-5-5"/></svg> Dedicated model fine-tuning</li>
+            <li style="display: flex; align-items: center; gap: 8px;"><svg class="plan__check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color: var(--violet-400);"><path d="M20 6L9 17l-5-5"/></svg> SSO / SAML & Audit Logs</li>
+            <li style="display: flex; align-items: center; gap: 8px;"><svg class="plan__check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color: var(--violet-400);"><path d="M20 6L9 17l-5-5"/></svg> Dedicated Customer Success Manager</li>
+          </ul>
+          <a class="btn btn--primary btn--full" href="/sign-up" style="background: rgba(255, 255, 255, 0.05); color: var(--ink); border: 1px solid rgba(255, 255, 255, 0.1); margin-top: auto; text-align: center;">Contact Sales</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================== FINAL CTA ====================== -->
+  <section class="section">
+    <div class="container" style="display: flex; flex-direction: column; align-items: center;">
+      <div class="cta reveal" style="text-align: center; max-width: 800px; display: flex; flex-direction: column; align-items: center; gap: var(--sp-4); background: radial-gradient(circle at 50% 50%, rgba(0, 242, 254, 0.05), transparent 70%), var(--gray-25); border: 1px solid var(--gray-200); padding: var(--sp-12) var(--sp-6); border-radius: var(--r-xl); width: 100%;">
+        <span class="eyebrow"><span class="eyebrow__dot" style="background: var(--violet-400);"></span>Immediate Value</span>
+        <h2 style="font-size: var(--fs-3xl); font-weight: 800; color: var(--ink);">Zero risk audit preparation.</h2>
+        <p style="font-size: var(--fs-base); color: var(--gray-500); line-height: 1.5; max-width: 580px;">Stop copy-pasting contract clauses. Upload your first document for a free automated risk and compliance analysis today.</p>
+        <div class="cta__actions" style="margin-top: var(--sp-4);">
+          <a class="btn btn--primary btn--xl" href="/sign-up" style="background: var(--violet-400); color: var(--paper); border: none; font-weight: 600; padding: 16px 36px;">
+            Start Free Analysis
+            <svg class="btn__icon btn__icon--arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================== FOOTER ====================== -->
+  <footer class="footer" style="border-top: 1px solid var(--gray-100); padding-top: var(--sp-16); padding-bottom: var(--sp-12);">
+    <div class="container">
+      <div class="footer__top" style="display: grid; grid-template-columns: 2fr repeat(4, 1fr); gap: var(--sp-8); margin-bottom: var(--sp-12);">
+        <div class="footer__brand-block" style="display: flex; flex-direction: column; gap: var(--sp-4);">
+          <a href="/" class="nav__brand" style="color: var(--ink);">
+            <svg width="28" height="28" viewBox="0 0 32 32" aria-hidden="true" style="border-radius:8px;display:block">
+              <rect width="32" height="32" rx="8" fill="#00F2FE"/>
+              <path d="M22.89 10.21 A9 9 0 1 0 22.89 21.79" fill="none" stroke="#05050A" stroke-width="5" stroke-linecap="round"/>
+            </svg>
+            <span style="font-weight: 700; letter-spacing: -0.03em;">CLARIX</span>
+          </a>
+          <p class="footer__tagline" style="font-size: var(--fs-xs); color: var(--gray-500); line-height: 1.6;">AI-powered business intelligence and document risk analysis. Instantly scan contracts, reports, and invoices to protect operations.</p>
+        </div>
+        <div class="footer__col" style="display: flex; flex-direction: column; gap: var(--sp-3);">
+          <h6 style="font-size: var(--fs-xs); font-weight: 700; color: var(--ink); text-transform: uppercase;">Product</h6>
+          <ul class="footer__list" style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; font-size: var(--fs-xs); color: var(--gray-500);">
+            <li><a href="/features">Features</a></li>
+            <li><a href="/meeting-types">Document Types</a></li>
+            <li><a href="/pricing">Pricing</a></li>
+            <li><a href="/integrations">Integrations</a></li>
+          </ul>
+        </div>
+        <div class="footer__col" style="display: flex; flex-direction: column; gap: var(--sp-3);">
+          <h6 style="font-size: var(--fs-xs); font-weight: 700; color: var(--ink); text-transform: uppercase;">Company</h6>
+          <ul class="footer__list" style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; font-size: var(--fs-xs); color: var(--gray-500);">
+            <li><a href="/sign-up">About</a></li>
+            <li><a href="/sign-up">Careers</a></li>
+          </ul>
+        </div>
+        <div class="footer__col" style="display: flex; flex-direction: column; gap: var(--sp-3);">
+          <h6 style="font-size: var(--fs-xs); font-weight: 700; color: var(--ink); text-transform: uppercase;">Resources</h6>
+          <ul class="footer__list" style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; font-size: var(--fs-xs); color: var(--gray-500);">
+            <li><a href="/sign-up">Help Center</a></li>
+            <li><a href="/sign-up">API Docs</a></li>
+            <li><a href="/sign-up">Status</a></li>
+          </ul>
+        </div>
+        <div class="footer__col" style="display: flex; flex-direction: column; gap: var(--sp-3);">
+          <h6 style="font-size: var(--fs-xs); font-weight: 700; color: var(--ink); text-transform: uppercase;">Legal</h6>
+          <ul class="footer__list" style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; font-size: var(--fs-xs); color: var(--gray-500);">
+            <li><a href="/privacy">Privacy</a></li>
+            <li><a href="/terms">Terms</a></li>
+            <li><a href="/hipaa">HIPAA</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom" style="display: flex; justify-content: space-between; border-top: 1px solid var(--gray-100); padding-top: var(--sp-6); font-size: 11px; color: var(--gray-500);">
+        <span>© 2026 CLARIX, Inc. All rights reserved.</span>
+      </div>
+    </div>
+  </footer>
+`;
