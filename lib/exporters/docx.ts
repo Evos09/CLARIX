@@ -2,6 +2,38 @@ import { Document, Packer, Paragraph, HeadingLevel, TextRun } from "docx";
 import type { BaseOutput } from "@/lib/outputTypes";
 import { extraKeys } from "@/lib/outputTypes";
 
+function addExtraDocxValue(children: Paragraph[], val: unknown): void {
+  if (val === null || val === undefined) return;
+
+  if (Array.isArray(val)) {
+    for (const item of val) {
+      if (typeof item === "object" && item !== null) {
+        const parts = Object.entries(item)
+          .filter(([_, v]) => v !== null && v !== undefined && typeof v !== "object")
+          .map(([k, v]) => `${k.replace(/([A-Z])/g, " $1").toLowerCase()}: ${v}`);
+        if (parts.length) {
+          children.push(new Paragraph({ text: parts.join(" · "), bullet: { level: 0 } }));
+        }
+      } else {
+        children.push(new Paragraph({ text: String(item), bullet: { level: 0 } }));
+      }
+    }
+    return;
+  }
+
+  if (typeof val === "object") {
+    const parts = Object.entries(val)
+      .filter(([_, v]) => v !== null && v !== undefined && typeof v !== "object")
+      .map(([k, v]) => `${k.replace(/([A-Z])/g, " $1").toLowerCase()}: ${v}`);
+    if (parts.length) {
+      children.push(new Paragraph({ text: parts.join(" · ") }));
+    }
+    return;
+  }
+
+  children.push(new Paragraph({ text: String(val) }));
+}
+
 export async function meetingDocx(opts: {
   title: string;
   typeLabel: string;
@@ -36,7 +68,7 @@ export async function meetingDocx(opts: {
   }
   for (const k of extraKeys(output)) {
     children.push(new Paragraph({ text: k.replace(/([A-Z])/g, " $1").replace(/^\w/, (c) => c.toUpperCase()), heading: HeadingLevel.HEADING_2 }));
-    children.push(new Paragraph({ text: JSON.stringify(output[k], null, 2) }));
+    addExtraDocxValue(children, output[k]);
   }
 
   const doc = new Document({ sections: [{ children }] });

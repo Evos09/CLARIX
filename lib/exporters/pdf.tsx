@@ -13,6 +13,35 @@ const s = StyleSheet.create({
   bullet: { marginBottom: 3, paddingLeft: 8 },
 });
 
+function renderExtraValue(val: unknown): React.ReactNode {
+  if (val === null || val === undefined) return null;
+
+  if (Array.isArray(val)) {
+    return (
+      <View>
+        {val.map((item, idx) => {
+          if (typeof item === "object" && item !== null) {
+            const parts = Object.entries(item)
+              .filter(([_, v]) => v !== null && v !== undefined && typeof v !== "object")
+              .map(([k, v]) => `${k.replace(/([A-Z])/g, " $1").toLowerCase()}: ${v}`);
+            return parts.length ? <Text key={idx} style={s.bullet}>• {parts.join(" · ")}</Text> : null;
+          }
+          return <Text key={idx} style={s.bullet}>• {String(item)}</Text>;
+        })}
+      </View>
+    );
+  }
+
+  if (typeof val === "object") {
+    const parts = Object.entries(val)
+      .filter(([_, v]) => v !== null && v !== undefined && typeof v !== "object")
+      .map(([k, v]) => `${k.replace(/([A-Z])/g, " $1").toLowerCase()}: ${v}`);
+    return parts.length ? <Text style={s.bullet}>{parts.join(" · ")}</Text> : null;
+  }
+
+  return <Text style={s.item}>{String(val)}</Text>;
+}
+
 export async function meetingPdf(opts: {
   title: string;
   typeLabel: string;
@@ -77,7 +106,7 @@ export async function meetingPdf(opts: {
         {extras.map((k) => (
           <View key={k}>
             <Text style={s.h2}>{k.replace(/([A-Z])/g, " $1").replace(/^\w/, (c) => c.toUpperCase())}</Text>
-            <Text style={s.item}>{JSON.stringify(output[k], null, 2)}</Text>
+            {renderExtraValue(output[k])}
           </View>
         ))}
       </Page>
