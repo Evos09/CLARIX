@@ -4,47 +4,47 @@
 
 :root {
   /* ----- Color: Brand ----- */
-  --ink: #FAFAF7;          /* High contrast off-white text */
-  --ink-2: #E8E8E0;        /* Muted off-white text */
-  --ink-3: #9E9E94;        /* Darker gray text */
-  --paper: #05050A;        /* Deep black background */
-  --paper-2: #0B0B14;      /* Navy-black secondary background */
-  --paper-3: #15152A;      /* Active state background */
+  --ink: #0B0B14;
+  --ink-2: #15152A;
+  --ink-3: #1F1F38;
+  --paper: #FAFAF7;
+  --paper-2: #F2F2EC;
+  --paper-3: #E8E8E0;
 
-  /* ----- Color: Accent (Electric Teal) ----- */
-  --violet-50: rgba(0, 242, 254, 0.05);
-  --violet-100: rgba(0, 242, 254, 0.1);
-  --violet-200: rgba(0, 242, 254, 0.25);
-  --violet-300: rgba(0, 242, 254, 0.4);
-  --violet-400: #00F2FE;   /* Electric Teal Accent */
-  --violet-500: #00D2DD;
-  --violet-600: #00B5C0;
-  --violet-700: #008F9A;
-  --violet-800: #006770;
-  --violet-900: #003B40;
+  /* ----- Color: Accent ----- */
+  --violet-50: #F4F1FE;
+  --violet-100: #E9E2FD;
+  --violet-200: #D2C2FB;
+  --violet-300: #B69AF8;
+  --violet-400: #9670F0;
+  --violet-500: #7C4FE8;
+  --violet-600: #6D28D9;
+  --violet-700: #5B21B6;
+  --violet-800: #4C1D95;
+  --violet-900: #2E1065;
 
   /* ----- Color: Signal ----- */
   --mint: #10B981;
-  --mint-soft: rgba(16, 185, 129, 0.15);
+  --mint-soft: #D1FAE5;
   --amber: #F59E0B;
-  --amber-soft: rgba(245, 158, 11, 0.15);
+  --amber-soft: #FEF3C7;
   --rose: #F43F5E;
-  --rose-soft: rgba(244, 63, 94, 0.15);
-  --sky: #00F2FE;
-  --sky-soft: rgba(0, 242, 254, 0.1);
+  --rose-soft: #FFE4E6;
+  --sky: #38BDF8;
+  --sky-soft: #E0F2FE;
 
-  /* ----- Color: Neutral scale (Dark Mode) ----- */
-  --gray-25: #07070F;
-  --gray-50: #0A0A15;
-  --gray-100: #121222;
-  --gray-200: #1D1D35;
-  --gray-300: #32324F;
-  --gray-400: #5D5D7A;
-  --gray-500: #8888A5;
-  --gray-600: #AEAECA;
-  --gray-700: #D5D5E3;
-  --gray-800: #ECECEF;
-  --gray-900: #FAFAF7;
+  /* ----- Color: Neutral scale ----- */
+  --gray-25: #FBFBF9;
+  --gray-50: #F7F7F4;
+  --gray-100: #EFEFEA;
+  --gray-200: #E2E2DB;
+  --gray-300: #C9C9C0;
+  --gray-400: #9E9E94;
+  --gray-500: #6E6E66;
+  --gray-600: #4A4A44;
+  --gray-700: #2D2D2A;
+  --gray-800: #1B1B1A;
+  --gray-900: #0E0E0E;
 
   /* ----- Typography ----- */
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
