@@ -77,7 +77,7 @@ export function AutoJoinCard() {
           <p className="text-xs text-amber-600">Connect a calendar above to enable this.</p>
         ) : null}
         {msg && <p className="text-xs text-destructive">{msg}</p>}
-        <p className="text-xs text-muted-foreground">Requires the meeting bot to be configured (Recall).</p>
+        <p className="text-xs text-muted-foreground">CLARIX joins as a visible participant named &quot;CLARIX&quot;. By enabling auto-join, you confirm you have consent to record participants on these calls, where required by law (e.g. two-party-consent regions).</p>
       </CardContent>
     </Card>
   );

@@ -137,7 +137,8 @@ export function JoinWithBotTab() {
         <Button variant="accent" onClick={submit} disabled={submitting || platform === "UNKNOWN" || !url}>
           {submitting ? <Loader2 className="size-4 animate-spin" /> : <><Video className="size-4" /> Send CLARIX</>}
         </Button>
-        <p className="text-xs text-muted-foreground">CLARIX joins as a participant named &quot;CLARIX&quot;, records, and leaves automatically after the meeting ends.</p>
+        <p className="text-xs text-muted-foreground">CLARIX joins as a visible participant named &quot;CLARIX&quot;, records, and leaves automatically after the meeting ends.</p>
+        <p className="text-xs text-muted-foreground">By sending CLARIX, you confirm you have consent to record the participants, where required by law (e.g. two-party-consent regions).</p>
       </CardContent>
     </Card>
   );
