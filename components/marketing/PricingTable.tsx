@@ -11,7 +11,7 @@ const FEATURES: Record<PlanId, string[]> = {
   FREE: ["3 meetings / month", "General meeting type", "Summary + action items"],
   STARTER: ["20 meetings / month", "All standard meeting types", "PDF export", "Auto-join meeting bot", "Forever audio library"],
   PRO: ["Unlimited meetings", "All standard meeting types", "PDF, DOCX, CSV & JSON export", "Ask CLARIX chat", "Auto-join meeting bot", "Forever audio library", "Voice Mode (Coming Soon)"],
-  ENTERPRISE: ["Everything in Pro", "Pro Verticals (Health/Legal/Finance)", "SSO + custom templates", "EHR / FHIR export"],
+  ENTERPRISE: ["Everything in Pro", "Pro Verticals (Health/Legal/Finance)", "Custom templates", "SSO / SAML (Coming Soon)", "EHR / FHIR export"],
 };
 
 const ORDER: PlanId[] = ["FREE", "STARTER", "PRO", "ENTERPRISE"];

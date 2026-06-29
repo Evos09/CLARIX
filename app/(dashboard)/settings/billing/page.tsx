@@ -22,7 +22,7 @@ export default async function BillingPage() {
       </div>
       {!isStripeConfigured() && (
         <p className="text-sm text-muted-foreground">
-          Add Stripe keys + price IDs to <code className="font-mono">.env.local</code> to enable checkout.
+          Online checkout is being set up. To upgrade in the meantime, reach out and we&apos;ll get you on the right plan.
         </p>
       )}
       <PricingTable highlight="PRO" currentPlan={planId} />
