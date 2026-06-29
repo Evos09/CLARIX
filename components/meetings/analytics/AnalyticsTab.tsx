@@ -67,7 +67,7 @@ export function AnalyticsTab({ meetingId }: { meetingId: string }) {
   if (state === "notReady") return <p className="text-sm text-muted-foreground">Analytics available after meeting processing completes.</p>;
   if (state === "error" || !data) return <p className="text-sm text-destructive">{error || "Could not load analytics."}</p>;
 
-  const speakerData = (data.speakerStats ?? []).map((s) => ({ name: `Speaker ${s.speaker}`, value: Math.round(s.talkPercent ?? 0), words: s.wordCount ?? 0, filler: s.fillerWords ?? 0 }));
+  const speakerData = (data.speakerStats ?? []).map((s) => ({ name: /^speaker\b/i.test((s.speaker ?? "").trim()) ? s.speaker.trim() : `Speaker ${s.speaker}`, value: Math.round(s.talkPercent ?? 0), words: s.wordCount ?? 0, filler: s.fillerWords ?? 0 }));
 
   return (
     <div className="space-y-6">
