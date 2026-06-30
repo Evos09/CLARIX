@@ -4,13 +4,13 @@ import { ScanText, ListTree, MessagesSquare, AudioLines, Video, Plug } from "luc
 const features = [
   {
     icon: ScanText,
-    title: "Transcription that knows the room",
+    title: "AI transcription for any meeting",
     description:
       "Accurate transcription for any meeting, with automatic detection of the meeting type from the first few minutes. Zero setup.",
   },
   {
     icon: ListTree,
-    title: "Structured outputs, not walls of text",
+    title: "Action items & decisions extracted",
     description:
       "Action items, decisions, and summaries — shaped to fit the exact kind of meeting it was.",
   },
@@ -28,13 +28,13 @@ const features = [
   },
   {
     icon: Video,
-    title: "Flexible capture",
+    title: "Three ways to capture a meeting",
     description:
       "Record in-browser, upload a file, or let a CLARIX bot join your Zoom, Google Meet, or Teams call automatically.",
   },
   {
     icon: Plug,
-    title: "Works with your stack",
+    title: "Works everywhere you meet",
     description:
       "Connects to the tools teams already use — calendar, email, Slack, Notion, Linear, and your CRM.",
   },
@@ -45,9 +45,9 @@ export function FeatureHighlights() {
     <section className="relative py-24 lg:py-32 border-t border-foreground/10">
       <div className="max-w-[1400px] mx-auto px-6 lg:px-12">
         <SectionHeading
-          eyebrow="Capabilities"
-          title="Built to do the work after the meeting"
-          description="CLARIX listens, understands the context, and hands you outputs you can actually use — in minutes."
+          eyebrow="Every meeting"
+          title="Every meeting, fully understood"
+          description="CLARIX doesn't just transcribe. It listens, decides what matters, and produces the brief you would have written if you'd had an extra hour after every call."
         />
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-px bg-foreground/10 border border-foreground/10 mt-16 rounded-xl overflow-hidden">

@@ -10,8 +10,8 @@ export function IntegrationsPreview() {
         <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
           <SectionHeading
             eyebrow="Integrations"
-            title="Fits the tools you already use"
-            description="Connect your conferencing, calendar, email, workspace, and CRM — and let CLARIX keep them all in sync."
+            title="Plays nicely with everything you already use"
+            description="CLARIX joins your existing meeting tools, then pushes structured outputs into your team's workflow. No new tabs to check."
           />
           <Link
             href="/integrations"

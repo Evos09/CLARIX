@@ -17,7 +17,7 @@ export function MeetingTypesPreview() {
                 every kind of meeting
               </>
             }
-            description="CLARIX detects what kind of meeting it is and extracts what matters for that specific format."
+            description="CLARIX knows the difference between a standup, a sales call, and a board meeting — and structures every brief accordingly."
           />
           <Link
             href="/meeting-types"

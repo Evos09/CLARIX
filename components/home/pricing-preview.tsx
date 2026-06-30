@@ -10,8 +10,8 @@ export function PricingPreview() {
         <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-14">
           <SectionHeading
             eyebrow="Pricing"
-            title="Simple plans that scale with you"
-            description="Start free. Upgrade when your team is ready. Annual billing saves you two months."
+            title="Simple pricing. Scales with your team."
+            description="Start free. Upgrade when you need more meetings, more integrations, or Pro Verticals."
           />
           <Link
             href="/pricing"
