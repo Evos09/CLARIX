@@ -47,7 +47,7 @@ const blocks = [
     visual: <AskClarixVisual />,
   },
   {
-    eyebrow: "Voice mode",
+    eyebrow: "Voice mode · Coming soon",
     title: "Talk to CLARIX, hands-free",
     description:
       "Advanced Voice Mode lets you have a real-time spoken conversation with CLARIX. Ask questions out loud and hear a spoken response — perfect for “read back my action items” or “what did Sarah commit to.”",

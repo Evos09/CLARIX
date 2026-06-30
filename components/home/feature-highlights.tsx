@@ -64,7 +64,7 @@ export function FeatureHighlights() {
                   {String(i + 1).padStart(2, "0")}
                 </span>
               </div>
-              <h3 className="font-display text-2xl mb-3 text-balance">{feature.title}</h3>
+              <h3 className="font-display text-2xl mb-3 text-balance">{feature.title}{feature.title === "Advanced Voice Mode" && <span className="ml-2 inline-block align-middle rounded-full border border-accent/30 px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider text-accent">Coming soon</span>}</h3>
               <p className="text-muted-foreground leading-relaxed text-pretty">{feature.description}</p>
             </div>
           ))}

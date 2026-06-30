@@ -59,7 +59,7 @@ export const PLANS: Record<PlanId, PlanConfig> = {
     price: 19,
     annualPrice: 15,
     meetingsPerMonth: 20,
-    exports: ["PDF"],
+    exports: ["PDF", "DOCX", "CSV"],
     allMeetingTypes: true,
     askClarix: false,
     proVerticals: false,

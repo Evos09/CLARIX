@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 
 const FEATURES: Record<PlanId, string[]> = {
   FREE: ["3 meetings / month", "General meeting type", "Summary + action items"],
-  STARTER: ["20 meetings / month", "All standard meeting types", "PDF export", "Auto-join meeting bot", "Forever audio library"],
+  STARTER: ["20 meetings / month", "All standard meeting types", "PDF, DOCX & CSV export", "Auto-join meeting bot", "Forever audio library"],
   PRO: ["Unlimited meetings", "All standard meeting types", "PDF, DOCX, CSV & JSON export", "Ask CLARIX chat (200/mo)", "Auto-join meeting bot", "Forever audio library", "Voice Mode (Coming Soon)"],
   ENTERPRISE: ["Everything in Pro", "Pro Verticals (Health/Legal/Finance)", "Custom templates", "SSO / SAML (Coming Soon)", "EHR / FHIR export"],
 };
