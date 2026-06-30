@@ -58,8 +58,8 @@ export default function PricingPage() {
               </h2>
               <p className="text-background/70 leading-relaxed text-pretty">
                 For regulated industries, large rollouts, custom AI templates, and procurement, our team
-                will tailor CLARIX to your security and compliance requirements — including SSO/SAML and a
-                signed BAA.
+                will tailor CLARIX to your security and compliance requirements, with SSO/SAML on the
+                roadmap.
               </p>
             </div>
             <Button

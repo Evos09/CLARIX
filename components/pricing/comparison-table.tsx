@@ -9,11 +9,10 @@ const groups: { group: string; rows: { label: string; values: [Cell, Cell, Cell,
   {
     group: "Meetings & capture",
     rows: [
-      { label: "Meetings per month", values: ["10", "20", "Unlimited", "Unlimited"] },
+      { label: "Meetings per month", values: ["3", "20", "Unlimited", "Unlimited"] },
       { label: "In-browser recording", values: [true, true, true, true] },
       { label: "File upload", values: [true, true, true, true] },
       { label: "Auto-join meeting bot", values: [false, true, true, true] },
-      { label: "Live captions & coaching", values: [false, false, true, true] },
     ],
   },
   {
@@ -46,9 +45,7 @@ const groups: { group: string; rows: { label: string; values: [Cell, Cell, Cell,
   {
     group: "Security & support",
     rows: [
-      { label: "SSO / SAML", values: [false, false, false, true] },
-      { label: "HIPAA with signed BAA", values: [false, false, false, true] },
-      { label: "Desktop app (Mac & Windows)", values: [false, false, false, true] },
+      { label: "SSO / SAML (Coming Soon)", values: [false, false, false, true] },
       { label: "SLA & priority support", values: [false, false, false, true] },
     ],
   },

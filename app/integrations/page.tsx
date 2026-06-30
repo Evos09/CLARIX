@@ -10,7 +10,7 @@ import { Bot, MessageSquare, FileText, Building2 } from "lucide-react";
 export const metadata = {
   title: "Integrations — CLARIX",
   description:
-    "CLARIX connects to Zoom, Google Meet, Teams, Google and Apple Calendar, Gmail, Outlook, Slack, Notion, Linear, Salesforce, and HubSpot.",
+    "CLARIX connects to Zoom, Google Meet, Teams, Google and Apple Calendar, Gmail, Slack, Notion, Linear, Salesforce, and HubSpot.",
 };
 
 const categories: Integration["category"][] = ["Conferencing", "Calendar", "Email", "Workspace", "CRM"];

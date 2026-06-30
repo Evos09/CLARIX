@@ -58,8 +58,8 @@ const blocks = [
     eyebrow: "Capture",
     title: "Three ways to capture a meeting",
     description:
-      "Record directly in-browser with mic and system audio, upload any audio or video file, or send a CLARIX bot to automatically join your Zoom, Google Meet, or Microsoft Teams call. Live captions and real-time coaching suggestions run while you record.",
-    bullets: ["In-browser recording", "File upload", "Auto-join meeting bot", "Live captions & coaching"],
+      "Record directly in-browser with mic and system audio, upload any audio or video file, or send a CLARIX bot to automatically join your Zoom, Google Meet, or Microsoft Teams call.",
+    bullets: ["In-browser recording", "File upload", "Auto-join meeting bot"],
     visual: <RecordingVisual />,
   },
   {
