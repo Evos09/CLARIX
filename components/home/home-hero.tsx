@@ -37,7 +37,7 @@ export function HomeHero() {
             >
               <span className="inline-flex items-center gap-3 text-sm font-mono text-muted-foreground">
                 <span className="w-8 h-px bg-foreground/30" />
-                The AI meeting assistant
+                Now live · no credit card
               </span>
             </div>
 
@@ -46,14 +46,12 @@ export function HomeHero() {
                 isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
               }`}
             >
-              Every meeting,
-              <br />
-              turned into{" "}
+              The AI that handles{" "}
               <span className="relative inline-block">
-                action
+                every meeting
                 <span className="absolute -bottom-1 left-0 right-0 h-3 bg-brand/20" />
-              </span>
-              .
+              </span>{" "}
+              you never have time to recap.
             </h1>
 
             <p
@@ -61,9 +59,9 @@ export function HomeHero() {
                 isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
               }`}
             >
-              CLARIX records or joins your calls, transcribes every word, and automatically
-              produces action items, decisions, and summaries — tailored to the exact type of
-              meeting. No setup required.
+              CLARIX joins your calls, listens, and turns every conversation into a clean
+              brief — action items, decisions, summaries — in under 60 seconds. Then you can
+              talk to it about what was decided.
             </p>
 
             <div
@@ -77,7 +75,7 @@ export function HomeHero() {
                 className="bg-accent hover:bg-accent/90 text-background px-8 h-14 text-base rounded-full group"
               >
                 <Link href="/sign-up">
-                  Start Free
+                  Get Started Free
                   <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
                 </Link>
               </Button>
@@ -96,7 +94,7 @@ export function HomeHero() {
                 isVisible ? "opacity-100" : "opacity-0"
               }`}
             >
-              No credit card required · Includes a 14-day Pro trial
+              No credit card · 3 meetings free every month
             </p>
           </div>
 
