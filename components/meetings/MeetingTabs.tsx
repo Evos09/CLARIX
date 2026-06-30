@@ -62,8 +62,8 @@ export function MeetingTabs({
                 else setTab(t);
               }}
               className={cn(
-                "border-b-2 px-4 py-2 text-sm font-medium transition-colors whitespace-nowrap",
-                isActive ? "border-teal text-foreground" : "border-transparent text-muted-foreground hover:text-foreground",
+                "border-b-2 px-4 py-2.5 text-[11px] font-medium uppercase tracking-wider font-mono transition-colors whitespace-nowrap",
+                isActive ? "border-accent text-accent" : "border-transparent text-muted-foreground hover:text-foreground",
               )}
             >
               {t}
