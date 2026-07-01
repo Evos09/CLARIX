@@ -26,6 +26,7 @@ Status legend: ⬜ not done · ✅ done
 | `NEXT_PUBLIC_MAX_UPLOAD_MB` | uploads | Optional. Default `2048`. Lower it if your storage plan is small. |
 | `CRON_SECRET` | background jobs | ⬜ Random string (`openssl rand -hex 32`). Guards the digest cron — see §8. |
 | Integration keys (optional) | Slack/Notion/Linear/Google/CRM/MeetingBaas | ⬜ Only needed for the features you advertise. Each is dormant until its key is set. |
+| `NEXT_PUBLIC_META_PIXEL_ID` / `NEXT_PUBLIC_POSTHOG_KEY` | ad tracking & product analytics | ⬜ Needed before running paid ads. Fires PageView, CompleteRegistration, InitiateCheckout, Subscribe. See `ADS.md`. |
 
 ---
 

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, JetBrains_Mono, Instrument_Serif } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/components/auth/AuthProvider";
+import { Tracking } from "@/components/tracking/Tracking";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -49,6 +50,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <AuthProvider>{children}</AuthProvider>
+        <Tracking />
       </body>
     </html>
   );

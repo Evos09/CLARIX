@@ -5,6 +5,7 @@ import { Check, Loader2 } from "lucide-react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PLANS, type PlanId } from "@/lib/stripe";
+import { track } from "@/lib/tracking";
 import { cn } from "@/lib/utils";
 
 const FEATURES: Record<PlanId, string[]> = {
@@ -30,6 +31,7 @@ export function PricingTable({
   async function handleCheckout(plan: string) {
     setLoading(plan);
     setError(null);
+    track("InitiateCheckout", { plan, billingPeriod });
     try {
       const res = await fetch("/api/billing/checkout", {
         method: "POST",
