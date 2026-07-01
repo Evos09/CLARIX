@@ -9,9 +9,9 @@ export const plans: Plan[] = [
   { name: "Starter", description: "For individuals who meet often.", price: { monthly: 19, annual: 15 }, unit: "/user/mo", cta: "Start Free", href: "/sign-up",
     features: ["20 meetings per month", "All 20+ meeting types", "PDF, DOCX & CSV export", "Auto-join meeting bot (Zoom, Meet, Teams)", "Forever audio library", "Email integration (Gmail)"] },
   { name: "Pro", description: "For teams that run on meetings.", price: { monthly: 49, annual: 39 }, unit: "/user/mo", cta: "Start 14-day trial", href: "/sign-up", popular: true,
-    features: ["Unlimited meetings", "All exports (PDF, DOCX, CSV, JSON)", "Ask CLARIX chat (200/mo)", "Auto-join meeting bot", "Forever library + reprocessing", "Calendar, Slack, Notion & Linear", "Voice Mode (coming soon)"] },
+    features: ["Unlimited meetings", "All exports (PDF, DOCX, CSV, JSON)", "Ask CLARIX chat (200/mo)", "Auto-join meeting bot", "Forever library + reprocessing", "Google Calendar, Gmail & Notion", "Voice Mode (coming soon)"] },
   { name: "Enterprise", description: "For regulated and large organizations.", price: { monthly: 89, annual: 69 }, unit: "/user/mo", cta: "Talk to Sales", href: "/sign-up",
-    features: ["Everything in Pro", "Healthcare, Legal & Financial Verticals", "Salesforce & HubSpot CRM", "EHR / FHIR export", "Custom AI templates", "SSO / SAML (coming soon)", "SLA & priority support"] },
+    features: ["Everything in Pro", "Healthcare, Legal & Financial Verticals", "Salesforce & HubSpot CRM (coming soon)", "EHR / FHIR export", "Custom AI templates", "SSO / SAML (coming soon)", "SLA & priority support"] },
 ];
 
 export type MeetingType = { name: string; summary: string; extracts: string[] };

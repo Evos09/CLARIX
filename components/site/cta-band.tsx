@@ -4,8 +4,8 @@ import { ArrowRight } from "lucide-react";
 
 export function CtaBand({
   title = "Start Free — no credit card required",
-  description = "Get your first structured meeting summary in minutes. Every signup includes a 14-day Pro trial.",
-  primary = { label: "Start Free", href: "/signup" },
+  description = "Get your first structured meeting summary in minutes. Every paid plan starts with a 14-day free trial.",
+  primary = { label: "Start Free", href: "/sign-up" },
   secondary,
 }: {
   title?: string;

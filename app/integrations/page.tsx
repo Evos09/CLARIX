@@ -113,7 +113,7 @@ export default function IntegrationsPage() {
       <CtaBand
         title="Connect your tools in minutes"
         description="Sign up free, link your stack, and let CLARIX handle the busywork after every meeting."
-        primary={{ label: "Start Free", href: "/signup" }}
+        primary={{ label: "Start Free", href: "/sign-up" }}
         secondary={{ label: "View Features", href: "/features" }}
       />
       <SiteFooter />

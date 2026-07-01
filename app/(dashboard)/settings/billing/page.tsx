@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { PricingTable } from "@/components/marketing/PricingTable";
 import { PlanBadge } from "@/components/layout/PlanBadge";
 import { getOrCreateContext, hasDb } from "@/lib/auth";
@@ -22,7 +23,9 @@ export default async function BillingPage() {
       </div>
       {!isStripeConfigured() && (
         <p className="text-sm text-muted-foreground">
-          Online checkout is being set up. To upgrade in the meantime, reach out and we&apos;ll get you on the right plan.
+          Online checkout is being set up. To upgrade in the meantime,{" "}
+          <Link href="/contact" className="font-medium text-accent underline underline-offset-2 hover:opacity-80">contact us</Link>{" "}
+          and we&apos;ll get you on the right plan.
         </p>
       )}
       <PricingTable highlight="PRO" currentPlan={planId} />

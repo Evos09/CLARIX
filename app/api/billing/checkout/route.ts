@@ -26,6 +26,11 @@ export async function POST(req: Request) {
   const base = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
   const session = await getStripe().checkout.sessions.create({
     mode: "subscription",
+    subscription_data: {
+      trial_period_days: 14,
+      trial_settings: { end_behavior: { missing_payment_method: "cancel" } },
+    },
+    payment_method_collection: "if_required",
     line_items: [{ price, quantity: 1 }],
     success_url: `${base}/settings/billing?status=success`,
     cancel_url: `${base}/settings/billing?status=cancel`,

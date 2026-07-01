@@ -48,7 +48,7 @@ export function UpcomingMeetings() {
     setSyncing(false);
   }
 
-  if (loaded && events.length === 0) return null;
+  if (!loaded || events.length === 0) return null;
 
   return (
     <Card>

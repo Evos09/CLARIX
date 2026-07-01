@@ -72,7 +72,7 @@ export default function MeetingTypesPage() {
       <CtaBand
         title="Try any meeting type free"
         description="Record your next meeting and let CLARIX detect the type and structure the output automatically."
-        primary={{ label: "Try any meeting type free", href: "/signup" }}
+        primary={{ label: "Try any meeting type free", href: "/sign-up" }}
         secondary={{ label: "See Pricing", href: "/pricing" }}
       />
       <SiteFooter />

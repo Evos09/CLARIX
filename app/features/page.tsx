@@ -115,7 +115,7 @@ export default function FeaturesPage() {
       <CtaBand
         title="See it on your own meetings"
         description="Start free and watch CLARIX turn your next call into structured, shareable output."
-        primary={{ label: "Start Free", href: "/signup" }}
+        primary={{ label: "Start Free", href: "/sign-up" }}
         secondary={{ label: "See Pricing", href: "/pricing" }}
       />
       <SiteFooter />

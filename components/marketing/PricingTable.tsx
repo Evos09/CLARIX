@@ -102,7 +102,6 @@ export function PricingTable({
           const featured = id === highlight;
           const isCurrent = id === currentPlan;
           const price = billingPeriod === "yearly" ? plan.annualPrice ?? plan.price : plan.price;
-          const billingLabel = billingPeriod === "yearly" ? "billed annually" : "per month";
 
           return (
             <Card
@@ -125,9 +124,9 @@ export function PricingTable({
                   <div className="mt-2">
                     <span className="text-3xl font-bold tracking-tight">${price}</span>
                     <span className="text-sm font-normal text-muted-foreground">/user/mo</span>
-                    {price > 0 && (
+                    {price > 0 && billingPeriod === "yearly" && (
                       <p className="text-[10px] text-muted-foreground font-medium mt-0.5">
-                        {billingLabel}
+                        billed annually
                       </p>
                     )}
                   </div>
