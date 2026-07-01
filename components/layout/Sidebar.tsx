@@ -20,6 +20,9 @@ import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { LogoMark } from "./LogoMark";
 import { PLANS, type PlanId } from "@/lib/stripe";
+import { SidebarUserMenu } from "./SidebarUserMenu";
+
+const hasClerk = Boolean(process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY);
 
 type NavItem = { href: string; label: string; icon: LucideIcon; badgeKey?: "openActions" };
 
@@ -149,54 +152,42 @@ export function Sidebar({
         ))}
       </nav>
 
-      {/* Settings pinned to bottom above usage meter */}
-      <div className="mt-auto pt-2 shrink-0">
-        <Link
-          href="/settings"
-          className={linkClass("/settings")}
-          title={isCollapsed ? "Settings" : undefined}
+      {/* Bottom: usage meter + Claude-style account menu */}
+      <div className="mt-auto shrink-0 pt-2">
+        <div
+          className={cn(
+            "rounded-md border border-border bg-muted transition-all duration-300 overflow-hidden",
+            isCollapsed ? "h-0 opacity-0 p-0 border-0 mb-0" : "p-3 mb-2.5"
+          )}
         >
-          <span className={cn("flex items-center w-full", isCollapsed ? "relative justify-center" : "gap-3")}>
-            <Settings className="size-4 shrink-0" />
-            <span
-              className={cn(
-                "transition-all duration-300 whitespace-nowrap overflow-hidden text-left",
-                isCollapsed ? "max-w-0 opacity-0 ml-0" : "max-w-[150px] opacity-100 ml-3"
-              )}
-            >
-              Settings
+          <div className="mb-2 flex justify-between text-xs text-muted-foreground">
+            <span>{PLANS[plan].name} plan</span>
+            <span className="font-semibold text-foreground">
+              {limit ? `${meetingsThisMonth} / ${limit}` : "Unlimited"}
             </span>
-          </span>
-        </Link>
-      </div>
-
-      {/* usage meter / plan card */}
-      <div
-        className={cn(
-          "rounded-md border border-border bg-muted transition-all duration-300 overflow-hidden shrink-0",
-          isCollapsed ? "h-0 opacity-0 p-0 border-0 mt-0" : "p-3.5 mt-4"
-        )}
-      >
-        <div className="mb-2 flex justify-between text-xs text-muted-foreground">
-          <span>{PLANS[plan].name} plan</span>
-          <span className="font-semibold text-foreground">
-            {limit ? `${meetingsThisMonth} / ${limit}` : "Unlimited"}
-          </span>
-        </div>
-        {limit ? (
-          <>
-            <div className="mb-3 h-1.5 overflow-hidden rounded-full bg-muted-foreground/20">
+          </div>
+          {limit ? (
+            <div className="h-1.5 overflow-hidden rounded-full bg-muted-foreground/20">
               <div className="h-full rounded-full bg-accent" style={{ width: `${pct}%` }} />
             </div>
-            <Link
-              href="/settings/billing"
-              className="block rounded-md bg-accent py-2 text-center text-[12.5px] font-bold text-white transition hover:bg-accent/90"
-            >
-              Upgrade plan
-            </Link>
-          </>
+          ) : (
+            <p className="text-[12px] text-muted-foreground">Meetings this month: {meetingsThisMonth}</p>
+          )}
+        </div>
+
+        {hasClerk ? (
+          <SidebarUserMenu
+            planName={PLANS[plan].name}
+            isCollapsed={isCollapsed}
+            showUpgrade={plan !== "ENTERPRISE"}
+          />
         ) : (
-          <p className="text-[12px] text-muted-foreground">Meetings this month: {meetingsThisMonth}</p>
+          <div className="flex items-center gap-2.5 rounded-md p-2">
+            <span className="grid size-8 place-items-center rounded-full bg-accent/10 text-[11px] font-semibold text-accent">
+              ME
+            </span>
+            {!isCollapsed && <span className="text-[13px] font-medium text-foreground">Account</span>}
+          </div>
         )}
       </div>
     </aside>
