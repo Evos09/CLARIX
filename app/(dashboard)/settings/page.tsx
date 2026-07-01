@@ -2,7 +2,6 @@ import { SettingsClient } from "@/components/settings/SettingsClient";
 import { IntegrationsClient } from "@/components/settings/IntegrationsClient";
 import { IntegrationsHub } from "@/components/settings/IntegrationsHub";
 import { CRMConnectionCard } from "@/components/settings/CRMConnectionCard";
-import { DesktopAppCard } from "@/components/settings/DesktopAppCard";
 import { DigestCard } from "@/components/settings/DigestCard";
 import { AutoJoinCard } from "@/components/settings/AutoJoinCard";
 import { prisma } from "@/lib/prisma";
@@ -33,7 +32,6 @@ export default async function SettingsPage() {
         <AutoJoinCard />
         <DigestCard />
       </div>
-      <div className="mt-4"><DesktopAppCard /></div>
     </main>
   );
 }
