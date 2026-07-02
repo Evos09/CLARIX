@@ -7,7 +7,7 @@ export const plans: Plan[] = [
   { name: "Free", description: "For trying CLARIX on your own meetings.", price: { monthly: 0, annual: 0 }, unit: "/month", cta: "Start Free", href: "/sign-up",
     features: ["3 meetings per month", "General meeting type", "Summary and action items", "In-browser recording"] },
   { name: "Starter", description: "For individuals who meet often.", price: { monthly: 19, annual: 15 }, unit: "/user/mo", cta: "Start Free", href: "/sign-up",
-    features: ["20 meetings per month", "All 20+ meeting types", "PDF, DOCX & CSV export", "Auto-join meeting bot (Zoom, Meet, Teams)", "Forever audio library", "Email integration (Gmail)"] },
+    features: ["20 meetings per month", "All standard meeting types", "PDF, DOCX & CSV export", "Auto-join meeting bot (Zoom, Meet, Teams)", "Forever audio library", "Email integration (Gmail)"] },
   { name: "Pro", description: "For teams that run on meetings.", price: { monthly: 49, annual: 39 }, unit: "/user/mo", cta: "Start 14-day trial", href: "/sign-up", popular: true,
     features: ["Unlimited meetings", "All exports (PDF, DOCX, CSV, JSON)", "Ask CLARIX chat (200/mo)", "Auto-join meeting bot", "Forever library + reprocessing", "Google Calendar, Gmail & Notion", "Voice Mode (coming soon)"] },
   { name: "Enterprise", description: "For regulated and large organizations.", price: { monthly: 89, annual: 69 }, unit: "/user/mo", cta: "Talk to Sales", href: "/sign-up",
@@ -229,61 +229,76 @@ export const proVerticals: ProVertical[] = [
   }
 ];
 
-export type Integration = { name: string; category: "Conferencing" | "Calendar" | "Email" | "Workspace" | "CRM"; description: string };
+export type Integration = { name: string; logo: string; category: "Conferencing" | "Calendar" | "Email" | "Workspace" | "CRM"; description: string; soon?: boolean };
 export const integrations: Integration[] = [
   {
     "name": "Zoom",
+    "logo": "/logos/zoom.svg",
     "category": "Conferencing",
     "description": "A visible bot joins your Zoom calls automatically and records and transcribes them."
   },
   {
     "name": "Google Meet",
+    "logo": "/logos/googlemeet.svg",
     "category": "Conferencing",
     "description": "Auto-recording and transcription for every Google Meet call."
   },
   {
     "name": "Microsoft Teams",
+    "logo": "/logos/teams.svg",
     "category": "Conferencing",
     "description": "Full Teams integration with automatic bot joining."
   },
   {
     "name": "Google Calendar",
+    "logo": "/logos/googlecalendar.svg",
     "category": "Calendar",
     "description": "See upcoming meetings and automatically link recordings to events."
   },
   {
     "name": "Apple Calendar",
+    "logo": "/logos/calendar.svg",
     "category": "Calendar",
     "description": "Sync your calendar events directly with CLARIX."
   },
   {
     "name": "Gmail",
+    "logo": "/logos/gmail.svg",
     "category": "Email",
     "description": "Send meeting summaries and action items straight from your inbox."
   },
   {
     "name": "Slack",
+    "logo": "/logos/slack.svg",
     "category": "Workspace",
+    "soon": true,
     "description": "Post meeting summaries and action items to any channel."
   },
   {
     "name": "Notion",
+    "logo": "/logos/notion.svg",
     "category": "Workspace",
     "description": "Automatically create structured meeting pages in your workspace."
   },
   {
     "name": "Linear",
+    "logo": "/logos/linear.svg",
     "category": "Workspace",
+    "soon": true,
     "description": "Turn meeting action items into Linear issues automatically."
   },
   {
     "name": "Salesforce",
+    "logo": "/logos/salesforce.svg",
     "category": "CRM",
+    "soon": true,
     "description": "Push meeting notes and tasks into Salesforce as activities."
   },
   {
     "name": "HubSpot",
+    "logo": "/logos/hubspot.svg",
     "category": "CRM",
+    "soon": true,
     "description": "Log meetings and create tasks directly in HubSpot CRM."
   }
 ];

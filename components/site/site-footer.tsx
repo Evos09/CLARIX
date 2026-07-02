@@ -59,12 +59,13 @@ export function SiteFooter() {
           </div>
         </div>
 
-        <div className="py-8 border-t border-foreground/10 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="py-8 border-t border-foreground/10 space-y-3">
           <p className="text-sm text-muted-foreground">© 2026 CLARIX. All rights reserved.</p>
-          <span className="flex items-center gap-2 text-sm text-muted-foreground">
-            <span className="w-2 h-2 rounded-full bg-green-500" />
-            All systems operational
-          </span>
+          <p className="text-xs leading-relaxed text-muted-foreground/70">
+            All product names, logos, and brands shown are property of their respective owners and
+            are used for identification purposes only. Use of these names, logos, and brands does
+            not imply endorsement or affiliation.
+          </p>
         </div>
       </div>
     </footer>

@@ -5,6 +5,8 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Play } from "lucide-react";
 import { TranscriptDemo } from "./transcript-demo";
+import { ParticleField } from "@/components/motion/ParticleField";
+import { TiltCard } from "@/components/motion/TiltCard";
 
 export function HomeHero() {
   const [isVisible, setIsVisible] = useState(false);
@@ -25,6 +27,8 @@ export function HomeHero() {
           />
         ))}
       </div>
+
+      <ParticleField className="pointer-events-none absolute top-1/2 -translate-y-1/2 -right-[12%] hidden lg:block w-[760px] h-[760px] opacity-70" />
 
       <div className="relative z-10 max-w-[1400px] mx-auto px-6 lg:px-12 pt-36 lg:pt-44 pb-20 lg:pb-28">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
@@ -60,7 +64,7 @@ export function HomeHero() {
               }`}
             >
               CLARIX joins your calls, listens, and turns every conversation into a clean
-              brief — action items, decisions, summaries — in under 60 seconds. Then you can
+              brief — action items, decisions, summaries — in minutes. Then you can
               talk to it about what was decided.
             </p>
 
@@ -80,12 +84,22 @@ export function HomeHero() {
                 </Link>
               </Button>
               <Button
+                asChild
                 size="lg"
                 variant="outline"
                 className="h-14 px-8 text-base rounded-full border-foreground/20 hover:bg-foreground/5 group"
               >
-                <Play className="w-4 h-4 mr-2 transition-transform group-hover:scale-110" />
-                Watch Demo
+                <a
+                  href="#how-it-works"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+                    document.getElementById("how-it-works")?.scrollIntoView({ behavior: reduce ? "auto" : "smooth" });
+                  }}
+                >
+                  <Play className="w-4 h-4 mr-2 transition-transform group-hover:scale-110" />
+                  See How It Works
+                </a>
               </Button>
             </div>
 
@@ -104,7 +118,11 @@ export function HomeHero() {
               isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
             }`}
           >
-            <TranscriptDemo />
+            <div className="motion-float">
+              <TiltCard>
+                <TranscriptDemo />
+              </TiltCard>
+            </div>
           </div>
         </div>
       </div>

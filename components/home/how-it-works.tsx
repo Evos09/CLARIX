@@ -1,4 +1,5 @@
 import { SectionHeading } from "@/components/site/section-heading";
+import { Reveal } from "@/components/motion/Reveal";
 
 const steps = [
   {
@@ -11,7 +12,7 @@ const steps = [
     number: "II",
     title: "CLARIX transcribes and analyzes",
     description:
-      "Speaker-labeled transcription runs in real time while CLARIX detects the meeting type and reasons over what's said.",
+      "Speaker-labeled transcription runs while CLARIX detects the meeting type and reasons over what's said.",
   },
   {
     number: "III",
@@ -23,7 +24,7 @@ const steps = [
 
 export function HowItWorks() {
   return (
-    <section className="relative py-24 lg:py-32 bg-foreground text-background overflow-hidden">
+    <section id="how-it-works" className="relative scroll-mt-20 py-24 lg:py-32 bg-foreground text-background overflow-hidden">
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
         <div
           className="absolute inset-0"
@@ -47,12 +48,12 @@ export function HowItWorks() {
         />
 
         <div className="grid md:grid-cols-3 gap-px bg-background/10 border border-background/10 mt-16 rounded-xl overflow-hidden">
-          {steps.map((step) => (
-            <div key={step.number} className="bg-foreground p-8 lg:p-10">
+          {steps.map((step, i) => (
+            <Reveal key={step.number} delay={i * 120} className="bg-foreground p-8 lg:p-10">
               <span className="font-display text-5xl text-background/30">{step.number}</span>
               <h3 className="font-display text-2xl mt-6 mb-3">{step.title}</h3>
               <p className="text-background/60 leading-relaxed text-pretty">{step.description}</p>
-            </div>
+            </Reveal>
           ))}
         </div>
       </div>

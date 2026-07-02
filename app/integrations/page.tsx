@@ -10,7 +10,7 @@ import { Bot, MessageSquare, FileText, Building2 } from "lucide-react";
 export const metadata = {
   title: "Integrations — CLARIX",
   description:
-    "CLARIX connects to Zoom, Google Meet, Teams, Google and Apple Calendar, Gmail, Slack, Notion, Linear, Salesforce, and HubSpot.",
+    "CLARIX connects to Zoom, Google Meet, Teams, Google and Apple Calendar, Gmail, and Notion — with Slack, Linear, Salesforce, and HubSpot on the way.",
 };
 
 const categories: Integration["category"][] = ["Conferencing", "Calendar", "Email", "Workspace", "CRM"];
@@ -25,7 +25,7 @@ const explainers = [
   {
     icon: MessageSquare,
     title: "Slack",
-    tools: "Channels · DMs",
+    tools: "Channels · DMs · Coming soon",
     body: "Pipe meeting summaries and action items straight into Slack. Post recaps to a team channel automatically after every meeting, or send them as a DM to the right owner so follow-ups land where work already happens.",
   },
   {
@@ -37,7 +37,7 @@ const explainers = [
   {
     icon: Building2,
     title: "CRM",
-    tools: "Salesforce · HubSpot",
+    tools: "Salesforce · HubSpot · Coming soon",
     body: "Keep your pipeline current without manual data entry. CLARIX logs meeting notes as activities and creates tasks against the right contacts and deals in Salesforce and HubSpot, so every conversation is reflected in your CRM.",
   },
 ];
@@ -62,7 +62,7 @@ export default function IntegrationsPage() {
                 <span className="text-xs font-mono uppercase tracking-widest text-brand">{category}</span>
                 <span className="flex-1 h-px bg-foreground/10" />
               </div>
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-px bg-foreground/10 border border-foreground/10 rounded-xl overflow-hidden">
+              <div className="grid gap-px bg-foreground/10 border border-foreground/10 rounded-xl overflow-hidden sm:grid-cols-[repeat(auto-fit,minmax(280px,1fr))]">
                 {integrations
                   .filter((i) => i.category === category)
                   .map((integration) => (
@@ -71,10 +71,16 @@ export default function IntegrationsPage() {
                       className="bg-background p-7 hover:bg-foreground/[0.02] transition-colors"
                     >
                       <div className="flex items-center gap-3 mb-4">
-                        <span className="grid place-items-center w-11 h-11 rounded-lg border border-foreground/10 font-display text-lg">
-                          {integration.name.charAt(0)}
+                        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-lg border border-foreground/10 bg-white p-2">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={integration.logo} alt="" className="h-full w-full object-contain" />
                         </span>
                         <h3 className="font-display text-xl">{integration.name}</h3>
+                        {integration.soon && (
+                          <span className="rounded-full border border-accent/30 px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider text-accent">
+                            Coming soon
+                          </span>
+                        )}
                       </div>
                       <p className="text-sm text-muted-foreground leading-relaxed">
                         {integration.description}

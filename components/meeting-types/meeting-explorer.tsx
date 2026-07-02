@@ -1,20 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { meetingTypes } from "@/lib/site-data";
-import { Search, ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight, Sparkles } from "lucide-react";
 
 export function MeetingExplorer() {
-  const [query, setQuery] = useState("");
   const [activeName, setActiveName] = useState(meetingTypes[0].name);
-
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return meetingTypes;
-    return meetingTypes.filter(
-      (m) => m.name.toLowerCase().includes(q) || m.summary.toLowerCase().includes(q),
-    );
-  }, [query]);
 
   const active = meetingTypes.find((m) => m.name === activeName) ?? meetingTypes[0];
 
@@ -22,20 +13,8 @@ export function MeetingExplorer() {
     <div className="grid lg:grid-cols-[1.1fr_1fr] gap-px bg-foreground/10 border border-foreground/10 rounded-xl overflow-hidden">
       {/* List */}
       <div className="bg-background">
-        <div className="p-4 border-b border-foreground/10">
-          <div className="flex items-center gap-2 rounded-lg border border-foreground/15 px-3 h-11 focus-within:border-foreground/40 transition-colors">
-            <Search className="w-4 h-4 text-muted-foreground" />
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search meeting types..."
-              className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-            />
-          </div>
-        </div>
-
-        <div className="max-h-[520px] overflow-y-auto divide-y divide-foreground/10">
-          {filtered.map((type) => {
+        <div className="max-h-[560px] overflow-y-auto divide-y divide-foreground/10">
+          {meetingTypes.map((type) => {
             const isActive = type.name === active.name;
             return (
               <button
@@ -62,11 +41,6 @@ export function MeetingExplorer() {
               </button>
             );
           })}
-          {filtered.length === 0 && (
-            <p className="px-5 py-8 text-sm text-muted-foreground text-center">
-              No meeting types match &ldquo;{query}&rdquo;.
-            </p>
-          )}
         </div>
       </div>
 

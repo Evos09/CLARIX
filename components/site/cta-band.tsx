@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+import { Reveal } from "@/components/motion/Reveal";
 
 export function CtaBand({
   title = "Start Free — no credit card required",
@@ -25,7 +26,7 @@ export function CtaBand({
         ))}
       </div>
 
-      <div className="relative z-10 max-w-3xl mx-auto px-6 lg:px-12 text-center">
+      <Reveal className="relative z-10 max-w-3xl mx-auto px-6 lg:px-12 text-center">
         <h2 className="font-display text-4xl md:text-5xl lg:text-6xl tracking-tight text-balance mb-6">
           {title}
         </h2>
@@ -54,7 +55,7 @@ export function CtaBand({
             </Button>
           )}
         </div>
-      </div>
+      </Reveal>
     </section>
   );
 }

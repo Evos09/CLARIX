@@ -11,6 +11,7 @@ import { MeetingTypesPreview } from "@/components/home/meeting-types-preview";
 import { HowItWorks } from "@/components/home/how-it-works";
 import { IntegrationsPreview } from "@/components/home/integrations-preview";
 import { PricingPreview } from "@/components/home/pricing-preview";
+import { Marquee } from "@/components/motion/Marquee";
 
 export const metadata: Metadata = {
   title: { absolute: "CLARIX — Your AI Assistant for Every Meeting" },
@@ -27,6 +28,7 @@ export default async function Home() {
       <SiteNav />
       <HomeHero />
       <FeatureHighlights />
+      <Marquee />
       <MeetingTypesPreview />
       <HowItWorks />
       <IntegrationsPreview />

@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { SectionHeading } from "@/components/site/section-heading";
+import { Reveal } from "@/components/motion/Reveal";
 import { integrations } from "@/lib/site-data";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Plus } from "lucide-react";
 
 export function IntegrationsPreview() {
   return (
@@ -22,22 +23,35 @@ export function IntegrationsPreview() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-px bg-foreground/10 border border-foreground/10 mt-14 rounded-xl overflow-hidden">
+        <Reveal className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-px bg-foreground/10 border border-foreground/10 mt-14 rounded-xl overflow-hidden">
           {integrations.map((integration) => (
             <div
               key={integration.name}
               className="bg-background p-6 flex items-center gap-3 hover:bg-foreground/[0.02] transition-colors"
             >
-              <span className="grid place-items-center w-9 h-9 rounded-md border border-foreground/10 font-display text-sm">
-                {integration.name.charAt(0)}
+              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-md border border-foreground/10 bg-white p-[7px]">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={integration.logo} alt="" className="h-full w-full object-contain" />
               </span>
               <div className="min-w-0">
                 <p className="text-sm font-medium truncate">{integration.name}</p>
-                <p className="text-xs text-muted-foreground">{integration.category}</p>
+                <p className="text-xs text-muted-foreground">{integration.category}{integration.soon ? " · Coming soon" : ""}</p>
               </div>
             </div>
           ))}
-        </div>
+          <Link
+            href="/integrations"
+            className="group bg-background p-6 flex items-center gap-3 hover:bg-foreground/[0.02] transition-colors"
+          >
+            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-md border border-dashed border-foreground/25 text-muted-foreground">
+              <Plus className="w-4 h-4" />
+            </span>
+            <div className="min-w-0">
+              <p className="text-sm font-medium">More on the way</p>
+              <p className="text-xs text-muted-foreground group-hover:text-brand transition-colors">See all integrations</p>
+            </div>
+          </Link>
+        </Reveal>
       </div>
     </section>
   );

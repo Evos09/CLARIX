@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { SectionHeading } from "@/components/site/section-heading";
+import { Reveal } from "@/components/motion/Reveal";
 import { PricingCards } from "@/components/site/pricing-cards";
 import { ArrowRight } from "lucide-react";
 
@@ -22,7 +23,9 @@ export function PricingPreview() {
           </Link>
         </div>
 
-        <PricingCards />
+        <Reveal delay={100}>
+          <PricingCards />
+        </Reveal>
       </div>
     </section>
   );

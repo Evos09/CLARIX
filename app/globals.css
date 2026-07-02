@@ -123,3 +123,12 @@ body {
 .speaker-3 { color: #ea580c; }
 .speaker-4 { color: #db2777; }
 .speaker-5 { color: #0891b2; }
+
+/* Marketing motion system */
+@keyframes motion-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.motion-marquee { animation: motion-marquee 46s linear infinite; }
+@keyframes motion-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+.motion-float { animation: motion-float 7s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .motion-marquee, .motion-float { animation: none !important; }
+}

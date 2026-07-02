@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { SectionHeading } from "@/components/site/section-heading";
+import { Reveal } from "@/components/motion/Reveal";
 import { meetingTypes, proVerticals } from "@/lib/site-data";
 import { ArrowRight, Lock } from "lucide-react";
 
@@ -28,7 +29,7 @@ export function MeetingTypesPreview() {
           </Link>
         </div>
 
-        <div className="flex flex-wrap gap-2.5 mt-14">
+        <Reveal className="flex flex-wrap gap-2.5 mt-14">
           {meetingTypes.map((type) => (
             <span
               key={type.name}
@@ -37,9 +38,10 @@ export function MeetingTypesPreview() {
               {type.name}
             </span>
           ))}
-        </div>
+        </Reveal>
 
         {/* Pro verticals */}
+        <Reveal delay={120}>
         <div className="mt-12 rounded-xl border border-foreground/10 bg-foreground text-background p-8 lg:p-10">
           <div className="flex items-center gap-2 mb-6 text-xs font-mono uppercase tracking-widest text-background/50">
             <Lock className="w-3.5 h-3.5" />
@@ -54,6 +56,7 @@ export function MeetingTypesPreview() {
             ))}
           </div>
         </div>
+        </Reveal>
       </div>
     </section>
   );
