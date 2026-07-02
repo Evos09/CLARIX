@@ -1,8 +1,9 @@
 # CLARIX — Ad Playbook (Base44-style short-form video)
 
-Five ready-to-film scripts + production and campaign setup. Format: 15–30s vertical video
-(9:16), hook in the first 3 seconds, **real screen recording of CLARIX** as the core, big
-auto-captions, one CTA. Make 2–3 hook variants per script; kill losers after ~$20 spend.
+Five ready-to-film scripts + production and campaign setup. Format: **15 seconds**, vertical
+9:16, hook in the first 2 seconds, **real screen recording of CLARIX** as the core, big
+auto-captions, one CTA. 15s = higher completion rates on Reels/TikTok and fits YouTube's
+non-skippable slot. Make 2–3 hook variants per script; kill losers after ~$20 spend.
 
 **Honesty rule (non-negotiable):** every demo shot is the real product doing real things.
 No faked speed-ups without a "sped up" label, no invented stats, no fake testimonials.
@@ -88,20 +89,19 @@ campaigns for **CompleteRegistration** first; switch to **Subscribe** once you h
 
 # Copy-paste production assets
 
-## A. Veo 3.1 prompts — full 8-second segments (Google Flow · no humans, screen-and-motion only)
+## A. Veo 3.1 prompts — 15-second ads (Google Flow · no humans, screen-and-motion only)
 
-Flow generates clips in **8-second blocks**, so every ad below is a chain of full 8s
-segments: Seg 1 = 0:00–0:08, Seg 2 = 0:08–0:16, Seg 3 = 0:16–0:24, Seg 4 = 0:24–0:32.
-Generate them in order in one Flow project and use **Scenebuilder → Extend** so each
-segment continues from the previous one's last frame.
+Every ad is **exactly 15 seconds**, built from two segments:
+
+- **Seg 1 · 0:00–0:08 · [VEO]** — one full 8-second Flow generation (Veo's native block).
+- **Seg 2 · 0:08–0:15 · [SCREEN]** — your real OBS recording of CLARIX, cut to 7s in
+  CapCut — never generated; no fake UI, ever (that's why the Veo laptop screens are
+  always described as an unreadable glow).
+- **End card** — overlaid in CapCut on the final 3s of Seg 2 (violet #6D28D9 bar or full
+  card, logo, CTA) — no third clip needed.
 
 **No people anywhere.** Every visual is either the computer itself, objects on the desk,
 or abstract motion graphics. Voice comes from ElevenLabs VO (§B), not on-camera actors.
-
-Tags: `[VEO]` = paste the prompt into Flow. `[SCREEN]` = your real OBS recording of
-CLARIX, cut to exactly 8s in CapCut — never generated; no fake UI, ever (that's why the
-Veo laptop screens are always described as an unreadable glow). End cards are overlaid
-in CapCut on the final segment's last 3–4s.
 
 **Continuity trick:** Veo has no memory between prompts, so the recurring environment is
 described identically in every segment. Reuse this exact sentence wherever "THE SETUP"
@@ -118,135 +118,102 @@ appears:
 > paper-white with a single violet accent (#6D28D9 feel), no people, no hands, no faces,
 > no on-screen text, no logos, no readable screen content.
 
-### Script 1 — "The 12-second demo" (4 × 8s = 32s, trim tail to 30s)
+### Script 1 — "The 12-second demo" (15s)
 
-- **Seg 1 · 0:00–0:08 · [VEO]** — *the mess*: "THE SETUP, but the desk is buried under
-  dozens of crumpled paper notes, sticky notes and tangled pen scribbles surrounding the
-  closed laptop; a slow 180-degree orbit around the desk while single sheets lift off and
-  float upward in slow motion as if gravity is reversing, pages tumbling gently like
-  leaves; the closed laptop begins to glow faintly violet along its seam; macro details
-  of ink on crumpled paper as they rise; quiet room tone with soft paper rustle and a low
-  rising synth hum; begins on the chaotic pile, ends with the last page floating away and
-  the laptop lid cracking open one inch, violet light spilling out."
-- **Seg 2 · 0:08–0:16 · [SCREEN]**: real recording — drag an audio file into New Meeting
-  → upload bar → processing spinner → the summary starts to appear. (Record long in OBS,
-  speed to exactly 8s, punch-in on the drop moment.)
-- **Seg 3 · 0:16–0:24 · [SCREEN]**: real recording — action items and speakers reveal,
-  slow zoom on the action-item count, then open Export → PDF/DOCX menu.
-- **Seg 4 · 0:24–0:32 · [VEO]** — *the calm*: "THE SETUP, now on a perfectly clean desk,
-  not a single paper left; the laptop closes itself with a soft, satisfying motion and
-  the violet seam-glow pulses once like a heartbeat, then settles; the desk lamp dims
-  slightly as dusk-blue window light rises in the background; extremely slow push-in
-  toward the glowing seam; one soft piano note and a gentle 'click' as the lid closes;
-  begins mid-close, ends on a still, glowing, minimal composition with negative space at
-  the top for text." → overlay end card "Start free — no credit card" on final 4s.
+- **Seg 1 · 0:00–0:08 · [VEO]** — *the mess lifts*: "THE SETUP, but the desk is buried
+  under dozens of crumpled paper notes, sticky notes and tangled pen scribbles
+  surrounding the closed laptop; a slow half-orbit around the desk while single sheets
+  lift off and float upward in slow motion as if gravity is reversing, pages tumbling
+  gently like leaves; the closed laptop glows faintly violet along its seam, and in the
+  final second the lid cracks open one inch, violet light spilling out as the last page
+  floats away; macro details of ink on crumpled paper; quiet room tone with soft paper
+  rustle and a low rising synth hum; begins on the chaotic pile, ends on the opening lid."
+- **Seg 2 · 0:08–0:15 · [SCREEN]**: real recording, sped to 7s — drag an audio file into
+  New Meeting → processing → summary and action items appear; punch-in zoom on the
+  action-item count. → end card **"Start free — no credit card"** over the final 3s.
 
-### Script 2 — "What did we decide?" (3 × 8s = 24s, VO-driven)
+### Script 2 — "What did we decide?" (15s)
 
 - **Seg 1 · 0:00–0:08 · [VEO]** — *voice becomes order*: "A luminous violet audio
   waveform ripples horizontally through a deep ink-black void like a living sound wave,
-  chaotic and spiky as overlapping meeting chatter plays faintly; the camera tracks along
-  the wave as it gradually untangles, the spikes smoothing and separating into five clean
-  horizontal glowing lines stacked like a tidy list, each line locking into place with a
-  soft tick; particles of light drift off the wave as it organizes; begins on chaos of
-  sound, ends on a perfectly aligned stack of glowing lines."
-- **Seg 2 · 0:08–0:16 · [SCREEN]**: real recording — Ask CLARIX chat: type "what did we
-  decide?" → the answer streams in with its citation chip; slow zoom on the citation.
-- **Seg 3 · 0:16–0:24 · [VEO]** — *night confidence*: "THE SETUP at night, the room
-  darker; a steady stream of small glowing violet checkmarks rises slowly from the laptop
-  keyboard like fireflies, drifting upward and fading near the top of frame; the screen
-  glow breathes softly; static tripod shot, macro depth of field, dust motes in the lamp
-  beam; ambient night room tone with a soft chime each time a checkmark leaves the
-  keyboard; begins with the first checkmark lifting, ends on three rising together into
-  clean negative space." → overlay end card "Free plan — 3 meetings/month" on final 3s.
+  chaotic and spiky as overlapping muffled meeting chatter plays; the camera tracks along
+  the wave as it untangles, spikes smoothing and separating into five clean horizontal
+  glowing lines stacked like a tidy list, each line locking into place with a soft tick
+  as the chatter falls silent; particles of light drift off the wave as it organizes;
+  begins on the chaos of sound, ends on a perfectly aligned stack of glowing lines."
+- **Seg 2 · 0:08–0:15 · [SCREEN]**: real recording, 7s — Ask CLARIX chat: type "what did
+  we decide?" → the answer streams in with its citation chip; zoom on the citation.
+  → end card **"Free plan — 3 meetings/month"** over the final 3s.
 
-### Script 3 — "The bot that shows up for you" (4 × 8s = 32s, trim to 30s)
+### Script 3 — "The bot that shows up for you" (15s)
 
-- **Seg 1 · 0:00–0:08 · [VEO]** — *the empty chair*: "An empty modern conference room at
+- **Seg 1 · 0:00–0:08 · [VEO]** — *the empty chair*: "An empty modern conference room in
   soft morning light, ten empty chairs around a long table; at the head of the table a
   slim dark laptop opens by itself with smooth deliberate motion, its screen waking to an
-  unreadable soft violet glow; a small pulsing violet dot of light breathes on its lid
-  like a listening indicator; slow dolly forward down the length of the table toward the
-  laptop; faint muffled meeting audio begins as the lid opens; begins wide on the empty
-  room, ends close on the glowing, listening laptop."
-- **Seg 2 · 0:08–0:16 · [SCREEN]**: real recording — Settings → Automation → connect
-  calendar → the auto-join toggle flips ON; zoom on the toggle.
-- **Seg 3 · 0:16–0:24 · [SCREEN]**: real recording — dashboard filling with completed
-  meetings, the action-items badge counting up, open one finished recap.
-- **Seg 4 · 0:24–0:32 · [VEO]** — *work done by itself*: "THE SETUP at sunrise, warm
-  golden window light sweeping slowly across the desk; beside the laptop a neat stack of
-  paper settles perfectly into alignment on its own, corner by corner, and a steaming
-  coffee cup sits untouched, steam curling in the light; the laptop's violet seam-glow
-  gives one calm pulse; locked-off tripod shot, time-lapse feel on the moving light but
-  slow motion on the steam; soft morning ambience and one warm piano chord; begins on the
-  light entering frame, ends on the serene finished composition." → end card "Every paid
-  plan starts with a 14-day free trial" on final 4s.
+  unreadable soft violet glow, a small violet dot breathing on its lid like a listening
+  indicator; slow dolly forward down the length of the table toward the laptop as faint
+  muffled meeting audio fades in; begins wide on the empty room, ends close on the
+  glowing, listening laptop."
+- **Seg 2 · 0:08–0:15 · [SCREEN]**: real recording, 7s — Settings → Automation →
+  auto-join toggle flips ON → quick cut to the dashboard with completed meetings and the
+  action-items badge counting up. → end card **"14-day free trial"** over the final 3s.
 
-### Script 4 — "Ask your meetings anything" (3 × 8s = 24s)
+### Script 4 — "Ask your meetings anything" (15s)
 
 - **Seg 1 · 0:00–0:08 · [VEO]** — *the archive collapses*: "A towering, precarious stack
-  of paper notebooks, legal pads and sticky notes in a dark studio, lit by a single hard
-  spotlight; the tower slowly leans and collapses in extreme slow motion, pages exploding
-  outward and hanging in mid-air like a frozen blast, ink scribbles visible but
-  unreadable; the camera performs a slow vertical crane up through the suspended pages;
-  as it rises the pages begin dissolving into fine violet particles that stream downward
-  toward a slim dark laptop resting at the base, its screen glowing softly; deep
-  sub-bass rumble on the collapse, then airy silence with a rising shimmer; begins on the
-  teetering tower, ends on particles funneling into the glowing laptop."
-- **Seg 2 · 0:08–0:16 · [SCREEN]**: real recording — Ask CLARIX: type "What did we
+  of paper notebooks, legal pads and sticky notes in a dark studio under a single hard
+  spotlight; the tower leans and collapses in extreme slow motion, pages exploding
+  outward and hanging frozen in mid-air, ink scribbles visible but unreadable; a slow
+  vertical crane up through the suspended pages as they dissolve into fine violet
+  particles streaming down into a slim dark laptop at the base, its screen glowing
+  softly; deep sub-bass rumble on the collapse, then airy silence with a rising shimmer;
+  begins on the teetering tower, ends on particles funneling into the laptop."
+- **Seg 2 · 0:08–0:15 · [SCREEN]**: real recording, 7s — Ask CLARIX: type "What did we
   promise the client?" → cited answer streams in.
-- **Seg 3 · 0:16–0:24 · [SCREEN]**: real recording — type "Show all action items due
-  this week" → the list appears → hover an item. → end card "Start free. Your next
-  meeting is the demo." on final 3s.
+  → end card **"Start free. Your next meeting is the demo."** over the final 3s.
 
-### Script 5 — "The cost of forgetting" (4 × 8s = 32s, trim to 30s)
+### Script 5 — "The cost of forgetting" (15s)
 
 - **Seg 1 · 0:00–0:08 · [VEO]** — *the forgotten note*: "A single blank sticky note on
   the edge of a dark computer monitor in a dim, empty office at night; the note's corner
   slowly peels, releases, and the note drifts to the carpet in extreme slow motion,
-  tumbling once; a hard single desk-lamp spotlight cuts through darkness, dust motes
-  hanging in the beam; macro tracking shot following the note down; one low sustained
-  cello note and the faint hum of sleeping electronics; begins as the corner lifts, ends
-  as the note settles face-down on the floor and the monitor's standby light blinks."
-- **Seg 2 · 0:08–0:16 · [SCREEN]**: real recording — meeting page → action items with
-  owners and due dates highlighted; slow zoom across the owner names.
-- **Seg 3 · 0:16–0:24 · [SCREEN]**: real recording — push an action item to Notion → cut
-  to it appearing inside Notion.
-- **Seg 4 · 0:24–0:32 · [VEO]** — *nothing falls anymore*: "A grid of small glowing
-  paper-white task cards floats in a deep ink-black void, slightly scattered and tilted;
-  one by one they snap into a perfect aligned grid with soft magnetic clicks, and as each
-  locks in, a violet checkmark blooms on its face; the final card pulses brighter and the
-  whole grid gently recedes into clean negative space; precise, minimal motion-design
-  feel, satisfying tactile click sounds over a calm synth pad; begins on the scattered
-  cards, ends on the completed glowing grid centered in frame." → end card "Try Pro free
-  for 14 days" on final 4s.
+  tumbling once through a hard desk-lamp spotlight with dust motes hanging in the beam;
+  macro tracking shot following the note down; one low sustained cello note over the
+  faint hum of sleeping electronics; begins as the corner lifts, ends as the note settles
+  face-down and the monitor's standby light blinks once."
+- **Seg 2 · 0:08–0:15 · [SCREEN]**: real recording, 7s — meeting page: action items with
+  owners and due dates highlighted → push one to Notion → it appears in Notion.
+  → end card **"Try Pro free for 14 days"** over the final 3s.
 
-## B. Voiceover scripts (ElevenLabs — no on-camera humans)
+## B. Voiceover scripts — 15 seconds each (ElevenLabs — no on-camera humans)
 
-The ads are human-free, so these run as **voiceover only** over the Veo motion segments
-and screen recordings. Generate in ElevenLabs (pick one consistent voice for the whole
-brand; conversational read, small pauses at [beat]).
+Voiceover only, laid over the Veo segment (0:00–0:08) and screen segment (0:08–0:15).
+One consistent ElevenLabs voice across all ads; conversational read, small pause at
+[beat]. ~35 words ≈ 15 seconds — don't add more.
 
-**Script 2 — "What did we decide?" (casual, deadpan, 24s):**
-"POV: you zoned out for the entire meeting… and it didn't matter. [beat] This AI listened
-to the whole thing, wrote the recap, and found the seven things I was supposed to do.
-[cut to real screen demo] I just asked it 'what did we decide?' — and it answered. With
-receipts. [beat] It's called CLARIX. The free plan covers three meetings a month. Try it
-on your next call."
+**Script 1:** "Stop taking meeting notes. [beat] Drop any meeting into CLARIX — the
+summary, the action items, who said what… done in seconds. [beat] Start free. No credit
+card."
 
-Hook variants (swap first line, keep body):
-- "I stopped paying attention in meetings and my boss thinks I got promoted-level organized."
-- "Nobody at work knows I haven't taken a note since March."
+**Script 2:** "Zoned out for the whole meeting? Doesn't matter. [beat] Ask CLARIX 'what
+did we decide?' — and it answers. With receipts. [beat] Free for three meetings a month."
 
-**Script 5 — B2B pain (serious, direct, 30s):**
-"That action item you forgot? It cost you the renewal. [beat] Most follow-ups die in
-someone's notebook. [cut to real screen demo] CLARIX catches every commitment in every
-meeting — who owns it, when it's due — and pushes it straight into Notion. Automatically.
-[beat] Teams run on CLARIX Pro. Try it free for fourteen days."
+**Script 3:** "Stop showing up to meetings. [beat] CLARIX joins Zoom, Meet, or Teams for
+you — and the recap is written before it ends. [beat] Try it free for fourteen days."
 
-Hook variants:
-- "Your client remembers what you promised. Do you?"
-- "The most expensive sentence in business: 'I thought someone else was handling that.'"
+**Script 4:** "Everything ever said in your meetings — searchable. [beat] Ask what you
+promised, what's due, what was decided. It answers with proof. [beat] Start free. Your
+next meeting is the demo."
+
+**Script 5:** "That action item you forgot cost you the renewal. [beat] CLARIX catches
+every commitment — owner, deadline — and pushes it to Notion automatically. [beat] Try
+Pro free for fourteen days."
+
+Hook variants (swap the first sentence, keep the rest):
+- S1: "Your meeting notes are already done."
+- S2: "Nobody at work knows I haven't taken a note since March."
+- S3: "I sent a robot to my 9am."
+- S5: "Your client remembers what you promised. Do you?"
 
 ## C. Google Ads — Search campaign (start here on Google, not video)
 
