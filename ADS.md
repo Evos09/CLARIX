@@ -88,77 +88,96 @@ campaigns for **CompleteRegistration** first; switch to **Subscribe** once you h
 
 # Copy-paste production assets
 
-## A. Veo 3.1 prompts — segmented shot list (every clip ≤8s)
+## A. Veo 3.1 prompts — full 8-second segments (Google Flow)
 
-Veo generates max-8-second clips, so each ad below is broken into numbered segments.
-`[VEO]` = generate with the prompt (written as a complete 8-second arc; trim to the listed
-length in CapCut). `[SCREEN]` = your real OBS recording — never Veo; no fake UI, ever.
-`[CARD]` = end card built in CapCut (violet #6D28D9, logo, CTA text).
+Flow generates clips in **8-second blocks**, so every ad below is a chain of full 8s
+segments: Seg 1 = 0:00–0:08, Seg 2 = 0:08–0:16, Seg 3 = 0:16–0:24, Seg 4 = 0:24–0:32.
+Generate them in order in one Flow project and use **Scenebuilder → Extend** so each
+segment continues from the previous one's last frame.
 
-Prepend this style block to **every** Veo prompt (each generation is independent):
+Tags: `[VEO]` = paste the prompt into Flow. `[SCREEN]` = your real OBS recording of
+CLARIX, cut to exactly 8s in CapCut — never generated; no fake UI, ever. `[ARCADS]` =
+actor clip from §B. End cards are overlaid in CapCut on the final segment's last 3–4s.
+
+**Continuity trick:** Veo has no memory between prompts, so the recurring character is
+described identically in every segment. Reuse this exact sentence wherever "THE LEAD"
+appears:
+
+> a professional woman in her early 30s with shoulder-length dark hair, wearing a
+> rust-colored blazer over a cream top
+
+**Style block — prepend to every Veo prompt:**
 
 > Vertical 9:16 commercial advertisement footage, cinematic lighting, shallow depth of
 > field, premium SaaS brand aesthetic, muted palette with deep ink-black and soft warm
-> paper tones and a single violet accent, no text, no logos, no visible screen content.
+> paper tones and a single violet accent, no on-screen text, no logos, no readable
+> screen content.
 
-### Script 1 — "The 12-second demo" (30s total)
+### Script 1 — "The 12-second demo" (4 × 8s = 32s, trim tail to 30s)
 
-- **Seg 1 · 0–3s · [VEO]** (generate 8s, trim to 3): "8-second shot: slow push-in on a
-  tired professional at a modern office desk at dusk; they close their laptop, lean back
-  and exhale with relief; warm window light, city bokeh behind, calm ambient office sound;
-  begins mid-push-in, ends on their relaxed face."
-- **Seg 2 · 3–11s · [SCREEN]**: drag audio file into New Meeting → processing spinner.
-- **Seg 3 · 11–18s · [SCREEN]**: summary + action items + speakers appear; punch-in zoom.
-- **Seg 4 · 18–23s · [SCREEN]**: click Export → PDF/DOCX menu; click an action item.
-- **Seg 5 · 23–26s · [VEO]** (generate 8s, trim to 3): "8-second overhead shot of a clean
-  desk: steaming coffee cup, closed notebook with pen never opened; morning light slides
-  slowly across the desk; subtle ticking clock, serene mood; static camera, no people."
-- **Seg 6 · 26–30s · [CARD]**: "Start free — no credit card."
+- **Seg 1 · 0:00–0:08 · [VEO]**: "THE LEAD sits at a modern office desk at dusk
+  surrounded by scattered handwritten notes, rubbing her eyes, visibly drained; she
+  decisively closes her laptop, leans back and exhales with relief; slow push-in from
+  medium to close-up, warm window light with city bokeh, calm ambient office sound;
+  begins on the chaos of notes, ends on her relaxed face."
+- **Seg 2 · 0:08–0:16 · [SCREEN]**: drag an audio file into New Meeting → processing
+  spinner → summary begins to appear. (Record long in OBS; speed to exactly 8s.)
+- **Seg 3 · 0:16–0:24 · [SCREEN]**: action items + speakers revealed, punch-in zoom,
+  then click Export → PDF/DOCX menu.
+- **Seg 4 · 0:24–0:32 · [VEO]**: "THE LEAD walks out of a glass office building at
+  golden hour holding a coffee, unhurried and smiling faintly, phone away in her pocket;
+  camera tracks alongside then slows to let her walk ahead; warm sun flare, relaxed
+  end-of-day mood, soft ambient street sound; begins at the door, ends wide as she walks
+  into the light." → overlay end card "Start free — no credit card" on final 4s.
 
-### Script 2 — "POV" (25s total, Arcads actor carries it)
+### Script 2 — "POV" (3 × 8s = 24s)
 
-- **Seg 1 · 0–6s · [ARCADS]**: actor hook line (see §B).
-- **Seg 2 · 6–9s · [VEO]** (generate 8s, trim to 3): "8-second medium shot of a bored
-  professional in a video-call meeting nodding politely while their eyes slowly drift to
-  the window; soft office lighting, gentle comedic tone, muffled meeting chatter; begins
-  on the nod, ends on the distant stare."
-- **Seg 3 · 9–17s · [SCREEN]**: Ask CLARIX chat — type "what did we decide?" → answer.
-- **Seg 4 · 17–23s · [ARCADS]**: actor close ("It's called CLARIX…").
-- **Seg 5 · 23–25s · [CARD]**: "Free plan — 3 meetings/month."
+- **Seg 1 · 0:00–0:08 · [ARCADS]**: actor hook + first line (§B, Script 2).
+- **Seg 2 · 0:08–0:16 · [SCREEN]**: Ask CLARIX chat — type "what did we decide?" →
+  answer appears with the citation chip.
+- **Seg 3 · 0:16–0:24 · [ARCADS]**: actor close ("It's called CLARIX… free plan covers
+  three meetings a month.") → overlay end card "Free plan — 3 meetings/month" on final 3s.
 
-### Script 3 — "The bot that shows up for you" (30s total)
+### Script 3 — "The bot that shows up for you" (4 × 8s = 32s, trim to 30s)
 
-- **Seg 1 · 0–5s · [VEO]** (generate 8s, trim to 5): "8-second slow-motion shot of a
-  confident professional standing up and walking out of a glass conference room while
-  colleagues remain seated in discussion; sunlight flares through the glass as they pass;
-  empowering cinematic mood, soft whoosh; begins seated, ends mid-stride out the door."
-- **Seg 2 · 5–13s · [SCREEN]**: Settings → connect calendar → auto-join toggle ON.
-- **Seg 3 · 13–20s · [SCREEN]**: dashboard with completed meetings + action-item badge.
-- **Seg 4 · 20–26s · [VEO]** (generate 8s, trim to 6): "8-second close-up of a steaming
-  coffee cup being lifted and sipped at a sunny kitchen table; relaxed weekend-morning
-  atmosphere, birdsong and soft piano; begins on the cup at rest, ends mid-sip."
-- **Seg 5 · 26–30s · [CARD]**: "Every paid plan starts with a 14-day free trial."
+- **Seg 1 · 0:00–0:08 · [VEO]**: "THE LEAD stands up mid-discussion in a glass
+  conference room full of seated colleagues and walks out calmly and confidently in slow
+  motion; sunlight flares through the glass wall as she passes; colleagues keep talking,
+  unbothered; empowering cinematic mood, soft whoosh as she crosses the doorway; begins
+  seated at the table, ends mid-stride into the bright hallway."
+- **Seg 2 · 0:08–0:16 · [SCREEN]**: Settings → Automation → connect calendar →
+  auto-join toggle flips ON.
+- **Seg 3 · 0:16–0:24 · [SCREEN]**: dashboard filling with completed meetings, action
+  items badge counting up, open one recap.
+- **Seg 4 · 0:24–0:32 · [VEO]**: "THE LEAD sits at a sunny kitchen table lifting a
+  steaming coffee cup, reading nothing, completely at ease; slow lateral dolly, morning
+  birdsong and soft piano, relaxed weekend atmosphere; begins on the cup rising, ends on
+  her satisfied sip looking out the window." → end card "14-day free trial" on final 4s.
 
-### Script 4 — "Ask your meetings anything" (25s total)
+### Script 4 — "Ask your meetings anything" (3 × 8s = 24s)
 
-- **Seg 1 · 0–4s · [VEO]** (generate 8s, trim to 4): "8-second macro shot of hands
-  flipping frantically through a messy paper notebook full of scribbles; loose pages slide
-  off the desk; frustrated energy, quick handheld movement, rustling paper sound; begins
-  mid-flip, ends as a page falls."
-- **Seg 2 · 4–12s · [SCREEN]**: Ask CLARIX — "What did we promise the client?" → answer.
-- **Seg 3 · 12–20s · [SCREEN]**: "Show all action items due this week" → cited answer.
-- **Seg 4 · 20–25s · [CARD]**: "Start free. Your next meeting is the demo."
+- **Seg 1 · 0:00–0:08 · [VEO]**: "Macro close-up of a man's hands flipping frantically
+  through a messy paper notebook crammed with scribbles and sticky tabs; loose pages
+  slide off the desk in slow motion; handheld nervous energy, rustling paper and a
+  ticking clock; begins mid-flip, ends on a page drifting to the floor."
+- **Seg 2 · 0:08–0:16 · [SCREEN]**: Ask CLARIX — type "What did we promise the client?"
+  → answer with citations.
+- **Seg 3 · 0:16–0:24 · [SCREEN]**: type "Show all action items due this week" → list
+  appears → hover an item. → end card "Start free. Your next meeting is the demo." on
+  final 3s.
 
-### Script 5 — "The cost of forgetting" (30s total)
+### Script 5 — "The cost of forgetting" (4 × 8s = 32s, trim to 30s)
 
-- **Seg 1 · 0–4s · [VEO]** (generate 8s, trim to 4): "8-second slow-motion shot of a blank
-  sticky note peeling off the edge of a computer monitor and drifting to the office floor;
-  dramatic single spotlight in a dim office, quiet tension, one low cello note; begins as
-  the corner lifts, ends as it lands."
-- **Seg 2 · 4–12s · [SCREEN]**: meeting page → action items with owners extracted.
-- **Seg 3 · 12–20s · [SCREEN]**: push action item to Notion → it appears in Notion.
-- **Seg 4 · 20–26s · [ARCADS]** (or VO over screen): "Teams run on CLARIX Pro…"
-- **Seg 5 · 26–30s · [CARD]**: "Try Pro free for 14 days."
+- **Seg 1 · 0:00–0:08 · [VEO]**: "A blank sticky note peels off the edge of a computer
+  monitor in a dim empty office at night and drifts to the floor in extreme slow motion;
+  single dramatic desk-lamp spotlight, dust motes in the beam, one low sustained cello
+  note; begins as the corner lifts, ends as it settles on the carpet."
+- **Seg 2 · 0:08–0:16 · [SCREEN]**: meeting page → action items extracted with owners
+  and due dates highlighted.
+- **Seg 3 · 0:16–0:24 · [SCREEN]**: push an action item to Notion → cut to it appearing
+  inside Notion.
+- **Seg 4 · 0:24–0:32 · [ARCADS]**: actor close ("Teams run on CLARIX Pro. Try it free
+  for fourteen days.") → end card "Try Pro free for 14 days" on final 4s.
 
 ## B. Arcads / AI-actor scripts (verbatim VO)
 
