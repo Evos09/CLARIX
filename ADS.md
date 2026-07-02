@@ -82,3 +82,99 @@ campaigns for **CompleteRegistration** first; switch to **Subscribe** once you h
 
 **Before spending a dollar:** custom domain live, Stripe live (checkout tested), pixel firing
 (check Meta Events Manager), and one full happy-path test as a brand-new user.
+
+---
+---
+
+# Copy-paste production assets
+
+## A. Veo 3.1 prompts (cinematic b-roll)
+
+Rules: generate **b-roll only** — never let Veo invent fake app UI; the product shots are
+always your real OBS screen recording. 8s clips, vertical 9:16. Prepend this style block to
+every prompt:
+
+> Vertical 9:16 commercial advertisement footage, cinematic lighting, shallow depth of
+> field, premium SaaS brand aesthetic, muted palette with deep ink-black and soft warm
+> paper tones and a single violet accent, no text, no logos, no visible screen content.
+
+**Script 1 — "The 12-second demo" (open + close):**
+1. "Slow push-in on a tired professional in a modern office closing their laptop at dusk,
+   exhaling with relief, warm window light, city bokeh behind, calm ambient office sound."
+2. "Overhead shot of a clean desk: coffee cup, closed notebook with pen never opened,
+   morning light sliding across the desk, subtle ticking clock sound, serene mood."
+
+**Script 2 — "POV" (cutaway between actor lines):**
+1. "Medium shot of a bored professional in a video-call meeting nodding politely while their
+   eyes drift out the window, soft office lighting, gentle comedic tone, muffled meeting
+   chatter audio."
+
+**Script 3 — "The bot that shows up for you":**
+1. "A confident professional walks out of a glass conference room in slow motion while
+   colleagues remain seated, sunlight flare through the glass, empowering cinematic mood,
+   soft whoosh transition sound."
+2. "Close-up of a steaming coffee cup being lifted at a sunny kitchen table, relaxed morning
+   atmosphere, birdsong and soft piano."
+
+**Script 4 — "Ask your meetings anything" (open):**
+1. "Macro shot of a person's hands flipping frantically through a messy paper notebook full
+   of scribbles, papers sliding off a desk, frustrated energy, quick cuts, rustling paper
+   sound."
+
+**Script 5 — "The cost of forgetting" (open):**
+1. "A sticky note with nothing written on it falls off a monitor edge in slow motion and
+   drifts to the office floor, dramatic single spotlight, quiet tension, low cello note."
+
+## B. Arcads / AI-actor scripts (verbatim VO)
+
+**Script 2 — POV (casual, deadpan, 25s):**
+"POV: you zoned out for the entire meeting… and it didn't matter. [beat] This AI listened
+to the whole thing, wrote the recap, and found the seven things I was supposed to do.
+[cut to real screen demo] I just asked it 'what did we decide?' — and it answered. With
+receipts. [beat] It's called CLARIX. The free plan covers three meetings a month. Try it
+on your next call."
+
+Hook variants (swap first line, keep body):
+- "I stopped paying attention in meetings and my boss thinks I got promoted-level organized."
+- "Nobody at work knows I haven't taken a note since March."
+
+**Script 5 — B2B pain (serious, direct, 30s):**
+"That action item you forgot? It cost you the renewal. [beat] Most follow-ups die in
+someone's notebook. [cut to real screen demo] CLARIX catches every commitment in every
+meeting — who owns it, when it's due — and pushes it straight into Notion. Automatically.
+[beat] Teams run on CLARIX Pro. Try it free for fourteen days."
+
+Hook variants:
+- "Your client remembers what you promised. Do you?"
+- "The most expensive sentence in business: 'I thought someone else was handling that.'"
+
+## C. Google Ads — Search campaign (start here on Google, not video)
+
+**Campaign:** Search · conversion goal = sign-ups (CompleteRegistration) · start $15–20/day.
+
+**Keywords (phrase match):** "ai meeting notes", "ai note taker", "meeting transcription
+software", "ai meeting assistant", "meeting summary ai", "zoom meeting transcription",
+"otter alternative", "fireflies alternative", "automatic meeting minutes".
+**Negative keywords:** jobs, salary, course, tutorial, "how to become".
+
+**Headlines (≤30 chars each — Google enforces this):**
+1. AI Meeting Notes in Seconds
+2. Never Take Meeting Notes Again
+3. Your Meetings, Handled
+4. Summary + Action Items, Fast
+5. Auto-Join Bot for Zoom & Meet
+6. Ask AI About Any Meeting
+7. Free AI Meeting Assistant
+8. Meeting Recaps on Autopilot
+9. From Audio to Action Items
+10. Start Free — 3 Meetings/Mo
+11. 14-Day Free Trial on Pro
+12. Stop Writing Meeting Notes
+
+**Descriptions (≤90 chars each):**
+1. Upload any meeting. Get a summary, action items & speakers in seconds. Start free.
+2. CLARIX transcribes, summarizes & extracts every commitment. Free plan, no card needed.
+3. Auto-join bot for Zoom, Meet & Teams. Recaps ready before you're back at your desk.
+4. Ask AI anything about your meetings — decisions, owners, deadlines. Try it free.
+
+**Final URL:** homepage with `?utm_source=google&utm_medium=cpc&utm_campaign=search-core`.
