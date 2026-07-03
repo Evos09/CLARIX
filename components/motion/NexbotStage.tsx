@@ -102,34 +102,36 @@ export function NexbotStage({ className }: { className?: string }) {
 
         // Glowing violet dot-matrix eyes projected on the visor (the export's
         // real eyes hide under the glossy shell, so we add them as bright panels).
+        // One compact 4x3 dot cluster per eye, sized and spaced to sit as two
+        // distinct eyes on the face.
         const eyeTex = (() => {
           const cv = document.createElement("canvas");
-          cv.width = 84;
-          cv.height = 48;
+          cv.width = 48;
+          cv.height = 36;
           const cx = cv.getContext("2d")!;
-          cx.fillStyle = "#e2d1ff";
-          for (let i = 0; i < 7; i++)
-            for (let j = 0; j < 4; j++) {
+          cx.fillStyle = "#eef0ff";
+          for (let i = 0; i < 4; i++)
+            for (let j = 0; j < 3; j++) {
               cx.beginPath();
-              cx.arc(12 + i * 10, 10 + j * 9, 2.6, 0, Math.PI * 2);
+              cx.arc(9 + i * 10, 8 + j * 10, 2.3, 0, Math.PI * 2);
               cx.fill();
             }
           const t = new THREE.CanvasTexture(cv);
           t.colorSpace = THREE.SRGBColorSpace;
           return t;
         })();
-        const eyeGeo = new THREE.PlaneGeometry(fSize.x * 0.12, fSize.x * 0.07);
+        const eyeGeo = new THREE.PlaneGeometry(fSize.x * 0.062, fSize.x * 0.047);
         const eyePlaneMat = new THREE.MeshBasicMaterial({
           map: eyeTex,
           transparent: true,
           depthWrite: false,
           toneMapped: false,
         });
-        const eyeY = fMin.y + fSize.y * 0.9;
-        const eyeZ = full.max.z * 0.55; // sit near the visor front at eye height
+        const eyeY = fMin.y + fSize.y * 0.902;
+        const eyeZ = full.max.z * 0.58; // sit near the visor front at eye height
         for (const sx of [-1, 1]) {
           const eye = new THREE.Mesh(eyeGeo, eyePlaneMat);
-          eye.position.set(sx * fSize.x * 0.055, eyeY, eyeZ);
+          eye.position.set(sx * fSize.x * 0.058, eyeY, eyeZ);
           obj.add(eye);
         }
 
