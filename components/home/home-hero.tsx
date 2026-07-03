@@ -7,8 +7,8 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { TranscriptDemo } from "./transcript-demo";
 
-const MascotStage = dynamic(
-  () => import("@/components/motion/MascotStage").then((m) => m.MascotStage),
+const SplineHero = dynamic(
+  () => import("@/components/motion/SplineHero").then((m) => m.SplineHero),
   { ssr: false },
 );
 
@@ -44,7 +44,7 @@ export function HomeHero() {
           </span>
         </div>
 
-        <MascotStage className="absolute inset-0" />
+        <SplineHero className="pointer-events-auto absolute inset-0" />
 
         {/* Left: badge + headline + CTAs */}
         <div
