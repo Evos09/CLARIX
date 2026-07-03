@@ -32,30 +32,64 @@ export function NexbotStage({ className }: { className?: string }) {
       renderer.setSize(el.clientWidth, el.clientHeight);
       renderer.outputColorSpace = THREE.SRGBColorSpace;
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
-      renderer.toneMappingExposure = 1.1;
+      renderer.toneMappingExposure = 1.35;
       el.appendChild(renderer.domElement);
 
-      // Lighting: dim base + soft white key + strong violet rim from behind +
-      // violet uplight — this is what paints the violet edge glow of the design.
-      scene.add(new THREE.AmbientLight(0xffffff, 0.35));
-      const key = new THREE.DirectionalLight(0xffffff, 1.4);
+      // Lighting: soft base + white key + bright violet rims from behind +
+      // violet up/front fill so the body reads as glowing violet, not black.
+      scene.add(new THREE.AmbientLight(0xb9a7ff, 0.55));
+      const key = new THREE.DirectionalLight(0xffffff, 1.6);
       key.position.set(2, 4, 4);
       scene.add(key);
-      const rimL = new THREE.DirectionalLight(0x8b5cf6, 4.2);
+      const rimL = new THREE.DirectionalLight(0x8b5cf6, 7);
       rimL.position.set(-4, 2, -3);
       scene.add(rimL);
-      const rimR = new THREE.DirectionalLight(0x7c3aed, 3.4);
+      const rimR = new THREE.DirectionalLight(0x7c3aed, 6);
       rimR.position.set(4, 1, -3);
       scene.add(rimR);
-      const up = new THREE.PointLight(0x8b5cf6, 6, 12);
+      const up = new THREE.PointLight(0x8b5cf6, 9, 14);
       up.position.set(0, -2.4, 1.5);
       scene.add(up);
-      const faceGlow = new THREE.PointLight(0xa78bfa, 2.2, 6);
+      const frontFill = new THREE.PointLight(0x6d28d9, 3.2, 12);
+      frontFill.position.set(0, 0.6, 4);
+      scene.add(frontFill);
+      const faceGlow = new THREE.PointLight(0xa78bfa, 2.4, 6);
       faceGlow.position.set(0, 1.4, 2);
       scene.add(faceGlow);
 
       const group = new THREE.Group();
       scene.add(group);
+
+      // Body material: dark violet-black with a strong fresnel violet edge glow
+      // (injected into the standard shader) so silhouettes light up like the ref.
+      const rimColor = new THREE.Color(0x9d6bff);
+      const makeBody = () => {
+        const m = new THREE.MeshStandardMaterial({
+          color: 0x0d0a1a,
+          metalness: 0.6,
+          roughness: 0.34,
+          emissive: 0x2a1560,
+          emissiveIntensity: 0.55,
+        });
+        m.onBeforeCompile = (shader) => {
+          shader.uniforms.uRim = { value: rimColor };
+          shader.fragmentShader =
+            "uniform vec3 uRim;\n" +
+            shader.fragmentShader.replace(
+              "#include <emissivemap_fragment>",
+              `#include <emissivemap_fragment>
+              float fres = pow(1.0 - clamp(dot(normalize(vNormal), normalize(vViewPosition)), 0.0, 1.0), 2.4);
+              totalEmissiveRadiance += uRim * fres * 3.2;`,
+            );
+        };
+        return m;
+      };
+      const eyeMat = new THREE.MeshStandardMaterial({
+        color: 0x120a2a,
+        emissive: 0xb794ff,
+        emissiveIntensity: 5.5,
+        roughness: 0.3,
+      });
 
       const loader = new GLTFLoader();
       loader.setMeshoptDecoder(MeshoptDecoder);
@@ -63,21 +97,25 @@ export function NexbotStage({ className }: { className?: string }) {
         if (disposed) return;
         const obj = gltf.scene;
 
-        // Recolor every mesh to matte-black carbon with a faint violet emissive
-        // so edges catch the rim light like the reference render.
+        // Whole-model bounds, to locate the eye band on the head.
+        const full = new THREE.Box3().setFromObject(obj);
+        const fMin = full.min.clone();
+        const fSize = full.getSize(new THREE.Vector3());
+
         obj.traverse((child) => {
           if (!(child instanceof THREE.Mesh)) return;
-          child.material = new THREE.MeshStandardMaterial({
-            color: 0x0a0a10,
-            metalness: 0.55,
-            roughness: 0.42,
-            emissive: 0x2a1a5c,
-            emissiveIntensity: 0.35,
-          });
+          child.geometry.computeBoundingBox();
+          const bb = child.geometry.boundingBox!;
+          const c = bb.getCenter(new THREE.Vector3());
+          child.localToWorld(c);
+          const ny = (c.y - fMin.y) / fSize.y; // 0 feet .. 1 head-top
+          const size = bb.getSize(new THREE.Vector3());
+          const small = size.y < fSize.y * 0.12 && size.x < fSize.x * 0.4;
+          // Small parts up in the head band = the dot-matrix eyes → make them glow.
+          child.material = ny > 0.8 && ny < 0.96 && small ? eyeMat : makeBody();
         });
 
-        // Center horizontally, frame the upper body: drop the model so the
-        // head/torso sit in view and the legs fall below the fold.
+        // Center horizontally, frame the upper body.
         const box = new THREE.Box3().setFromObject(obj);
         const center = box.getCenter(new THREE.Vector3());
         const size = box.getSize(new THREE.Vector3());
