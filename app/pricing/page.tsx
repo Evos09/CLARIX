@@ -12,7 +12,7 @@ import { ArrowRight } from "lucide-react";
 export const metadata = {
   title: "Pricing — CLARIX",
   description:
-    "Simple, scalable pricing for CLARIX. Start free, then choose Starter, Pro, or Enterprise. Monthly and annual billing with two months free on annual.",
+    "Simple, scalable pricing for CLARIX. Start free, then choose Starter, Pro, or Business — or talk to sales for Enterprise. Monthly and annual billing with two months free on annual.",
 };
 
 export default function PricingPage() {

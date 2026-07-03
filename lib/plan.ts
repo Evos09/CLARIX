@@ -23,7 +23,7 @@ export async function canCreateMeeting(orgId: string): Promise<{ ok: boolean; re
 export function canUseType(plan: PlanConfig, typeId: string): { ok: boolean; reason?: string } {
   const t = getMeetingType(typeId);
   if (t.category === "PRO" && !plan.proVerticals) {
-    return { ok: false, reason: "Pro Verticals require the Enterprise plan." };
+    return { ok: false, reason: "Pro Verticals require the Business plan." };
   }
   if (!plan.allMeetingTypes && typeId !== "GENERAL") {
     return { ok: false, reason: "Your plan only supports General meetings. Upgrade for all meeting types." };

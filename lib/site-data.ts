@@ -5,13 +5,13 @@ export type Plan = {
 
 export const plans: Plan[] = [
   { name: "Free", description: "For trying CLARIX on your own meetings.", price: { monthly: 0, annual: 0 }, unit: "/month", cta: "Start Free", href: "/sign-up",
-    features: ["3 meetings per month", "General meeting type", "Summary and action items", "In-browser recording"] },
-  { name: "Starter", description: "For individuals who meet often.", price: { monthly: 19, annual: 15 }, unit: "/user/mo", cta: "Start Free", href: "/sign-up",
+    features: ["3 meetings per month", "General meeting type", "Summary and action items", "In-browser recording", "PDF export"] },
+  { name: "Starter", description: "For individuals who meet often.", price: { monthly: 14, annual: 12 }, unit: "/user/mo", cta: "Start Free", href: "/sign-up",
     features: ["20 meetings per month", "All standard meeting types", "PDF, DOCX & CSV export", "Auto-join meeting bot (Zoom, Meet, Teams)", "Forever audio library", "Email integration (Gmail)"] },
-  { name: "Pro", description: "For teams that run on meetings.", price: { monthly: 49, annual: 39 }, unit: "/user/mo", cta: "Start 14-day trial", href: "/sign-up", popular: true,
+  { name: "Pro", description: "For teams that run on meetings.", price: { monthly: 29, annual: 24 }, unit: "/user/mo", cta: "Start 14-day trial", href: "/sign-up", popular: true,
     features: ["Unlimited meetings", "All exports (PDF, DOCX, CSV, JSON)", "Ask CLARIX chat (200/mo)", "Auto-join meeting bot", "Forever library + reprocessing", "Google Calendar, Gmail & Notion", "Voice Mode (coming soon)"] },
-  { name: "Enterprise", description: "For regulated and large organizations.", price: { monthly: 89, annual: 69 }, unit: "/user/mo", cta: "Talk to Sales", href: "/sign-up",
-    features: ["Everything in Pro", "Healthcare, Legal & Financial Verticals", "Salesforce & HubSpot CRM (coming soon)", "EHR / FHIR export", "Custom AI templates", "SSO / SAML (coming soon)", "SLA & priority support"] },
+  { name: "Business", description: "For regulated teams that need the full toolkit.", price: { monthly: 59, annual: 49 }, unit: "/user/mo", cta: "Start 14-day trial", href: "/sign-up",
+    features: ["Everything in Pro", "Healthcare, Legal & Financial Verticals", "EHR / FHIR export", "Custom AI templates", "Salesforce & HubSpot CRM (coming soon)", "SSO / SAML (coming soon)", "Priority support"] },
 ];
 
 export type MeetingType = { name: string; summary: string; extracts: string[] };
@@ -254,12 +254,6 @@ export const integrations: Integration[] = [
     "logo": "/logos/googlecalendar.svg",
     "category": "Calendar",
     "description": "See upcoming meetings and automatically link recordings to events."
-  },
-  {
-    "name": "Apple Calendar",
-    "logo": "/logos/calendar.svg",
-    "category": "Calendar",
-    "description": "Sync your calendar events directly with CLARIX."
   },
   {
     "name": "Gmail",

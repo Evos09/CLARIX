@@ -41,7 +41,7 @@ export function MeetingTypeSelector({
             <option key={t.id} value={t.id}>{t.label}</option>
           ))}
         </optgroup>
-        <optgroup label="Pro Verticals (Enterprise)">
+        <optgroup label="Pro Verticals (Business)">
           {PRO_TYPES.map((t) => (
             <option key={t.id} value={t.id}>{t.label}</option>
           ))}

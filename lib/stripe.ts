@@ -43,7 +43,7 @@ export const PLANS: Record<PlanId, PlanConfig> = {
     name: "Free",
     price: 0,
     meetingsPerMonth: 3,
-    exports: [],
+    exports: ["PDF"],
     allMeetingTypes: false,
     askClarix: false,
     proVerticals: false,
@@ -51,13 +51,13 @@ export const PLANS: Record<PlanId, PlanConfig> = {
     customTemplates: false,
     autoJoinBot: false,
     foreverRetention: false,
-    blurb: "3 meetings/month, General type only.",
+    blurb: "3 meetings/month, General type only, PDF export.",
   },
   STARTER: {
     id: "STARTER",
     name: "Starter",
-    price: 19,
-    annualPrice: 15,
+    price: 14,
+    annualPrice: 12,
     meetingsPerMonth: 20,
     exports: ["PDF", "DOCX", "CSV"],
     allMeetingTypes: true,
@@ -74,8 +74,8 @@ export const PLANS: Record<PlanId, PlanConfig> = {
   PRO: {
     id: "PRO",
     name: "Pro",
-    price: 49,
-    annualPrice: 39,
+    price: 29,
+    annualPrice: 24,
     meetingsPerMonth: null,
     exports: ["PDF", "DOCX", "CSV", "JSON"],
     allMeetingTypes: true,
@@ -89,11 +89,14 @@ export const PLANS: Record<PlanId, PlanConfig> = {
     annualPriceEnv: "STRIPE_PRO_ANNUAL_PRICE_ID",
     blurb: "Unlimited meetings, all types, all exports, Ask CLARIX, auto-join bot.",
   },
+  // Internal id stays "ENTERPRISE" (matches the Prisma Plan enum + webhooks, so
+  // no DB migration); customer-facing name is "Business" — our top self-serve
+  // tier. True Enterprise is a talk-to-sales tier with no self-serve price.
   ENTERPRISE: {
     id: "ENTERPRISE",
-    name: "Enterprise",
-    price: 89,
-    annualPrice: 69,
+    name: "Business",
+    price: 59,
+    annualPrice: 49,
     meetingsPerMonth: null,
     exports: ["PDF", "DOCX", "CSV", "JSON", "EHR_HL7"],
     allMeetingTypes: true,
@@ -105,6 +108,6 @@ export const PLANS: Record<PlanId, PlanConfig> = {
     foreverRetention: true,
     priceEnv: "STRIPE_ENTERPRISE_PRICE_ID",
     annualPriceEnv: "STRIPE_ENTERPRISE_ANNUAL_PRICE_ID",
-    blurb: "Everything + Pro Verticals, SSO, custom templates, API, EHR/FHIR export.",
+    blurb: "Everything in Pro + Pro Verticals, custom templates, EHR/FHIR export, priority support.",
   },
 };

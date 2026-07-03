@@ -42,12 +42,12 @@ export default function MeetingTypesPage() {
         <div className="max-w-[1400px] mx-auto px-6 lg:px-12">
           <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-brand mb-6">
             <Lock className="w-3.5 h-3.5" />
-            Pro Verticals · Enterprise · Built for regulated industries
+            Pro Verticals · Business · Built for regulated industries
           </div>
           <SectionHeading
             eyebrow="Specialized"
             title="Compliance-aware meeting types"
-            description="Three premium meeting types built for regulated industries, available on the Enterprise plan."
+            description="Three premium meeting types built for regulated industries, available on the Business plan."
           />
 
           <div className="grid md:grid-cols-3 gap-px bg-foreground/10 border border-foreground/10 mt-12 rounded-xl overflow-hidden">

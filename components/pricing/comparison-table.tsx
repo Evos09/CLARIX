@@ -3,7 +3,7 @@ import { Check, Minus } from "lucide-react";
 
 type Cell = boolean | string;
 
-const planNames = ["Free", "Starter", "Pro", "Enterprise"];
+const planNames = ["Free", "Starter", "Pro", "Business"];
 
 const groups: { group: string; rows: { label: string; values: [Cell, Cell, Cell, Cell] }[] }[] = [
   {
@@ -29,7 +29,7 @@ const groups: { group: string; rows: { label: string; values: [Cell, Cell, Cell,
   {
     group: "Export & sharing",
     rows: [
-      { label: "PDF export", values: [false, true, true, true] },
+      { label: "PDF export", values: [true, true, true, true] },
       { label: "DOCX & CSV export", values: [false, true, true, true] },
       { label: "Team sharing", values: [false, true, true, true] },
     ],
