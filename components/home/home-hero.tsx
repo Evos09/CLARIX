@@ -2,11 +2,15 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Play } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { TranscriptDemo } from "./transcript-demo";
-import { ParticleField } from "@/components/motion/ParticleField";
-import { TiltCard } from "@/components/motion/TiltCard";
+
+const MascotStage = dynamic(
+  () => import("@/components/motion/MascotStage").then((m) => m.MascotStage),
+  { ssr: false },
+);
 
 export function HomeHero() {
   const [isVisible, setIsVisible] = useState(false);
@@ -16,116 +20,90 @@ export function HomeHero() {
   }, []);
 
   return (
-    <section className="relative overflow-hidden">
-      {/* Subtle grid lines */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-[0.4]">
-        {[...Array(12)].map((_, i) => (
-          <div
-            key={`v-${i}`}
-            className="absolute w-px bg-foreground/[0.06]"
-            style={{ left: `${8.33 * (i + 1)}%`, top: 0, bottom: 0 }}
-          />
-        ))}
-      </div>
-
-      <ParticleField className="pointer-events-none absolute top-1/2 -translate-y-1/2 -right-[12%] hidden lg:block w-[760px] h-[760px] opacity-70" />
-
-      <div className="relative z-10 max-w-[1400px] mx-auto px-6 lg:px-12 pt-36 lg:pt-44 pb-20 lg:pb-28">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-          {/* Copy */}
-          <div>
+    <section className="relative">
+      {/* Fixed backdrop: grid lines + giant letters + mascot + side copy.
+          Stays put while the page scrolls over it. */}
+      <div
+        className={`fixed inset-0 z-0 h-screen pointer-events-none transition-opacity duration-1000 ${
+          isVisible ? "opacity-100" : "opacity-0"
+        }`}
+      >
+        <div className="absolute inset-0 overflow-hidden opacity-[0.4]" aria-hidden>
+          {[...Array(12)].map((_, i) => (
             <div
-              className={`mb-7 transition-all duration-700 ${
-                isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-              }`}
-            >
-              <span className="inline-flex items-center gap-3 text-sm font-mono text-muted-foreground">
-                <span className="w-8 h-px bg-foreground/30" />
-                Now live · no credit card
-              </span>
-            </div>
+              key={`v-${i}`}
+              className="absolute w-px bg-foreground/[0.06]"
+              style={{ left: `${8.33 * (i + 1)}%`, top: 0, bottom: 0 }}
+            />
+          ))}
+        </div>
 
-            <h1
-              className={`text-[clamp(2.6rem,6vw,5rem)] font-display leading-[0.95] tracking-tight mb-7 transition-all duration-1000 ${
-                isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-              }`}
-            >
-              The AI that handles{" "}
-              <span className="relative inline-block">
-                every meeting
-                <span className="absolute -bottom-1 left-0 right-0 h-3 bg-brand/20" />
-              </span>{" "}
-              you never have time to recap.
-            </h1>
+        <div className="absolute inset-0 flex items-center justify-center select-none" aria-hidden>
+          <span className="font-display leading-none tracking-tight text-foreground text-[clamp(4.5rem,16vw,14rem)]">
+            CLARIX
+          </span>
+        </div>
 
-            <p
-              className={`text-lg lg:text-xl text-muted-foreground leading-relaxed max-w-xl mb-9 transition-all duration-700 delay-200 ${
-                isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-              }`}
-            >
-              CLARIX joins your calls, listens, and turns every conversation into a clean
-              brief — action items, decisions, summaries — in minutes. Then you can
-              talk to it about what was decided.
-            </p>
+        <MascotStage className="absolute inset-0" />
 
-            <div
-              className={`flex flex-col sm:flex-row items-start gap-4 transition-all duration-700 delay-300 ${
-                isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-              }`}
-            >
-              <Button
-                asChild
-                size="lg"
-                className="bg-accent hover:bg-accent/90 text-background px-8 h-14 text-base rounded-full group"
-              >
-                <Link href="/sign-up">
-                  Get Started Free
-                  <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
-                </Link>
-              </Button>
-              <Button
-                asChild
-                size="lg"
-                variant="outline"
-                className="h-14 px-8 text-base rounded-full border-foreground/20 hover:bg-foreground/5 group"
-              >
-                <a
-                  href="#how-it-works"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-                    document.getElementById("how-it-works")?.scrollIntoView({ behavior: reduce ? "auto" : "smooth" });
-                  }}
-                >
-                  <Play className="w-4 h-4 mr-2 transition-transform group-hover:scale-110" />
-                  See How It Works
-                </a>
-              </Button>
-            </div>
+        {/* Left: badge + headline + CTAs */}
+        <div
+          className={`pointer-events-auto absolute left-6 lg:left-16 bottom-10 lg:bottom-auto lg:top-1/2 lg:-translate-y-1/2 max-w-[400px] transition-all duration-700 delay-150 ${
+            isVisible ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4"
+          }`}
+        >
+          <span className="flex items-center gap-3 text-sm font-mono text-muted-foreground mb-5">
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-60" />
+              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-accent" />
+            </span>
+            Now live · no credit card
+          </span>
 
-            <p
-              className={`mt-6 text-sm text-muted-foreground transition-all duration-700 delay-500 ${
-                isVisible ? "opacity-100" : "opacity-0"
-              }`}
+          <h1 className="font-display text-[clamp(1.7rem,2.4vw,2.5rem)] leading-[1.08] tracking-tight mb-7">
+            The AI that handles{" "}
+            <span className="relative inline-block">
+              every meeting
+              <span className="absolute -bottom-0.5 left-0 right-0 h-2 bg-brand/20" />
+            </span>{" "}
+            you never have time to recap.
+          </h1>
+
+          <div className="flex items-start">
+            <Button
+              asChild
+              size="lg"
+              className="bg-accent hover:bg-accent/90 text-background px-7 h-12 text-sm rounded-full group"
             >
-              No credit card · 3 meetings free every month
-            </p>
+              <Link href="/sign-up">
+                Get Started Free
+                <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
+              </Link>
+            </Button>
           </div>
 
-          {/* Interactive visual */}
-          <div
-            className={`transition-all duration-1000 delay-300 ${
-              isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-            }`}
-          >
-            <div className="motion-float">
-              <TiltCard>
-                <TranscriptDemo />
-              </TiltCard>
-            </div>
-          </div>
+          <p className="mt-7 text-[15px] text-muted-foreground leading-relaxed">
+            CLARIX joins your calls, listens, and turns every conversation into a clean brief —
+            action items, decisions, summaries — in minutes. Then you can talk to it about what
+            was decided.
+          </p>
+          <p className="mt-4 text-sm text-muted-foreground font-mono">
+            3 meetings free every month
+          </p>
+        </div>
+
+        {/* Right: live transcript → CLARIX output demo */}
+        <div
+          className={`pointer-events-auto hidden lg:block absolute right-6 lg:right-16 top-1/2 -translate-y-1/2 w-[330px] xl:w-[360px] transition-all duration-700 delay-300 ${
+            isVisible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-4"
+          }`}
+        >
+          <TranscriptDemo stacked />
         </div>
       </div>
+
+      {/* Spacer: the opening viewport belongs to the fixed stage. */}
+      <div className="h-screen min-h-[560px]" />
     </section>
   );
 }

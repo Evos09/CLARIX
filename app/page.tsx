@@ -27,6 +27,7 @@ export default async function Home() {
     <main className="relative min-h-screen overflow-x-hidden">
       <SiteNav />
       <HomeHero />
+      <div className="relative z-10 bg-background">
       <FeatureHighlights />
       <Marquee />
       <MeetingTypesPreview />
@@ -35,6 +36,7 @@ export default async function Home() {
       <PricingPreview />
       <CtaBand />
       <SiteFooter />
+      </div>
     </main>
   );
 }

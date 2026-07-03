@@ -19,7 +19,7 @@ const summary = {
   ],
 };
 
-export function TranscriptDemo() {
+export function TranscriptDemo({ stacked = false }: { stacked?: boolean }) {
   const [visibleLines, setVisibleLines] = useState(0);
   const [showSummary, setShowSummary] = useState(false);
 
@@ -44,14 +44,16 @@ export function TranscriptDemo() {
   }, []);
 
   return (
-    <div className="grid sm:grid-cols-2 gap-px bg-foreground/10 border border-foreground/10 rounded-xl overflow-hidden shadow-2xl">
+    <div
+      className={`grid ${stacked ? "" : "sm:grid-cols-2"} gap-px bg-foreground/10 border border-foreground/10 rounded-xl overflow-hidden shadow-2xl`}
+    >
       {/* Transcript panel */}
       <div className="bg-background p-5 lg:p-6">
         <div className="flex items-center gap-2 mb-4 text-xs font-mono text-muted-foreground uppercase tracking-widest">
           <FileText className="w-3.5 h-3.5" />
           Live transcript
         </div>
-        <div className="space-y-3 min-h-[220px]">
+        <div className={`space-y-3 ${stacked ? "min-h-[150px]" : "min-h-[220px]"}`}>
           {transcript.map((row, i) => (
             <div
               key={i}
@@ -82,7 +84,7 @@ export function TranscriptDemo() {
           </span>
         </div>
 
-        <div className="min-h-[220px]">
+        <div className={stacked ? "min-h-[150px]" : "min-h-[220px]"}>
           <div
             className={`transition-all duration-700 ${
               showSummary ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3"
