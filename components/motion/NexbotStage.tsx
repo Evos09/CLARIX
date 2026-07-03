@@ -20,6 +20,7 @@ export function NexbotStage({ className }: { className?: string }) {
       const THREE = await import("three");
       const { GLTFLoader } = await import("three/examples/jsm/loaders/GLTFLoader.js");
       const { MeshoptDecoder } = await import("three/examples/jsm/libs/meshopt_decoder.module.js");
+      const { RoomEnvironment } = await import("three/examples/jsm/environments/RoomEnvironment.js");
       const el = ref.current;
       if (disposed || !el) return;
 
@@ -32,22 +33,30 @@ export function NexbotStage({ className }: { className?: string }) {
       renderer.setSize(el.clientWidth, el.clientHeight);
       renderer.outputColorSpace = THREE.SRGBColorSpace;
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
-      renderer.toneMappingExposure = 1.0;
+      renderer.toneMappingExposure = 1.05;
       el.appendChild(renderer.domElement);
 
-      // Dark scene, matte-black robot: only violet rim lights from behind/below
-      // graze the edges (like the reference); the front stays near-black.
-      scene.add(new THREE.AmbientLight(0xffffff, 0.12));
-      const key = new THREE.DirectionalLight(0xffffff, 0.9);
+      // Studio reflection environment — this is what makes the metal read as
+      // glossy/reflective chrome (the original NEXBOT look) instead of flat.
+      const pmrem = new THREE.PMREMGenerator(renderer);
+      scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+
+      // White key for glossy highlights + violet rims/accents that reflect in
+      // the chrome to tint the robot purple (the original NEXBOT, with purple).
+      scene.add(new THREE.AmbientLight(0xffffff, 0.25));
+      const key = new THREE.DirectionalLight(0xffffff, 2);
       key.position.set(2, 4, 4);
       scene.add(key);
-      const rimL = new THREE.DirectionalLight(0x8b5cf6, 6);
+      const rimL = new THREE.DirectionalLight(0x8b5cf6, 5);
       rimL.position.set(-4, 2, -3);
       scene.add(rimL);
-      const rimR = new THREE.DirectionalLight(0x7c3aed, 5);
+      const rimR = new THREE.DirectionalLight(0x7c3aed, 4);
       rimR.position.set(4, 1, -3);
       scene.add(rimR);
-      const up = new THREE.PointLight(0x8b5cf6, 3.5, 12);
+      const violetFront = new THREE.PointLight(0x7c3aed, 5, 16);
+      violetFront.position.set(-1.5, 0.8, 5);
+      scene.add(violetFront);
+      const up = new THREE.PointLight(0x8b5cf6, 3, 12);
       up.position.set(0, -2.2, 1);
       scene.add(up);
       const faceGlow = new THREE.PointLight(0xa78bfa, 1.2, 5);
@@ -75,14 +84,25 @@ export function NexbotStage({ className }: { className?: string }) {
         };
         return m;
       };
-      // Matte black body + glossy black-glass head.
+      // Glossy dark-metal body + mirror-chrome head (the original NEXBOT look),
+      // both reflecting the environment + violet lights so they read purple-tinted.
       const bodyMaterial = withRim(
-        new THREE.MeshStandardMaterial({ color: 0x050507, metalness: 0.25, roughness: 0.74 }),
-        1.5,
+        new THREE.MeshStandardMaterial({
+          color: 0x1b1b26,
+          metalness: 0.92,
+          roughness: 0.34,
+          envMapIntensity: 1.1,
+        }),
+        1.2,
       );
       const glassMaterial = withRim(
-        new THREE.MeshStandardMaterial({ color: 0x090910, metalness: 0.95, roughness: 0.08 }),
-        1.1,
+        new THREE.MeshStandardMaterial({
+          color: 0x0c0c14,
+          metalness: 1,
+          roughness: 0.05,
+          envMapIntensity: 1.5,
+        }),
+        0.9,
       );
 
       const loader = new GLTFLoader();
