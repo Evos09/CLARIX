@@ -7,8 +7,8 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { TranscriptDemo } from "./transcript-demo";
 
-const SplineHero = dynamic(
-  () => import("@/components/motion/SplineHero").then((m) => m.SplineHero),
+const NexbotStage = dynamic(
+  () => import("@/components/motion/NexbotStage").then((m) => m.NexbotStage),
   { ssr: false },
 );
 
@@ -44,7 +44,7 @@ export function HomeHero() {
           </span>
         </div>
 
-        <SplineHero className="pointer-events-auto absolute inset-0" />
+        <NexbotStage className="pointer-events-auto absolute inset-0" />
 
         {/* Left: badge + headline + CTAs */}
         <div
