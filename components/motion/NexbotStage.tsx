@@ -115,6 +115,39 @@ export function NexbotStage({ className }: { className?: string }) {
           child.material = ny > 0.8 && ny < 0.96 && small ? eyeMat : makeBody();
         });
 
+        // Glowing violet dot-matrix eyes projected on the visor (the export's
+        // real eyes hide under the glossy shell, so we add them as bright panels).
+        const eyeTex = (() => {
+          const cv = document.createElement("canvas");
+          cv.width = 84;
+          cv.height = 48;
+          const cx = cv.getContext("2d")!;
+          cx.fillStyle = "#e2d1ff";
+          for (let i = 0; i < 7; i++)
+            for (let j = 0; j < 4; j++) {
+              cx.beginPath();
+              cx.arc(12 + i * 10, 10 + j * 9, 2.6, 0, Math.PI * 2);
+              cx.fill();
+            }
+          const t = new THREE.CanvasTexture(cv);
+          t.colorSpace = THREE.SRGBColorSpace;
+          return t;
+        })();
+        const eyeGeo = new THREE.PlaneGeometry(fSize.x * 0.12, fSize.x * 0.07);
+        const eyePlaneMat = new THREE.MeshBasicMaterial({
+          map: eyeTex,
+          transparent: true,
+          depthWrite: false,
+          toneMapped: false,
+        });
+        const eyeY = fMin.y + fSize.y * 0.9;
+        const eyeZ = full.max.z * 0.55; // sit near the visor front at eye height
+        for (const sx of [-1, 1]) {
+          const eye = new THREE.Mesh(eyeGeo, eyePlaneMat);
+          eye.position.set(sx * fSize.x * 0.055, eyeY, eyeZ);
+          obj.add(eye);
+        }
+
         // Center horizontally, frame the upper body.
         const box = new THREE.Box3().setFromObject(obj);
         const center = box.getCenter(new THREE.Vector3());
