@@ -23,7 +23,7 @@ export async function canCreateMeeting(orgId: string): Promise<{ ok: boolean; re
 export function canUseType(plan: PlanConfig, typeId: string): { ok: boolean; reason?: string } {
   const t = getMeetingType(typeId);
   if (t.category === "PRO" && !plan.proVerticals) {
-    return { ok: false, reason: "Pro Verticals require the Business plan." };
+    return { ok: false, reason: "Pro Verticals are available on the Enterprise plan (talk to sales)." };
   }
   if (!plan.allMeetingTypes && typeId !== "GENERAL") {
     return { ok: false, reason: "Your plan only supports General meetings. Upgrade for all meeting types." };
@@ -37,7 +37,7 @@ export function canExportFormat(plan: PlanConfig, format: string): boolean {
 
 /** Monthly global-chat message cap. null = unlimited, 0 = locked. */
 export function globalChatLimit(plan: PlanConfig): number | null {
-  if (plan.id === "ENTERPRISE") return null;
+  if (plan.id === "ENTERPRISE" || plan.id === "BUSINESS") return null;
   if (plan.id === "PRO") return 200;
   return 0;
 }

@@ -179,7 +179,7 @@ export function Sidebar({
           <SidebarUserMenu
             planName={PLANS[plan].name}
             isCollapsed={isCollapsed}
-            showUpgrade={plan !== "ENTERPRISE"}
+            showUpgrade={plan !== "ENTERPRISE" && plan !== "BUSINESS"}
           />
         ) : (
           <div className="flex items-center gap-2.5 rounded-md p-2">

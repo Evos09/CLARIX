@@ -88,7 +88,7 @@ export function HomeHero() {
             was decided.
           </p>
           <p className="mt-4 text-sm text-muted-foreground font-mono">
-            3 meetings free every month
+            10 meetings free every month
           </p>
         </div>
 

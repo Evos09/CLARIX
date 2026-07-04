@@ -129,7 +129,7 @@ export default async function DashboardPage() {
               description="Drop an audio or video file or paste a link — CLARIX returns a summary and action items in about 12 seconds."
               actionHref="/meetings/new"
               actionLabel="Upload your first meeting"
-              chips={["MP3 · MP4 · WAV · M4A", "Zoom · Meet · Teams links", "3 free this month"]}
+              chips={["MP3 · MP4 · WAV · M4A", "Zoom · Meet · Teams links", "10 free this month"]}
             />
           )}
         </section>

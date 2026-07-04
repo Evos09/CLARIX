@@ -9,7 +9,7 @@ const groups: { group: string; rows: { label: string; values: [Cell, Cell, Cell,
   {
     group: "Meetings & capture",
     rows: [
-      { label: "Meetings per month", values: ["3", "20", "Unlimited", "Unlimited"] },
+      { label: "Meetings per month", values: ["10", "20", "Unlimited", "Unlimited"] },
       { label: "In-browser recording", values: [true, true, true, true] },
       { label: "File upload", values: [true, true, true, true] },
       { label: "Auto-join meeting bot", values: [false, true, true, true] },
@@ -18,7 +18,7 @@ const groups: { group: string; rows: { label: string; values: [Cell, Cell, Cell,
   {
     group: "Outputs & AI",
     rows: [
-      { label: "Meeting types", values: ["General", "All 20+", "All 20+", "All 20+ + Verticals"] },
+      { label: "Meeting types", values: ["General", "All 20+", "All 20+", "All 20+"] },
       { label: "Summary & action items", values: [true, true, true, true] },
       { label: "Ask CLARIX chat", values: [false, false, true, true] },
       { label: "Advanced Voice Mode (Coming Soon)", values: [false, false, true, true] },
@@ -39,14 +39,14 @@ const groups: { group: string; rows: { label: string; values: [Cell, Cell, Cell,
     rows: [
       { label: "Email", values: [false, true, true, true] },
       { label: "Calendar, Slack, Notion, Linear", values: [false, false, true, true] },
-      { label: "Salesforce & HubSpot CRM", values: [false, false, false, true] },
+      { label: "Salesforce & HubSpot CRM", values: [false, false, false, false] },
     ],
   },
   {
     group: "Security & support",
     rows: [
-      { label: "SSO / SAML (Coming Soon)", values: [false, false, false, true] },
-      { label: "SLA & priority support", values: [false, false, false, true] },
+      { label: "SSO / SAML (Coming Soon)", values: [false, false, false, false] },
+      { label: "Priority support", values: [false, false, false, true] },
     ],
   },
 ];

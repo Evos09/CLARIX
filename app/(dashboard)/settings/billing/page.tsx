@@ -9,7 +9,7 @@ export const metadata = { title: "Billing Settings" };
 export const dynamic = "force-dynamic";
 
 export default async function BillingPage() {
-  let planId: "FREE" | "STARTER" | "PRO" | "ENTERPRISE" = "FREE";
+  let planId: "FREE" | "STARTER" | "PRO" | "BUSINESS" | "ENTERPRISE" = "FREE";
   if (hasDb) {
     const ctx = await getOrCreateContext();
     if (ctx) planId = (await getOrgPlan(ctx.orgId)).id;

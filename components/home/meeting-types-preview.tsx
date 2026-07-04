@@ -45,7 +45,7 @@ export function MeetingTypesPreview() {
         <div className="mt-12 rounded-xl border border-foreground/10 bg-foreground text-background p-8 lg:p-10">
           <div className="flex items-center gap-2 mb-6 text-xs font-mono uppercase tracking-widest text-background/50">
             <Lock className="w-3.5 h-3.5" />
-            Pro Verticals · Business
+            Pro Verticals · Enterprise
           </div>
           <div className="grid md:grid-cols-3 gap-8">
             {proVerticals.map((v) => (

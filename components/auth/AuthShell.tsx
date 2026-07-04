@@ -56,7 +56,7 @@ export function AuthShell({
             </h1>
             <p className="mt-2 mb-7 text-[15px] leading-relaxed text-muted-foreground">
               {isSignUp
-                ? "3 free meetings every month. No credit card required."
+                ? "10 free meetings every month. No credit card required."
                 : "Sign in to your CLARIX workspace."}
             </p>
 

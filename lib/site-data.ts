@@ -5,13 +5,13 @@ export type Plan = {
 
 export const plans: Plan[] = [
   { name: "Free", description: "For trying CLARIX on your own meetings.", price: { monthly: 0, annual: 0 }, unit: "/month", cta: "Start Free", href: "/sign-up",
-    features: ["3 meetings per month", "General meeting type", "Summary and action items", "In-browser recording", "PDF export"] },
+    features: ["10 meetings per month", "General meeting type", "Summary and action items", "In-browser recording", "PDF export"] },
   { name: "Starter", description: "For individuals who meet often.", price: { monthly: 14, annual: 12 }, unit: "/user/mo", cta: "Start Free", href: "/sign-up",
     features: ["20 meetings per month", "All standard meeting types", "PDF, DOCX & CSV export", "Auto-join meeting bot (Zoom, Meet, Teams)", "Forever audio library", "Email integration (Gmail)"] },
   { name: "Pro", description: "For teams that run on meetings.", price: { monthly: 29, annual: 24 }, unit: "/user/mo", cta: "Start 14-day trial", href: "/sign-up", popular: true,
     features: ["Unlimited meetings", "All exports (PDF, DOCX, CSV, JSON)", "Ask CLARIX chat (200/mo)", "Auto-join meeting bot", "Forever library + reprocessing", "Google Calendar, Gmail & Notion", "Voice Mode (coming soon)"] },
-  { name: "Business", description: "For regulated teams that need the full toolkit.", price: { monthly: 59, annual: 49 }, unit: "/user/mo", cta: "Start 14-day trial", href: "/sign-up",
-    features: ["Everything in Pro", "Healthcare, Legal & Financial Verticals", "EHR / FHIR export", "Custom AI templates", "Salesforce & HubSpot CRM (coming soon)", "SSO / SAML (coming soon)", "Priority support"] },
+  { name: "Business", description: "For power users and teams who want the full self-serve toolkit.", price: { monthly: 59, annual: 49 }, unit: "/user/mo", cta: "Start 14-day trial", href: "/sign-up",
+    features: ["Everything in Pro", "Unlimited Ask CLARIX chat", "Custom AI templates", "Team sharing", "Priority support"] },
 ];
 
 export type MeetingType = { name: string; summary: string; extracts: string[] };

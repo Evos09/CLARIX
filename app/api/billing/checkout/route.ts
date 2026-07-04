@@ -4,7 +4,7 @@ import { getOrCreateContext } from "@/lib/auth";
 import { getStripe, isStripeConfigured, PLANS, type PlanId } from "@/lib/stripe";
 
 const Body = z.object({
-  plan: z.enum(["STARTER", "PRO", "ENTERPRISE"]),
+  plan: z.enum(["STARTER", "PRO", "BUSINESS"]),
   billingPeriod: z.enum(["monthly", "yearly"]).optional().default("monthly"),
 });
 

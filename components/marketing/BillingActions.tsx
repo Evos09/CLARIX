@@ -43,7 +43,7 @@ export function BillingActions() {
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap gap-3">
-        {["STARTER", "PRO", "ENTERPRISE"].map((p) => (
+        {["STARTER", "PRO", "BUSINESS"].map((p) => (
           <Button key={p} variant={p === "PRO" ? "accent" : "outline"} onClick={() => checkout(p)} disabled={!!loading}>
             {loading === p ? <Loader2 className="size-4 animate-spin" /> : `Upgrade to ${p[0]}${p.slice(1).toLowerCase()}`}
           </Button>

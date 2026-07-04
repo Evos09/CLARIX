@@ -156,6 +156,7 @@ enum Plan {
   FREE
   STARTER
   PRO
+  BUSINESS
   ENTERPRISE
 }
 

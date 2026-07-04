@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 
 function planFromPriceId(priceId: string | undefined): PlanId | null {
   if (!priceId) return null;
-  for (const id of ["STARTER", "PRO", "ENTERPRISE"] as PlanId[]) {
+  for (const id of ["STARTER", "PRO", "BUSINESS"] as PlanId[]) {
     if (process.env[PLANS[id].priceEnv!] === priceId) return id;
   }
   return null;
