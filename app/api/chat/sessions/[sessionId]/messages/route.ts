@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getOrCreateContext } from "@/lib/auth";
 import { getOrgPlan, globalChatLimit } from "@/lib/plan";
 import { isClaudeConfigured } from "@/lib/claude";
-import { answerGlobalChat, bumpChatUsage, findRelevantMeetings, getChatUsage } from "@/lib/globalChat";
+import { answerGlobalChat, bumpChatUsage, getChatUsage, retrieveContext } from "@/lib/globalChat";
 
 type Params = { params: Promise<{ sessionId: string }> };
 const Body = z.object({ message: z.string().min(1).max(4000), mode: z.enum(["focused", "research", "writer"]).optional() });
@@ -33,12 +33,13 @@ export async function POST(req: Request, { params }: Params) {
   const message = parsed.data.message;
 
   const org = await prisma.organization.findUnique({ where: { id: ctx.orgId } });
-  const meetings = await findRelevantMeetings(ctx.orgId, message);
+  const { meetings, excerpts } = await retrieveContext(ctx.orgId, message);
   const answer = await answerGlobalChat({
     orgName: org?.name ?? "your team",
     message,
     history: session.messages.map((m) => ({ role: m.role, content: m.content })),
     meetings,
+    excerpts,
     mode: parsed.data.mode,
   });
 

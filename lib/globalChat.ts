@@ -3,6 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { claudeText } from "@/lib/claude";
 import { getMeetingType } from "@/lib/meetingTypes";
 import type { BaseOutput } from "@/lib/outputTypes";
+import { searchChunks } from "@/lib/memory/search";
+import { isEmbeddingsConfigured } from "@/lib/embeddings";
 
 function monthKey(): string {
   const d = new Date();
@@ -60,6 +62,59 @@ export async function findRelevantMeetings(orgId: string, query: string): Promis
   });
 }
 
+export interface Excerpt {
+  title: string;
+  date: Date;
+  text: string;
+}
+
+/**
+ * Semantic retrieval for the global chat: embeds the query and pulls the most
+ * relevant transcript chunks (org-scoped), returning both the source meetings
+ * (for summaries + citations) and the verbatim matched excerpts (for grounding).
+ * Falls back to keyword search when embeddings aren't configured or return
+ * nothing, so behavior is unchanged until the vector index is populated.
+ */
+export async function retrieveContext(
+  orgId: string,
+  query: string,
+): Promise<{ meetings: RelevantMeeting[]; excerpts: Excerpt[] }> {
+  if (!isEmbeddingsConfigured()) {
+    return { meetings: await findRelevantMeetings(orgId, query), excerpts: [] };
+  }
+
+  const hits = await searchChunks(orgId, query, 12);
+  if (!hits.length) {
+    return { meetings: await findRelevantMeetings(orgId, query), excerpts: [] };
+  }
+
+  const excerpts: Excerpt[] = hits
+    .slice(0, 6)
+    .map((h) => ({ title: h.title, date: h.createdAt, text: h.content }));
+
+  // Unique source meetings, in relevance order, capped at 5.
+  const meetingIds: string[] = [];
+  const seen = new Set<string>();
+  for (const h of hits) {
+    if (!seen.has(h.meetingId)) {
+      seen.add(h.meetingId);
+      meetingIds.push(h.meetingId);
+    }
+    if (meetingIds.length >= 5) break;
+  }
+
+  const rows = await prisma.meeting.findMany({
+    where: { id: { in: meetingIds }, orgId },
+    select: { id: true, title: true, meetingType: true, createdAt: true, structuredOutput: true },
+  });
+  const byId = new Map(rows.map((r) => [r.id, r]));
+  const meetings = meetingIds
+    .map((id) => byId.get(id))
+    .filter((m): m is NonNullable<typeof m> => Boolean(m)) as RelevantMeeting[];
+
+  return { meetings, excerpts };
+}
+
 export interface ChatTurn {
   role: string;
   content: string;
@@ -70,6 +125,7 @@ export async function answerGlobalChat(opts: {
   message: string;
   history: ChatTurn[];
   meetings: RelevantMeeting[];
+  excerpts?: Excerpt[];
   mode?: "focused" | "research" | "writer";
 }): Promise<string> {
   const ctx = opts.meetings
@@ -92,18 +148,25 @@ Action items: ${actions}
         ? "MODE: Research. Supplement the meeting context with general knowledge where helpful, and clearly mark what came from meetings vs general knowledge."
         : "MODE: Focused. Answer only from the meeting context below. If the answer is not present, say you do not know.";
 
+  const excerptBlock = (opts.excerpts ?? []).length
+    ? `\n\nRELEVANT TRANSCRIPT EXCERPTS (verbatim, most relevant first):\n${opts
+        .excerpts!.map((e) => `From "${e.title}" (${e.date.toDateString()}):\n"${e.text}"`)
+        .join("\n---\n")}`
+    : "";
+
   const system = `You are CLARIX, an AI assistant with access to ${opts.orgName}'s meeting history. You help the team understand decisions, track commitments, and find information across all their recorded meetings.
 
 ${modeNote}
 
 GUIDELINES:
 - Always cite which meeting your information comes from (meeting title + date).
+- When transcript excerpts are provided, ground your answer in them and quote specifics where useful.
 - If you're not certain something was discussed, say so.
 - Keep responses concise unless asked for details.
 - Format lists as clean bullet points.
 
 RELEVANT MEETING CONTEXT:
-${ctx || "No completed meetings found yet."}`;
+${ctx || "No completed meetings found yet."}${excerptBlock}`;
 
   const historyText = opts.history
     .slice(-8)
