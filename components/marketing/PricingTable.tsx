@@ -10,8 +10,8 @@ import { cn } from "@/lib/utils";
 
 const FEATURES: Record<PlanId, string[]> = {
   FREE: ["10 meetings / month", "General meeting type", "Summary + action items", "PDF export"],
-  STARTER: ["20 meetings / month", "All standard meeting types", "PDF, DOCX & CSV export", "Auto-join meeting bot", "Forever audio library"],
-  PRO: ["Unlimited meetings", "All standard meeting types", "PDF, DOCX, CSV & JSON export", "Ask CLARIX chat (200/mo)", "Auto-join meeting bot", "Forever audio library", "Voice Mode (Coming Soon)"],
+  STARTER: ["20 meetings / month", "All standard meeting types", "Unlimited Ask CLARIX chat", "PDF, DOCX & CSV export", "Auto-join meeting bot", "Forever audio library"],
+  PRO: ["Unlimited meetings", "All standard meeting types", "PDF, DOCX, CSV & JSON export", "Unlimited Ask CLARIX chat", "Auto-join meeting bot", "Forever audio library", "Voice Mode (Coming Soon)"],
   BUSINESS: ["Everything in Pro", "Unlimited Ask CLARIX chat", "Custom AI templates", "Team sharing", "Priority support"],
   ENTERPRISE: ["Everything in Business", "Pro Verticals (Health/Legal/Finance)", "EHR / FHIR export", "SSO / SAML (Coming Soon)", "Salesforce & HubSpot CRM (Coming Soon)", "SLA & dedicated support"],
 };

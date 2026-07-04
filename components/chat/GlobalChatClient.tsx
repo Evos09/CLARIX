@@ -28,12 +28,6 @@ const COMMANDS = [
   { cmd: "/risks", desc: "Flagged risks", q: "What risks or concerns were flagged across my recent meetings?" },
 ];
 
-const MODES: { id: Mode; label: string }[] = [
-  { id: "focused", label: "🎯 Focused" },
-  { id: "research", label: "🔍 Research" },
-  { id: "writer", label: "✍️ Writer" },
-];
-
 export function GlobalChatClient({ usageThisMonth, usageLimit }: { usageThisMonth: number; usageLimit: number | null }) {
   const [sessions, setSessions] = useState<SessionMeta[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -41,7 +35,7 @@ export function GlobalChatClient({ usageThisMonth, usageLimit }: { usageThisMont
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const [usage, setUsage] = useState(usageThisMonth);
-  const [mode, setMode] = useState<Mode>("focused");
+  const mode: Mode = "focused";
   const endRef = useRef<HTMLDivElement>(null);
 
   // --- VOICE MODE CORE LOGIC ---
@@ -438,7 +432,7 @@ export function GlobalChatClient({ usageThisMonth, usageLimit }: { usageThisMont
               <p className="mt-2 text-sm text-muted-foreground">Searches across all your meetings. Type / for commands.</p>
               <div className="mt-6 grid gap-3 sm:grid-cols-2">
                 {SUGGESTIONS.map((s) => (
-                  <button key={s} onClick={() => send(s)} className="rounded-lg border border-border p-3 text-left text-sm hover:border-teal hover:bg-teal/5">
+                  <button key={s} onClick={() => send(s)} className="rounded-2xl border border-border p-4 text-left text-sm transition hover:border-teal hover:bg-teal/5">
                     {s}
                   </button>
                 ))}
@@ -448,7 +442,7 @@ export function GlobalChatClient({ usageThisMonth, usageLimit }: { usageThisMont
             <div className="mx-auto max-w-3xl space-y-4">
               {messages.map((m, i) => (
                 <div key={i} className={cn("flex", m.role === "user" ? "justify-end" : "justify-start")}>
-                  <div className={cn("max-w-[85%] text-sm", m.role === "user" ? "whitespace-pre-wrap rounded-lg bg-navy px-4 py-2 text-white" : "rounded-lg border-l-2 border-teal bg-card px-4 py-3")}>
+                  <div className={cn("max-w-[85%] text-sm shadow-sm", m.role === "user" ? "whitespace-pre-wrap rounded-2xl rounded-br-md bg-navy px-4 py-2.5 text-white" : "rounded-2xl rounded-bl-md border border-border bg-card px-4 py-3")}>
                     {m.role === "assistant" ? <MarkdownView content={m.content} /> : m.content}
                     {m.citations && m.citations.length > 0 && (
                       <div className="mt-3 flex flex-wrap gap-2">
@@ -471,7 +465,7 @@ export function GlobalChatClient({ usageThisMonth, usageLimit }: { usageThisMont
         <div className="border-t border-border p-3 md:p-4">
           <div className="relative mx-auto max-w-3xl">
             {slashOpen && slashMatches.length > 0 && (
-              <div className="absolute bottom-full mb-2 w-full overflow-hidden rounded-md border border-border bg-card shadow-lg">
+              <div className="absolute bottom-full mb-2 w-full overflow-hidden rounded-2xl border border-border bg-card shadow-lg">
                 {slashMatches.map((c) => (
                   <button key={c.cmd} onClick={() => { setInput(""); send(c.q); }} className="flex w-full items-center gap-3 px-3 py-2 text-left text-sm hover:bg-muted">
                     <span className="font-mono text-teal-600">{c.cmd}</span>
@@ -480,19 +474,16 @@ export function GlobalChatClient({ usageThisMonth, usageLimit }: { usageThisMont
                 ))}
               </div>
             )}
-            <div className="flex items-end gap-2">
-              <select value={mode} onChange={(e) => setMode(e.target.value as Mode)} className="h-10 shrink-0 rounded-md border border-input bg-card px-2 text-sm" title="Chat mode">
-                {MODES.map((m) => <option key={m.id} value={m.id}>{m.label}</option>)}
-              </select>
+            <div className="flex items-end gap-2 rounded-[1.75rem] border border-input bg-card p-1.5 shadow-sm focus-within:ring-2 focus-within:ring-ring">
               <textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey && !slashOpen) { e.preventDefault(); send(input); } }}
                 placeholder="Ask about your meetings…  (/ for commands, Enter to send)"
                 rows={1}
-                className="max-h-40 flex-1 resize-none rounded-md border border-input bg-card px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="max-h-40 flex-1 resize-none bg-transparent px-3 py-2 text-sm focus-visible:outline-none"
               />
-              <button onClick={() => send(input)} disabled={sending || !input.trim()} className="grid size-10 shrink-0 place-items-center rounded-md bg-teal text-white disabled:opacity-50">
+              <button onClick={() => send(input)} disabled={sending || !input.trim()} className="grid size-10 shrink-0 place-items-center rounded-full bg-teal text-white transition hover:bg-teal/90 disabled:opacity-50">
                 <Send className="size-4" />
               </button>
             </div>

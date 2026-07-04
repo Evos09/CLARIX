@@ -37,9 +37,9 @@ export function canExportFormat(plan: PlanConfig, format: string): boolean {
 
 /** Monthly global-chat message cap. null = unlimited, 0 = locked. */
 export function globalChatLimit(plan: PlanConfig): number | null {
-  if (plan.id === "ENTERPRISE" || plan.id === "BUSINESS") return null;
-  if (plan.id === "PRO") return 200;
-  return 0;
+  // Free is locked; Starter and up get unlimited Ask CLARIX chat.
+  if (plan.id === "FREE") return 0;
+  return null;
 }
 
 /** Per-file upload ceiling in bytes (override with NEXT_PUBLIC_MAX_UPLOAD_MB). */

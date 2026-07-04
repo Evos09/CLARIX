@@ -14,7 +14,7 @@ export function PlanLockedChat() {
         <h1 className="text-2xl font-semibold">CLARIX AI</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Ask anything across all your meetings — decisions, action items, commitments, summaries — all in one
-          conversation. Available on Pro and Max plans.
+          conversation. Available on the Starter plan and up.
         </p>
         <div className="mt-5 flex flex-wrap justify-center gap-2 opacity-60">
           {["What did we decide this week?", "Action items due Friday", "Summarize client calls"].map((s) => (
@@ -22,7 +22,7 @@ export function PlanLockedChat() {
           ))}
         </div>
         <Link href="/settings/billing" className={cn(buttonVariants({ variant: "accent" }), "mt-6")}>
-          Upgrade to Pro
+          Upgrade to Starter
         </Link>
       </div>
     </div>

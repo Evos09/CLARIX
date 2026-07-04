@@ -17,7 +17,7 @@ export async function POST(req: Request, { params }: Params) {
 
   const plan = await getOrgPlan(ctx.orgId);
   const limit = globalChatLimit(plan);
-  if (limit === 0) return NextResponse.json({ error: "Upgrade to Pro for CLARIX AI." }, { status: 403 });
+  if (limit === 0) return NextResponse.json({ error: "Upgrade to Starter for CLARIX AI." }, { status: 403 });
   if (limit !== null && (await getChatUsage(ctx.userId)) >= limit) {
     return NextResponse.json({ error: `You've used all ${limit} messages this month. Upgrade for more.` }, { status: 429 });
   }
