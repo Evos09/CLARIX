@@ -66,6 +66,15 @@ export async function processMeeting(meetingId: string, instruction?: string): P
 
     await extractKeyPoints(meetingId, meeting.rawTranscript);
 
+    // Index the transcript for cross-meeting semantic search (best-effort;
+    // no-op unless OPENAI_API_KEY is set).
+    try {
+      const { ingestMeeting } = await import("@/lib/memory/ingest");
+      await ingestMeeting(meetingId);
+    } catch (memErr) {
+      console.error("Failed to index meeting for memory search:", memErr);
+    }
+
     // Notify the owner their meeting is ready (best-effort).
     const owner = await prisma.user.findUnique({ where: { id: meeting.userId } });
     if (owner?.email) await sendMeetingComplete({ to: owner.email, title: meeting.title, meetingId });

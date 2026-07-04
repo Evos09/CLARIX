@@ -95,10 +95,30 @@ model Meeting {
   crmsyncs          CRMSync[]
   meetingAnalytics  MeetingAnalytics?
   integrationPushes IntegrationPush[]
+  memoryChunks      MeetingChunk[]
 
   @@index([orgId])
   @@index([userId])
   @@index([status])
+}
+
+// Semantic-search chunks for cross-meeting memory. `embedding` is a pgvector
+// column (OpenAI text-embedding-3-small = 1536 dims); Prisma can't type it, so
+// writes go through raw SQL (see lib/memory/ingest.ts) and similarity queries
+// use the `<=>` cosine operator (see lib/memory/search.ts). Requires the
+// pgvector extension + an HNSW index — see prisma/sql/memory-setup.sql.
+model MeetingChunk {
+  id        String                       @id @default(cuid())
+  meetingId String
+  meeting   Meeting                      @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  orgId     String
+  content   String                       @db.Text
+  ordinal   Int
+  embedding Unsupported("vector(1536)")?
+  createdAt DateTime                     @default(now())
+
+  @@index([orgId])
+  @@index([meetingId])
 }
 
 model Comment {
