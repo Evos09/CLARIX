@@ -33,19 +33,25 @@ export async function POST(req: Request) {
 
   let indexed = 0;
   let chunks = 0;
+  let empty = 0;
+  const errors: string[] = [];
   for (const m of meetings) {
     try {
       const n = await ingestMeeting(m.id);
       if (n > 0) {
         indexed++;
         chunks += n;
+      } else {
+        empty++;
       }
     } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
       console.error("reindex failed for meeting", m.id, e);
+      if (errors.length < 3) errors.push(`${m.id}: ${msg}`);
     }
   }
 
-  return NextResponse.json({ meetings: meetings.length, indexed, chunks });
+  return NextResponse.json({ meetings: meetings.length, indexed, chunks, empty, errors });
 }
 
 /**
