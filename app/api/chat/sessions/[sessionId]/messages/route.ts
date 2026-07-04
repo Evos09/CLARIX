@@ -32,27 +32,35 @@ export async function POST(req: Request, { params }: Params) {
   if (!parsed.success) return NextResponse.json({ error: "Invalid input" }, { status: 400 });
   const message = parsed.data.message;
 
-  const org = await prisma.organization.findUnique({ where: { id: ctx.orgId } });
-  const { meetings, excerpts } = await retrieveContext(ctx.orgId, message);
-  const answer = await answerGlobalChat({
-    orgName: org?.name ?? "your team",
-    message,
-    history: session.messages.map((m) => ({ role: m.role, content: m.content })),
-    meetings,
-    excerpts,
-    mode: parsed.data.mode,
-  });
+  try {
+    const org = await prisma.organization.findUnique({ where: { id: ctx.orgId } });
+    const { meetings, excerpts } = await retrieveContext(ctx.orgId, message);
+    const answer = await answerGlobalChat({
+      orgName: org?.name ?? "your team",
+      message,
+      history: session.messages.map((m) => ({ role: m.role, content: m.content })),
+      meetings,
+      excerpts,
+      mode: parsed.data.mode,
+    });
 
-  const citations = meetings.map((m) => ({ id: m.id, title: m.title, date: m.createdAt }));
-  await prisma.globalChatMessage.create({ data: { sessionId, role: "user", content: message } });
-  const assistant = await prisma.globalChatMessage.create({
-    data: { sessionId, role: "assistant", content: answer, citations },
-  });
-  await prisma.globalChatSession.update({
-    where: { id: sessionId },
-    data: { updatedAt: new Date(), title: session.title ?? message.slice(0, 60) },
-  });
-  await bumpChatUsage(ctx.userId);
+    const citations = meetings.map((m) => ({ id: m.id, title: m.title, date: m.createdAt }));
+    await prisma.globalChatMessage.create({ data: { sessionId, role: "user", content: message } });
+    const assistant = await prisma.globalChatMessage.create({
+      data: { sessionId, role: "assistant", content: answer, citations },
+    });
+    await prisma.globalChatSession.update({
+      where: { id: sessionId },
+      data: { updatedAt: new Date(), title: session.title ?? message.slice(0, 60) },
+    });
+    await bumpChatUsage(ctx.userId);
 
-  return NextResponse.json({ message: assistant, citations });
+    return NextResponse.json({ message: assistant, citations });
+  } catch (err) {
+    console.error("global chat message failed:", err);
+    return NextResponse.json(
+      { error: "CLARIX had trouble answering that. Please try again." },
+      { status: 500 },
+    );
+  }
 }

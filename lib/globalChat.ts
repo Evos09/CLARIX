@@ -79,40 +79,45 @@ export async function retrieveContext(
   orgId: string,
   query: string,
 ): Promise<{ meetings: RelevantMeeting[]; excerpts: Excerpt[] }> {
-  if (!isEmbeddingsConfigured()) {
-    return { meetings: await findRelevantMeetings(orgId, query), excerpts: [] };
-  }
+  if (isEmbeddingsConfigured()) {
+    try {
+      const hits = await searchChunks(orgId, query, 12);
+      if (hits.length) {
+        const excerpts: Excerpt[] = hits
+          .slice(0, 6)
+          .map((h) => ({ title: h.title, date: h.createdAt, text: h.content }));
 
-  const hits = await searchChunks(orgId, query, 12);
-  if (!hits.length) {
-    return { meetings: await findRelevantMeetings(orgId, query), excerpts: [] };
-  }
+        // Unique source meetings, in relevance order, capped at 5.
+        const meetingIds: string[] = [];
+        const seen = new Set<string>();
+        for (const h of hits) {
+          if (!seen.has(h.meetingId)) {
+            seen.add(h.meetingId);
+            meetingIds.push(h.meetingId);
+          }
+          if (meetingIds.length >= 5) break;
+        }
 
-  const excerpts: Excerpt[] = hits
-    .slice(0, 6)
-    .map((h) => ({ title: h.title, date: h.createdAt, text: h.content }));
+        const rows = await prisma.meeting.findMany({
+          where: { id: { in: meetingIds }, orgId },
+          select: { id: true, title: true, meetingType: true, createdAt: true, structuredOutput: true },
+        });
+        const byId = new Map(rows.map((r) => [r.id, r]));
+        const meetings = meetingIds
+          .map((id) => byId.get(id))
+          .filter((m): m is NonNullable<typeof m> => Boolean(m)) as RelevantMeeting[];
 
-  // Unique source meetings, in relevance order, capped at 5.
-  const meetingIds: string[] = [];
-  const seen = new Set<string>();
-  for (const h of hits) {
-    if (!seen.has(h.meetingId)) {
-      seen.add(h.meetingId);
-      meetingIds.push(h.meetingId);
+        return { meetings, excerpts };
+      }
+    } catch (err) {
+      // Embeddings can fail (no OpenAI quota, rate limit, outage) — never break
+      // the chat over it; fall through to keyword search below.
+      console.error("Semantic retrieval failed; falling back to keyword search:", err);
     }
-    if (meetingIds.length >= 5) break;
   }
 
-  const rows = await prisma.meeting.findMany({
-    where: { id: { in: meetingIds }, orgId },
-    select: { id: true, title: true, meetingType: true, createdAt: true, structuredOutput: true },
-  });
-  const byId = new Map(rows.map((r) => [r.id, r]));
-  const meetings = meetingIds
-    .map((id) => byId.get(id))
-    .filter((m): m is NonNullable<typeof m> => Boolean(m)) as RelevantMeeting[];
-
-  return { meetings, excerpts };
+  // Fallback: keyword search (embeddings unconfigured, no hits, or an error above).
+  return { meetings: await findRelevantMeetings(orgId, query), excerpts: [] };
 }
 
 export interface ChatTurn {
