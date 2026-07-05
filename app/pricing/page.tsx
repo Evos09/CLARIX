@@ -58,7 +58,7 @@ export default function PricingPage() {
               </h2>
               <p className="text-background/70 leading-relaxed text-pretty">
                 Everything in Business, plus Pro Verticals for Healthcare, Legal &amp; Finance, EHR/FHIR
-                export, Salesforce &amp; HubSpot CRM, SSO/SAML (on the roadmap), and a dedicated CSM with
+                export, Salesforce &amp; HubSpot CRM, and a dedicated CSM with
                 an SLA — tailored to your security, compliance, and procurement needs.
               </p>
             </div>

@@ -7,7 +7,6 @@ import {
   TranscriptionVisual,
   OutputsVisual,
   AskClarixVisual,
-  VoiceVisual,
   RecordingVisual,
   AudioLibraryVisual,
   IntegrationsVisual,
@@ -18,7 +17,7 @@ import {
 export const metadata = {
   title: "Features — CLARIX",
   description:
-    "Transcription, structured outputs, Ask CLARIX chat, Advanced Voice Mode, recording and bot capture, audio library, integrations, analytics, and compliance-aware Pro Verticals.",
+    "Transcription, structured outputs, Ask CLARIX chat, recording and bot capture, audio library, integrations, analytics, and compliance-aware Pro Verticals.",
 };
 
 const blocks = [
@@ -45,14 +44,6 @@ const blocks = [
       "A chat interface tied to a specific meeting. Ask “Who owns the Q3 deliverable?” or “Write a follow-up email based on this meeting” and get an answer streamed back in real time, grounded in that meeting's transcript.",
     bullets: ["Answers grounded in the transcript", "Draft follow-ups and recaps", "Real-time streaming responses"],
     visual: <AskClarixVisual />,
-  },
-  {
-    eyebrow: "Voice mode · Coming soon",
-    title: "Talk to CLARIX, hands-free",
-    description:
-      "Advanced Voice Mode lets you have a real-time spoken conversation with CLARIX. Ask questions out loud and hear a spoken response — perfect for “read back my action items” or “what did Sarah commit to.”",
-    bullets: ["Real-time spoken responses", "Hands-free recall", "Great for driving or walking"],
-    visual: <VoiceVisual />,
   },
   {
     eyebrow: "Capture",
