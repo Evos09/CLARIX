@@ -4,7 +4,7 @@ import { getOrCreateContext, hasDb } from "@/lib/auth";
 import { getOrgPlan, globalChatLimit } from "@/lib/plan";
 import { getChatUsage } from "@/lib/globalChat";
 
-export const metadata = { title: "CLARIX AI" };
+export const metadata = { title: "Clarix Chat" };
 export const dynamic = "force-dynamic";
 
 export default async function ChatPage() {

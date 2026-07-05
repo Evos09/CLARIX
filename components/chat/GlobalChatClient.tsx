@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Plus, Trash2, Send, Loader2, FileText, Download, Copy, Mic, MicOff, Volume2, VolumeX, PhoneOff, X } from "lucide-react";
+import { Plus, Trash2, Send, Loader2, FileText, Download, Copy, Mic, MicOff, Volume2, VolumeX, PhoneOff, X, Brain } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { MarkdownView } from "./MarkdownView";
 
@@ -350,11 +350,11 @@ export function GlobalChatClient({ usageThisMonth, usageLimit }: { usageThisMont
     <div className="flex h-screen">
       <aside className="hidden w-72 shrink-0 flex-col border-r border-border bg-card md:flex">
         <div className="flex items-center gap-2 px-4 py-4">
-          <span className="size-2 animate-pulse rounded-full bg-teal" />
-          <span className="text-sm font-semibold">CLARIX AI</span>
+          <Brain className="size-4 text-violet-600" />
+          <span className="text-sm font-bold text-foreground">Clarix AI</span>
         </div>
         <div className="px-3">
-          <button onClick={newChat} className="flex w-full items-center justify-center gap-2 rounded-md border border-teal/40 py-2 text-sm font-medium text-teal-600 hover:bg-teal/5">
+          <button onClick={newChat} className="flex w-full items-center justify-center gap-2 rounded-md border border-violet-600/40 py-2 text-sm font-semibold text-violet-600 hover:bg-violet-50/5 hover:border-violet-600 transition-colors">
             <Plus className="size-4" /> New Chat
           </button>
         </div>
@@ -362,7 +362,7 @@ export function GlobalChatClient({ usageThisMonth, usageLimit }: { usageThisMont
           {usageLimit === null ? "Unlimited Ask CLARIX messages" : `${usage} of ${usageLimit} Ask CLARIX messages this month`}
           {usageLimit !== null && (
             <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-muted">
-              <div className="h-full bg-teal" style={{ width: `${Math.min(100, (usage / usageLimit) * 100)}%` }} />
+              <div className="h-full bg-violet-600" style={{ width: `${Math.min(100, (usage / usageLimit) * 100)}%` }} />
             </div>
           )}
         </div>
@@ -372,13 +372,15 @@ export function GlobalChatClient({ usageThisMonth, usageLimit }: { usageThisMont
               key={s.id}
               onClick={() => openSession(s.id)}
               className={cn(
-                "group flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm",
-                activeId === s.id ? "border-l-2 border-teal bg-muted" : "hover:bg-muted",
+                "group flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm transition-colors",
+                activeId === s.id
+                  ? "border-l-2 border-violet-600 bg-violet-50/10 text-violet-700 font-semibold"
+                  : "hover:bg-muted text-muted-foreground hover:text-foreground",
               )}
             >
               <span className="truncate">{s.title}</span>
               <button onClick={(e) => del(s.id, e)} className="opacity-0 group-hover:opacity-100">
-                <Trash2 className="size-3.5 text-muted-foreground hover:text-destructive" />
+                <Trash2 className="size-3.5 text-muted-foreground hover:text-destructive transition-colors" />
               </button>
             </div>
           ))}
@@ -386,20 +388,24 @@ export function GlobalChatClient({ usageThisMonth, usageLimit }: { usageThisMont
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <div className="flex items-center justify-between border-b border-border px-4 py-3 bg-card shrink-0">
+        <div className="flex items-center justify-between border-b border-border px-4 py-3.5 bg-card shrink-0">
           <div className="flex items-center gap-2">
-            <span className="size-2 rounded-full bg-teal animate-pulse" />
-            <span className="text-sm font-semibold">CLARIX Chat</span>
+            <div className="rounded-full bg-violet-100 p-1.5 text-violet-700">
+              <Brain className="size-4" />
+            </div>
+            <div>
+              <span className="text-sm font-bold text-foreground">Clarix Chat</span>
+              <span className="ml-2 rounded-full bg-violet-100 text-violet-700 px-2 py-0.5 text-[10px] font-bold">AI Companion</span>
+            </div>
           </div>
           <div className="flex items-center gap-2">
-            {/* Voice Mode button commented out as it is framed as Coming Soon / Private Beta
             <button
               onClick={() => setIsVoiceOpen(!isVoiceOpen)}
               className={cn(
                 "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-all duration-300",
                 isVoiceOpen
                   ? "bg-rose-600 hover:bg-rose-700 ring-2 ring-rose-500/20"
-                  : "bg-teal hover:bg-teal/90"
+                  : "bg-violet-600 hover:bg-violet-700"
               )}
             >
               {isVoiceOpen ? (
@@ -412,13 +418,12 @@ export function GlobalChatClient({ usageThisMonth, usageLimit }: { usageThisMont
                 </>
               )}
             </button>
-            */}
             {messages.length > 0 && (
               <>
-                <button onClick={() => navigator.clipboard.writeText(asText())} className="inline-flex items-center gap-1 rounded border border-border px-2 py-1.5 text-xs hover:bg-muted">
+                <button onClick={() => navigator.clipboard.writeText(asText())} className="inline-flex items-center gap-1 rounded border border-border px-2 py-1.5 text-xs hover:bg-muted transition-colors">
                   <Copy className="size-3" /> Copy all
                 </button>
-                <button onClick={exportMarkdown} className="inline-flex items-center gap-1 rounded border border-border px-2 py-1.5 text-xs hover:bg-muted">
+                <button onClick={exportMarkdown} className="inline-flex items-center gap-1 rounded border border-border px-2 py-1.5 text-xs hover:bg-muted transition-colors">
                   <Download className="size-3" /> Export .md
                 </button>
               </>
@@ -428,11 +433,15 @@ export function GlobalChatClient({ usageThisMonth, usageLimit }: { usageThisMont
         <div className="flex-1 overflow-y-auto p-4 md:p-8">
           {messages.length === 0 ? (
             <div className="mx-auto mt-10 max-w-2xl text-center">
-              <h2 className="text-2xl font-semibold">Ask anything about your meetings.</h2>
-              <p className="mt-2 text-sm text-muted-foreground">Searches across all your meetings. Type / for commands.</p>
-              <div className="mt-6 grid gap-3 sm:grid-cols-2">
+              <h2 className="text-2xl font-bold text-foreground">Ask anything about your meetings.</h2>
+              <p className="mt-2 text-sm text-muted-foreground font-medium">Searches across all your meetings. Type / for commands.</p>
+              <div className="mt-8 grid gap-4 sm:grid-cols-2">
                 {SUGGESTIONS.map((s) => (
-                  <button key={s} onClick={() => send(s)} className="rounded-2xl border border-border p-4 text-left text-sm transition hover:border-teal hover:bg-teal/5">
+                  <button
+                    key={s}
+                    onClick={() => send(s)}
+                    className="rounded-xl border border-border bg-card/50 p-4 text-left text-sm font-medium transition hover:border-violet-500 hover:bg-violet-50/10 hover:shadow-sm"
+                  >
                     {s}
                   </button>
                 ))}
@@ -442,7 +451,14 @@ export function GlobalChatClient({ usageThisMonth, usageLimit }: { usageThisMont
             <div className="mx-auto max-w-3xl space-y-4">
               {messages.map((m, i) => (
                 <div key={i} className={cn("flex", m.role === "user" ? "justify-end" : "justify-start")}>
-                  <div className={cn("max-w-[85%] text-sm shadow-sm", m.role === "user" ? "whitespace-pre-wrap rounded-2xl rounded-br-md bg-navy px-4 py-2.5 text-white" : "rounded-2xl rounded-bl-md border border-border bg-card px-4 py-3")}>
+                  <div
+                    className={cn(
+                      "max-w-[85%] text-sm shadow-sm leading-relaxed",
+                      m.role === "user"
+                        ? "whitespace-pre-wrap rounded-2xl rounded-br-sm bg-gradient-to-tr from-violet-600 to-indigo-600 px-4 py-2.5 text-white font-medium"
+                        : "rounded-2xl rounded-bl-sm border border-border bg-card px-4 py-3 text-foreground"
+                    )}
+                  >
                     {m.role === "assistant" ? <MarkdownView content={m.content} /> : m.content}
                     {m.citations && m.citations.length > 0 && (
                       <div className="mt-3 flex flex-wrap gap-2">
@@ -456,7 +472,7 @@ export function GlobalChatClient({ usageThisMonth, usageLimit }: { usageThisMont
                   </div>
                 </div>
               ))}
-              {sending && <div className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="size-4 animate-spin" /> CLARIX is thinking…</div>}
+              {sending && <div className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="size-4 animate-spin text-violet-600" /> CLARIX is thinking…</div>}
               <div ref={endRef} />
             </div>
           )}
@@ -474,7 +490,7 @@ export function GlobalChatClient({ usageThisMonth, usageLimit }: { usageThisMont
                 ))}
               </div>
             )}
-            <div className="flex items-end gap-2 rounded-[1.75rem] border border-input bg-card p-1.5 shadow-sm focus-within:ring-2 focus-within:ring-ring">
+            <div className="flex items-end gap-2 rounded-[1.75rem] border border-input bg-card p-1.5 shadow-sm focus-within:ring-2 focus-within:ring-violet-600/30">
               <textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
@@ -483,7 +499,7 @@ export function GlobalChatClient({ usageThisMonth, usageLimit }: { usageThisMont
                 rows={1}
                 className="max-h-40 flex-1 resize-none bg-transparent px-3 py-2 text-sm focus-visible:outline-none"
               />
-              <button onClick={() => send(input)} disabled={sending || !input.trim()} className="grid size-10 shrink-0 place-items-center rounded-full bg-teal text-white transition hover:bg-teal/90 disabled:opacity-50">
+              <button onClick={() => send(input)} disabled={sending || !input.trim()} className="grid size-10 shrink-0 place-items-center rounded-full bg-violet-600 text-white transition hover:bg-violet-700 disabled:opacity-50">
                 <Send className="size-4" />
               </button>
             </div>
