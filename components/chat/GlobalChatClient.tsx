@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Plus, Trash2, Send, Loader2, FileText, Download, Copy, Mic, MicOff, Volume2, VolumeX, PhoneOff, X, Brain } from "lucide-react";
+import { Plus, Trash2, Send, Loader2, FileText, Download, Copy, Mic, MicOff, Volume2, VolumeX, PhoneOff, X, Brain, ListTodo, CheckCircle2, Mail, BarChart3, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { MarkdownView } from "./MarkdownView";
 
@@ -20,12 +20,12 @@ const SUGGESTIONS = [
 ];
 
 const COMMANDS = [
-  { cmd: "/summary", desc: "Summarize recent meetings", q: "Summarize my most recent meetings." },
-  { cmd: "/actions", desc: "List open action items", q: "List all open action items across my recent meetings, grouped by meeting." },
-  { cmd: "/decisions", desc: "List key decisions", q: "List the key decisions from my recent meetings." },
-  { cmd: "/email", desc: "Draft a follow-up email", q: "Draft a follow-up email summarizing my most recent meeting." },
-  { cmd: "/report", desc: "Weekly report", q: "Generate a weekly report of decisions and action items from my recent meetings." },
-  { cmd: "/risks", desc: "Flagged risks", q: "What risks or concerns were flagged across my recent meetings?" },
+  { cmd: "/summary", desc: "Summarize recent meetings", q: "Summarize my most recent meetings.", icon: FileText },
+  { cmd: "/actions", desc: "List open action items", q: "List all open action items across my recent meetings, grouped by meeting.", icon: ListTodo },
+  { cmd: "/decisions", desc: "List key decisions", q: "List the key decisions from my recent meetings.", icon: CheckCircle2 },
+  { cmd: "/email", desc: "Draft a follow-up email", q: "Draft a follow-up email summarizing my most recent meeting.", icon: Mail },
+  { cmd: "/report", desc: "Weekly report", q: "Generate a weekly report of decisions and action items from my recent meetings.", icon: BarChart3 },
+  { cmd: "/risks", desc: "Flagged risks", q: "What risks or concerns were flagged across my recent meetings?", icon: AlertCircle },
 ];
 
 export function GlobalChatClient({ usageThisMonth, usageLimit }: { usageThisMonth: number; usageLimit: number | null }) {
@@ -37,6 +37,53 @@ export function GlobalChatClient({ usageThisMonth, usageLimit }: { usageThisMont
   const [usage, setUsage] = useState(usageThisMonth);
   const mode: Mode = "focused";
   const endRef = useRef<HTMLDivElement>(null);
+
+  const [isListeningInput, setIsListeningInput] = useState(false);
+  const inputRecognitionRef = useRef<any>(null);
+
+  function toggleInputSpeech() {
+    if (typeof window === "undefined") return;
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert("Speech recognition is not supported in this browser. Try Chrome or Safari.");
+      return;
+    }
+
+    if (isListeningInput) {
+      if (inputRecognitionRef.current) {
+        inputRecognitionRef.current.stop();
+      }
+      setIsListeningInput(false);
+    } else {
+      const rec = new SpeechRecognition();
+      rec.continuous = false;
+      rec.interimResults = false;
+      rec.lang = "en-US";
+
+      rec.onstart = () => {
+        setIsListeningInput(true);
+      };
+
+      rec.onresult = (event: any) => {
+        const text = event.results[0][0].transcript;
+        if (text) {
+          setInput((prev) => (prev ? prev + " " + text : text));
+        }
+      };
+
+      rec.onerror = (err: any) => {
+        console.error("Speech input error:", err);
+        setIsListeningInput(false);
+      };
+
+      rec.onend = () => {
+        setIsListeningInput(false);
+      };
+
+      inputRecognitionRef.current = rec;
+      rec.start();
+    }
+  }
 
   // --- VOICE MODE CORE LOGIC ---
   const [isVoiceOpen, setIsVoiceOpen] = useState(false);
@@ -483,13 +530,22 @@ export function GlobalChatClient({ usageThisMonth, usageLimit }: { usageThisMont
         <div className="border-t border-border p-3 md:p-4">
           <div className="relative mx-auto max-w-3xl">
             {slashOpen && slashMatches.length > 0 && (
-              <div className="absolute bottom-full mb-2 w-full overflow-hidden rounded-2xl border border-border bg-card shadow-lg">
-                {slashMatches.map((c) => (
-                  <button key={c.cmd} onClick={() => { setInput(""); send(c.q); }} className="flex w-full items-center gap-3 px-3 py-2 text-left text-sm hover:bg-muted">
-                    <span className="font-mono text-teal-600">{c.cmd}</span>
-                    <span className="text-muted-foreground">{c.desc}</span>
-                  </button>
-                ))}
+              <div className="absolute bottom-full mb-2 w-full overflow-hidden rounded-xl border border-border bg-card shadow-xl p-1.5 space-y-0.5 z-30">
+                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider px-3 py-1.5">CLARIX Chat Commands</p>
+                {slashMatches.map((c) => {
+                  const Icon = (c as any).icon;
+                  return (
+                    <button
+                      key={c.cmd}
+                      onClick={() => { setInput(""); send(c.q); }}
+                      className="flex w-full items-center gap-3 px-3 py-2 rounded-lg text-left text-xs font-semibold text-foreground hover:bg-violet-50/50 hover:text-violet-700 transition-colors"
+                    >
+                      <Icon className="size-3.5 text-violet-500 shrink-0" />
+                      <span className="font-mono text-violet-600 font-bold">{c.cmd}</span>
+                      <span className="text-muted-foreground font-medium ml-auto">{c.desc}</span>
+                    </button>
+                  );
+                })}
               </div>
             )}
             <div className="flex items-end gap-2 rounded-[1.75rem] border border-input bg-card p-1.5 shadow-sm focus-within:ring-2 focus-within:ring-violet-600/30">
@@ -501,6 +557,20 @@ export function GlobalChatClient({ usageThisMonth, usageLimit }: { usageThisMont
                 rows={1}
                 className="max-h-40 flex-1 resize-none bg-transparent px-3 py-2 text-sm focus-visible:outline-none"
               />
+              {/* Voice to Text button */}
+              <button
+                type="button"
+                onClick={toggleInputSpeech}
+                className={cn(
+                  "grid size-10 shrink-0 place-items-center rounded-full transition-all border",
+                  isListeningInput
+                    ? "bg-red-500/10 border-red-500/35 text-red-500 hover:bg-red-500/20 animate-pulse"
+                    : "bg-muted border-border text-muted-foreground hover:bg-muted/80 hover:text-foreground"
+                )}
+                title={isListeningInput ? "Stop Voice Typing" : "Voice Typing (Speech to Text)"}
+              >
+                {isListeningInput ? <MicOff className="size-4 animate-bounce" /> : <Mic className="size-4" />}
+              </button>
               <button onClick={() => send(input)} disabled={sending || !input.trim()} className="grid size-10 shrink-0 place-items-center rounded-full bg-violet-600 text-white transition hover:bg-violet-700 disabled:opacity-50">
                 <Send className="size-4" />
               </button>
