@@ -35,6 +35,19 @@ export function MedicalOutput({ output }: MedicalOutputProps) {
 
   return (
     <div className="space-y-6">
+      {/* HIPAA Compliance and Clinical Disclaimer */}
+      <div className="rounded-lg border border-amber-500/25 bg-amber-500/5 p-4 text-xs">
+        <div className="flex gap-2 text-amber-800">
+          <ShieldAlert className="size-4 shrink-0 text-amber-600 mt-0.5" />
+          <div className="space-y-1">
+            <p className="font-semibold">Clinical & Compliance Advisory Notice</p>
+            <p className="text-muted-foreground leading-relaxed">
+              CLARIX is not currently HIPAA or SOC 2 certified. This template is intended solely for demonstrative or research contexts and must not be used to process, store, or transmit protected health information (PHI) unless a Business Associate Agreement (BAA) has been executed. All structured clinical summaries, ICD-10 suggestions, and extracted medications are AI-generated recommendations and must be verified by a licensed clinician before any medical decision or charting entry.
+            </p>
+          </div>
+        </div>
+      </div>
+
       {/* SOAP Notes 2x2 Quadrant Grid */}
       <div className="grid gap-6 md:grid-cols-2">
         <Card className="border-l-4 border-l-sky-500">
