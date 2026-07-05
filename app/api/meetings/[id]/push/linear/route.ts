@@ -7,7 +7,7 @@ import { pushToLinear } from "@/lib/push/linear";
 import type { BaseOutput } from "@/lib/outputTypes";
 
 type Params = { params: Promise<{ id: string }> };
-const Body = z.object({ teamId: z.string().min(1) });
+const Body = z.object({ teamId: z.string().min(1).optional() });
 
 export async function POST(req: Request, { params }: Params) {
   const { id } = await params;
@@ -20,11 +20,13 @@ export async function POST(req: Request, { params }: Params) {
   const output = (meeting.structuredOutput as unknown as BaseOutput | null) ?? null;
   if (!output) return NextResponse.json({ error: "No analysis to push yet." }, { status: 409 });
   const parsed = Body.safeParse(await req.json().catch(() => null));
-  if (!parsed.success) return NextResponse.json({ error: "Pick a team" }, { status: 400 });
+  
+  const teamId = parsed.success && parsed.data.teamId ? parsed.data.teamId : conn.defaultTeamId;
+  if (!teamId) return NextResponse.json({ error: "Pick a team or configure a default team in Settings." }, { status: 400 });
 
   const base = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
   try {
-    const count = await pushToLinear(decryptToken(conn.accessToken), parsed.data.teamId, meeting.title, `${base}/meetings/${id}`, output);
+    const count = await pushToLinear(decryptToken(conn.accessToken), teamId, meeting.title, `${base}/meetings/${id}`, output);
     await prisma.integrationPush.create({ data: { meetingId: id, userId: ctx.userId, platform: "LINEAR", destination: conn.organizationName } });
     return NextResponse.json({ success: true, issuesCreated: count });
   } catch (e) {

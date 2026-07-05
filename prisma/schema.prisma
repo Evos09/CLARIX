@@ -433,6 +433,7 @@ model NotionConnection {
   workspaceName String
   workspaceId   String
   connected     Boolean  @default(true)
+  parentPageId  String?
   createdAt     DateTime @default(now())
 }
 
@@ -444,6 +445,7 @@ model LinearConnection {
   organizationId   String
   organizationName String
   connected        Boolean  @default(true)
+  defaultTeamId    String?
   createdAt        DateTime @default(now())
 }
 

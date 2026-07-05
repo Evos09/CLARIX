@@ -5,7 +5,12 @@ import { getOrCreateContext } from "@/lib/auth";
 
 type Params = { params: Promise<{ id: string }> };
 
-const Body = z.object({ completed: z.boolean() });
+const Body = z.object({
+  completed: z.boolean().optional(),
+  owner: z.string().nullable().optional(),
+  dueDate: z.string().nullable().optional(),
+  priority: z.string().nullable().optional(),
+});
 
 export async function PATCH(req: Request, { params }: Params) {
   const { id } = await params;
@@ -20,7 +25,12 @@ export async function PATCH(req: Request, { params }: Params) {
 
   const updated = await prisma.actionItem.update({
     where: { id },
-    data: { completed: parsed.data.completed },
+    data: {
+      ...(parsed.data.completed !== undefined ? { completed: parsed.data.completed } : {}),
+      ...(parsed.data.owner !== undefined ? { owner: parsed.data.owner } : {}),
+      ...(parsed.data.dueDate !== undefined ? { dueDate: parsed.data.dueDate } : {}),
+      ...(parsed.data.priority !== undefined ? { priority: parsed.data.priority } : {}),
+    },
   });
   return NextResponse.json(updated);
 }

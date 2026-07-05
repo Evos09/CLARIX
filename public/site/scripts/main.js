@@ -162,6 +162,32 @@ if (dropZone && fileInput) {
   fileInput.addEventListener('change', () => {
     if (fileInput.files.length) handleFile(fileInput.files[0]);
   });
+
+  const trySampleBtn = document.getElementById('trySampleBtn');
+  if (trySampleBtn) {
+    trySampleBtn.addEventListener('click', async (e) => {
+      e.stopPropagation(); // Prevent triggering dropZone file chooser popup
+      dropZone.style.display = 'none';
+      progressContainer.style.display = 'block';
+      updateProgress(30, 'Generating sample meeting...');
+
+      try {
+        const res = await fetch('/api/public/demo/meetings/sample', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        if (!res.ok) throw new Error('Failed to generate sample meeting');
+        const meeting = await res.json();
+        updateProgress(100, 'Redirecting to results...');
+
+        // Store demo meeting ID in a cookie for claiming later
+        document.cookie = `clarix_demo_meeting_id=${meeting.id}; path=/; max-age=604800; SameSite=Lax`;
+        window.location.href = `/demo/${meeting.id}`;
+      } catch (err) {
+        showError(err.message || 'Failed to create sample meeting. Please try again.');
+      }
+    });
+  }
 }
 
 function handleFile(file) {

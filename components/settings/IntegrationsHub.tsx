@@ -8,8 +8,8 @@ import { Button } from "@/components/ui/button";
 interface Status {
   configured: { slack: boolean; notion: boolean; linear: boolean };
   slack: { teamName: string; connected: boolean; autoPostEnabled?: boolean; autoPostChannelId?: string | null } | null;
-  notion: { workspaceName: string; connected: boolean } | null;
-  linear: { organizationName: string; connected: boolean } | null;
+  notion: { workspaceName: string; connected: boolean; parentPageId?: string | null } | null;
+  linear: { organizationName: string; connected: boolean; defaultTeamId?: string | null } | null;
 }
 
 const PROVIDERS = [
@@ -25,6 +25,13 @@ export function IntegrationsHub() {
   const [slackAutoPost, setSlackAutoPost] = useState(false);
   const [slackChannel, setSlackChannel] = useState("");
   const [savingSlack, setSavingSlack] = useState(false);
+
+  const [notionParentPageId, setNotionParentPageId] = useState("");
+  const [savingNotion, setSavingNotion] = useState(false);
+
+  const [linearDefaultTeamId, setLinearDefaultTeamId] = useState("");
+  const [linearTeams, setLinearTeams] = useState<{ id: string; name: string }[]>([]);
+  const [savingLinear, setSavingLinear] = useState(false);
 
   async function load() {
     const r = await fetch("/api/integrations/push");
@@ -42,6 +49,16 @@ export function IntegrationsHub() {
     if (status?.slack) {
       setSlackAutoPost(Boolean(status.slack.autoPostEnabled));
       setSlackChannel(status.slack.autoPostChannelId ?? "");
+    }
+    if (status?.notion) {
+      setNotionParentPageId(status.notion.parentPageId ?? "");
+    }
+    if (status?.linear) {
+      setLinearDefaultTeamId(status.linear.defaultTeamId ?? "");
+      fetch("/api/integrations/linear/teams")
+        .then((r) => (r.ok ? r.json() : []))
+        .then(setLinearTeams)
+        .catch(() => {});
     }
   }, [status]);
 
@@ -74,6 +91,32 @@ export function IntegrationsHub() {
     setSavingSlack(false);
   }
 
+  async function saveNotionSettings() {
+    setSavingNotion(true);
+    await fetch("/api/integrations/push", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        platform: "notion",
+        parentPageId: notionParentPageId,
+      }),
+    }).catch(() => {});
+    setSavingNotion(false);
+  }
+
+  async function saveLinearSettings() {
+    setSavingLinear(true);
+    await fetch("/api/integrations/push", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        platform: "linear",
+        defaultTeamId: linearDefaultTeamId,
+      }),
+    }).catch(() => {});
+    setSavingLinear(false);
+  }
+
   return (
     <div className="grid gap-4 md:grid-cols-3">
       {PROVIDERS.map((p) => {
@@ -89,6 +132,7 @@ export function IntegrationsHub() {
                   <span className="flex items-center gap-2 text-sm">
                     <CheckCircle2 className="size-4 text-green-600" /> {conn}
                   </span>
+                  
                   {p.key === "slack" && (
                     <div className="space-y-2 border-t border-border pt-2 text-xs">
                       <label className="flex items-center gap-2 font-medium cursor-pointer">
@@ -115,9 +159,53 @@ export function IntegrationsHub() {
                       </Button>
                     </div>
                   )}
-                  <Button variant="outline" size="sm" onClick={() => disconnect(p.key)} disabled={busy === p.key}>
-                    {busy === p.key ? <Loader2 className="size-4 animate-spin" /> : "Disconnect"}
-                  </Button>
+
+                  {p.key === "notion" && (
+                    <div className="space-y-2 border-t border-border pt-2 text-xs">
+                      <div className="space-y-1">
+                        <label className="text-muted-foreground block font-medium">Default Page / Database ID</label>
+                        <input
+                          type="text"
+                          value={notionParentPageId}
+                          onChange={(e) => setNotionParentPageId(e.target.value)}
+                          placeholder="e.g. 1a2b3c4d..."
+                          className="h-8 w-full rounded border border-input bg-card px-2 text-xs"
+                        />
+                      </div>
+                      <Button variant="accent" size="sm" className="h-7 px-2 text-[10px]" onClick={saveNotionSettings} disabled={savingNotion}>
+                        {savingNotion ? "Saving..." : "Save Settings"}
+                      </Button>
+                    </div>
+                  )}
+
+                  {p.key === "linear" && (
+                    <div className="space-y-2 border-t border-border pt-2 text-xs">
+                      <div className="space-y-1">
+                        <label className="text-muted-foreground block font-medium">Default Team</label>
+                        <select
+                          value={linearDefaultTeamId}
+                          onChange={(e) => setLinearDefaultTeamId(e.target.value)}
+                          className="h-8 w-full rounded border border-input bg-card px-2 text-xs"
+                        >
+                          <option value="">Choose a team...</option>
+                          {linearTeams.map((t) => (
+                            <option key={t.id} value={t.id}>
+                              {t.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <Button variant="accent" size="sm" className="h-7 px-2 text-[10px]" onClick={saveLinearSettings} disabled={savingLinear}>
+                        {savingLinear ? "Saving..." : "Save Settings"}
+                      </Button>
+                    </div>
+                  )}
+
+                  <div className="pt-2">
+                    <Button variant="outline" size="sm" onClick={() => disconnect(p.key)} disabled={busy === p.key}>
+                      {busy === p.key ? <Loader2 className="size-4 animate-spin" /> : "Disconnect"}
+                    </Button>
+                  </div>
                 </div>
               ) : (
                 <Button variant="outline" size="sm" onClick={() => { window.location.href = `/api/integrations/${p.key}/auth`; }} disabled={!isConfigured}>

@@ -21,7 +21,7 @@ export async function POST(req: Request, { params }: Params) {
   const body = (await req.json().catch(() => ({}))) as { pageId?: string };
   const token = decryptToken(conn.accessToken);
   try {
-    const parentId = body.pageId ?? (await searchNotionParent(token));
+    const parentId = body.pageId ?? conn.parentPageId ?? (await searchNotionParent(token));
     if (!parentId) return NextResponse.json({ error: "Share a Notion page with CLARIX first." }, { status: 409 });
     const pageUrl = await pushToNotion(token, parentId, meeting.title, output);
     await prisma.integrationPush.create({ data: { meetingId: id, userId: ctx.userId, platform: "NOTION", destination: conn.workspaceName, externalUrl: pageUrl } });

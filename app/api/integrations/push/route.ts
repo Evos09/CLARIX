@@ -18,11 +18,11 @@ export async function GET() {
     }),
     prisma.notionConnection.findUnique({ 
       where: { userId: ctx.userId }, 
-      select: { workspaceName: true, connected: true } 
+      select: { workspaceName: true, connected: true, parentPageId: true } 
     }),
     prisma.linearConnection.findUnique({ 
       where: { userId: ctx.userId }, 
-      select: { organizationName: true, connected: true } 
+      select: { organizationName: true, connected: true, defaultTeamId: true } 
     }),
   ]);
   
@@ -39,7 +39,7 @@ export async function POST(req: Request) {
   if (!ctx) return NextResponse.json({ error: "Database not configured" }, { status: 503 });
 
   const body = await req.json().catch(() => null);
-  const { platform, autoPostEnabled, autoPostChannelId } = body || {};
+  const { platform, autoPostEnabled, autoPostChannelId, parentPageId, defaultTeamId } = body || {};
 
   if (platform === "slack") {
     const updated = await prisma.slackConnection.update({
@@ -50,6 +50,26 @@ export async function POST(req: Request) {
       },
     });
     return NextResponse.json({ success: true, slack: updated });
+  }
+
+  if (platform === "notion") {
+    const updated = await prisma.notionConnection.update({
+      where: { userId: ctx.userId },
+      data: {
+        parentPageId: parentPageId ? String(parentPageId).trim() : null,
+      },
+    });
+    return NextResponse.json({ success: true, notion: updated });
+  }
+
+  if (platform === "linear") {
+    const updated = await prisma.linearConnection.update({
+      where: { userId: ctx.userId },
+      data: {
+        defaultTeamId: defaultTeamId ? String(defaultTeamId).trim() : null,
+      },
+    });
+    return NextResponse.json({ success: true, linear: updated });
   }
 
   return NextResponse.json({ error: "Unknown platform" }, { status: 400 });

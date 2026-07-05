@@ -17,6 +17,12 @@ interface Item {
   meeting: { id: string; title: string };
 }
 
+interface Member {
+  id: string;
+  name: string | null;
+  email: string;
+}
+
 const PRIORITY: Record<string, string> = {
   HIGH: "bg-red-100 text-red-700 ring-red-600/20",
   MEDIUM: "bg-amber-100 text-amber-800 ring-amber-600/20",
@@ -25,9 +31,17 @@ const PRIORITY: Record<string, string> = {
 
 export function ActionItemsClient() {
   const [items, setItems] = useState<Item[]>([]);
+  const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
   const [priority, setPriority] = useState("");
   const [status, setStatus] = useState("");
+
+  useEffect(() => {
+    fetch("/api/org/members")
+      .then((r) => (r.ok ? r.json() : []))
+      .then(setMembers)
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -51,13 +65,17 @@ export function ActionItemsClient() {
     };
   }, [priority, status]);
 
-  async function toggle(item: Item) {
-    setItems((arr) => arr.map((x) => (x.id === item.id ? { ...x, completed: !x.completed } : x)));
-    await fetch(`/api/action-items/${item.id}`, {
+  async function updateItem(id: string, payload: Partial<Item>) {
+    setItems((arr) => arr.map((x) => (x.id === id ? { ...x, ...payload } : x)));
+    await fetch(`/api/action-items/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ completed: !item.completed }),
+      body: JSON.stringify(payload),
     }).catch(() => {});
+  }
+
+  async function toggle(item: Item) {
+    await updateItem(item.id, { completed: !item.completed });
   }
 
   return (
@@ -89,13 +107,44 @@ export function ActionItemsClient() {
                   type="checkbox"
                   checked={item.completed}
                   onChange={() => toggle(item)}
-                  className="mt-1 size-4 accent-teal-600"
+                  className="mt-1 size-4 accent-teal-600 cursor-pointer"
                 />
                 <div className="min-w-0 flex-1">
                   <p className={cn("text-sm font-medium", item.completed && "text-muted-foreground line-through")}>{item.task}</p>
-                  <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                    <span>{item.owner || "Unassigned"}</span>
-                    {item.dueDate && <span>· due {item.dueDate}</span>}
+                  <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1.5 text-xs text-muted-foreground">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[11px] font-medium text-muted-foreground/60">Owner:</span>
+                      <select
+                        value={item.owner || ""}
+                        onChange={(e) => updateItem(item.id, { owner: e.target.value || null })}
+                        className="h-6 rounded border border-border/80 bg-transparent px-1 py-0.5 text-xs text-foreground focus:border-accent focus:outline-none hover:bg-muted/50 cursor-pointer font-medium"
+                      >
+                        <option value="">Unassigned</option>
+                        {members.map((m) => (
+                          <option key={m.id} value={m.name || m.email}>
+                            {m.name || m.email}
+                          </option>
+                        ))}
+                        {item.owner && !members.some((m) => (m.name || m.email) === item.owner) && (
+                          <option value={item.owner}>{item.owner}</option>
+                        )}
+                      </select>
+                    </div>
+
+                    <span>·</span>
+
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[11px] font-medium text-muted-foreground/60">Due:</span>
+                      <input
+                        type="date"
+                        value={item.dueDate && item.dueDate.match(/^\d{4}-\d{2}-\d{2}$/) ? item.dueDate : ""}
+                        onChange={(e) => updateItem(item.id, { dueDate: e.target.value || null })}
+                        className="h-6 rounded border border-border/80 bg-transparent px-1 py-0.5 text-xs text-foreground focus:border-accent focus:outline-none hover:bg-muted/50 cursor-pointer font-medium"
+                      />
+                    </div>
+
+                    <span>·</span>
+
                     <Link href={`/meetings/${item.meeting.id}`} className="text-teal-600 hover:underline">
                       {item.meeting.title}
                     </Link>
