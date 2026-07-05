@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Plus, Trash2, Send, Loader2, FileText, Download, Copy, Mic, MicOff, Volume2, VolumeX, PhoneOff, X, Brain, ListTodo, CheckCircle2, Mail, BarChart3, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { MarkdownView } from "./MarkdownView";
+import { LogoSpinner } from "@/components/layout/LogoSpinner";
 
 interface SessionMeta { id: string; title: string; updatedAt: string }
 interface Citation { id: string; title: string; date: string }
@@ -521,7 +522,7 @@ export function GlobalChatClient({ usageThisMonth, usageLimit }: { usageThisMont
                   </div>
                 </div>
               ))}
-              {sending && <div className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="size-4 animate-spin text-violet-600" /> CLARIX is thinking…</div>}
+              {sending && <div className="flex items-center gap-2 text-sm text-muted-foreground"><LogoSpinner size={18} /> CLARIX is thinking…</div>}
               <div ref={endRef} />
             </div>
           )}
