@@ -506,130 +506,138 @@ export function GlobalChatClient({ usageThisMonth, usageLimit }: { usageThisMont
           </div>
         </div>
       {isVoiceOpen && (
-        <aside className="w-80 shrink-0 border-l border-border bg-[#0B0B14] text-white flex flex-col items-center justify-between p-6 relative transition-all duration-300 shadow-2xl z-20">
-          <style>{`
-            @keyframes orb-pulse {
-              0% { transform: scale(1); box-shadow: 0 0 30px rgba(109,40,217,0.3), inset 0 0 15px rgba(109,40,217,0.15); }
-              50% { transform: scale(1.06); box-shadow: 0 0 50px rgba(109,40,217,0.7), inset 0 0 25px rgba(109,40,217,0.4); }
-              100% { transform: scale(1); box-shadow: 0 0 30px rgba(109,40,217,0.3), inset 0 0 15px rgba(109,40,217,0.15); }
-            }
-            @keyframes ring-spin {
-              0% { transform: rotate(0deg); }
-              100% { transform: rotate(360deg); }
-            }
-            .animate-orb-pulse {
-              animation: orb-pulse 3s infinite ease-in-out;
-            }
-            .animate-ring-spin-slow {
-              animation: ring-spin 12s infinite linear;
-            }
-            .animate-ring-spin-fast {
-              animation: ring-spin 3s infinite linear;
-            }
-            .animate-bar {
-              animation: bar-rise 1.2s infinite ease-in-out alternate;
-            }
-            @keyframes bar-rise {
-              0% { height: 8px; }
-              100% { height: 36px; }
-            }
-          `}</style>
+        <aside className="w-85 shrink-0 border-l border-border bg-zinc-950 text-white flex flex-col items-center justify-between p-6 relative transition-all duration-300 shadow-2xl z-20 overflow-hidden">
+          {/* Subtle radial purple/indigo background aura */}
+          <div className="absolute -top-40 -right-40 size-80 rounded-full bg-violet-600/10 blur-[100px] pointer-events-none" />
+          <div className="absolute -bottom-40 -left-40 size-80 rounded-full bg-indigo-500/10 blur-[100px] pointer-events-none" />
 
           {/* Close button top right */}
           <button
             onClick={() => setIsVoiceOpen(false)}
-            className="absolute top-4 right-4 p-1.5 rounded-full bg-white/5 hover:bg-white/15 text-white/70 hover:text-white transition-colors"
+            className="absolute top-4 right-4 p-1.5 rounded-full bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 text-zinc-400 hover:text-white transition-all"
             title="Close Voice Mode"
           >
             <X className="size-4" />
           </button>
 
           {/* Top Status */}
-          <div className="flex flex-col items-center gap-2 mt-2">
-            <div className="flex items-center gap-2">
-              <span className={cn(
-                "size-2 rounded-full",
-                voiceState === "listening" ? "bg-teal animate-pulse" :
-                voiceState === "thinking" ? "bg-amber-500 animate-spin" :
-                voiceState === "speaking" ? "bg-emerald-500 animate-pulse" : "bg-neutral-500"
-              )} />
-              <span className="text-xs font-semibold tracking-wider uppercase text-white/60">
-                {voiceState === "listening" ? "Listening" :
-                 voiceState === "thinking" ? "CLARIX is thinking" :
-                 voiceState === "speaking" ? "CLARIX is speaking" : "Voice Connected"}
-              </span>
-            </div>
-            <p className="text-[10px] text-white/40">Speak naturally at any time</p>
-          </div>
-
-          {/* Center Orb & Rings (scaled down for sidebar) */}
-          <div className="relative flex items-center justify-center my-6 size-48">
-            {/* Outermost ring */}
-            <div className={cn(
-              "absolute inset-0 rounded-full border border-dashed border-teal/20 transition-all duration-1000",
-              voiceState === "speaking" ? "animate-ring-spin-slow" : "animate-ring-spin-fast"
-            )} />
-
-            {/* Inner ring */}
-            <div className={cn(
-              "absolute inset-4 rounded-full border border-double border-teal/40 transition-all duration-700",
-              voiceState === "speaking" ? "animate-ring-spin-fast" : "animate-ring-spin-slow"
-            )} />
-
-            {/* Glowing Orb */}
-            <div className={cn(
-              "absolute inset-8 rounded-full bg-gradient-to-tr from-violet-600 via-indigo-500 to-teal-500 flex items-center justify-center transition-all duration-500",
-              voiceState !== "idle" && "animate-orb-pulse"
+          <div className="flex flex-col items-center gap-2 mt-4 text-center">
+            <span className={cn(
+              "inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[10px] font-bold tracking-wider uppercase border",
+              voiceState === "listening" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/25 animate-pulse" :
+              voiceState === "thinking" ? "bg-amber-500/10 text-amber-400 border-amber-500/25" :
+              voiceState === "speaking" ? "bg-violet-500/10 text-violet-400 border-violet-500/25" :
+              "bg-zinc-800/50 text-zinc-400 border-zinc-700/50"
             )}>
-              {/* Speaking Waveforms */}
-              {voiceState === "speaking" && (
-                <div className="flex items-center gap-1 h-10">
-                  <div className="w-1 bg-white rounded-full animate-bar" style={{ animationDelay: "0.1s" }} />
-                  <div className="w-1 bg-white rounded-full animate-bar" style={{ animationDelay: "0.3s" }} />
-                  <div className="w-1 bg-white rounded-full animate-bar" style={{ animationDelay: "0.5s" }} />
-                  <div className="w-1 bg-white rounded-full animate-bar" style={{ animationDelay: "0.2s" }} />
-                  <div className="w-1 bg-white rounded-full animate-bar" style={{ animationDelay: "0.4s" }} />
-                </div>
-              )}
-
-              {/* Thinking Loader */}
-              {voiceState === "thinking" && (
-                <Loader2 className="size-8 animate-spin text-white" />
-              )}
-
-              {/* Listening Icon */}
-              {voiceState === "listening" && (
-                <Mic className="size-8 text-white animate-pulse" />
-              )}
-            </div>
+              <span className={cn(
+                "size-1.5 rounded-full",
+                voiceState === "listening" ? "bg-emerald-400" :
+                voiceState === "thinking" ? "bg-amber-400 animate-pulse" :
+                voiceState === "speaking" ? "bg-violet-400" :
+                "bg-zinc-400"
+              )} />
+              {voiceState === "listening" ? "Listening" :
+               voiceState === "thinking" ? "Processing" :
+               voiceState === "speaking" ? "Speaking" : "Connected"}
+            </span>
+            <p className="text-[10px] text-zinc-500 font-medium">Clarix Real-time Audio Link</p>
           </div>
 
-          {/* Real-time Subtitles/Captions (designed for sidebar) */}
-          <div className="w-full flex-1 flex flex-col justify-center max-h-36 text-center space-y-3 px-2 overflow-y-auto my-4 bg-white/5 rounded-lg p-3 border border-white/10">
+          {/* Center Visual Waveforms (Modern Minimalist Audio Spectrogram) */}
+          <div className="relative flex items-center justify-center my-10 w-full h-40">
+            <style>{`
+              @keyframes waveform-bounce {
+                0% { transform: scaleY(0.3); }
+                100% { transform: scaleY(1); }
+              }
+              .bar-anim {
+                animation: waveform-bounce 0.6s infinite alternate ease-in-out;
+              }
+            `}</style>
+            
+            {/* Listening: Gentle pulsing wave */}
+            {voiceState === "listening" && (
+              <div className="flex items-center justify-center gap-1.5 h-16 w-full px-8">
+                {Array.from({ length: 15 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="w-1 bg-emerald-500 rounded-full bar-anim"
+                    style={{
+                      height: `${10 + Math.sin(i * 0.5) * 20}px`,
+                      animationDelay: `${i * 0.05}s`,
+                      animationDuration: `${0.4 + (i % 3) * 0.15}s`
+                    }}
+                  />
+                ))}
+              </div>
+            )}
+
+            {/* Speaking: Dynamic bouncing spectrum */}
+            {voiceState === "speaking" && (
+              <div className="flex items-center justify-center gap-1.5 h-20 w-full px-8">
+                {Array.from({ length: 15 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="w-1 bg-gradient-to-t from-violet-600 to-indigo-500 rounded-full bar-anim"
+                    style={{
+                      height: `${15 + (i % 4 === 0 ? 30 : i % 3 === 0 ? 25 : 15)}px`,
+                      animationDelay: `${i * 0.04}s`,
+                      animationDuration: `${0.3 + (i % 4) * 0.1}s`
+                    }}
+                  />
+                ))}
+              </div>
+            )}
+
+            {/* Thinking: Smooth circular scanning glow */}
+            {voiceState === "thinking" && (
+              <div className="relative size-20 flex items-center justify-center">
+                <div className="absolute inset-0 rounded-full border-2 border-t-violet-500 border-r-transparent border-b-transparent border-l-transparent animate-spin duration-1000" />
+                <Brain className="size-6 text-violet-500/80 animate-pulse" />
+              </div>
+            )}
+
+            {/* Idle / Connected: Static flat baseline */}
+            {(voiceState === "idle" || (voiceState !== "speaking" && voiceState !== "listening" && voiceState !== "thinking")) && (
+              <div className="flex items-center justify-center gap-1.5 h-2 w-full px-12">
+                {Array.from({ length: 15 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="w-1.5 h-1.5 bg-zinc-700 rounded-full"
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Subtitles / Real-time Transcript Block */}
+          <div className="w-full flex-1 flex flex-col justify-center min-h-[120px] max-h-[160px] text-center px-4 py-3 bg-zinc-900/50 rounded-xl border border-zinc-800/80 backdrop-blur-md overflow-y-auto my-6">
             {voiceInput && (
-              <p className="text-white/60 text-xs italic break-words">
+              <p className="text-zinc-400 text-xs font-medium break-words leading-relaxed">
                 &ldquo;{voiceInput}&rdquo;
               </p>
             )}
             {voiceState === "speaking" && voiceOutput && (
-              <p className="text-white text-sm font-medium leading-relaxed break-words">
+              <p className="text-white text-sm font-semibold leading-relaxed break-words mt-1">
                 {voiceOutput}
               </p>
             )}
             {!voiceInput && !(voiceState === "speaking" && voiceOutput) && (
-              <p className="text-white/30 text-xs italic">
-                Try asking: "What did we decide in yesterday's meeting?"
+              <p className="text-zinc-500 text-xs font-medium italic">
+                Ask anything, like: "What action items were decided today?"
               </p>
             )}
           </div>
 
           {/* Controls Footer */}
-          <div className="w-full flex items-center justify-center gap-4 mt-auto pb-2">
+          <div className="w-full flex items-center justify-center gap-3 mt-auto pb-4">
             <button
               onClick={() => setIsMuted(!isMuted)}
               className={cn(
-                "p-3 rounded-full transition shadow-md",
-                isMuted ? "bg-red-500 hover:bg-red-600 text-white" : "bg-white/10 hover:bg-white/20 text-white"
+                "p-3 rounded-full transition-all border shadow-sm",
+                isMuted
+                  ? "bg-red-500/10 border-red-500/30 text-red-500 hover:bg-red-500/20"
+                  : "bg-zinc-900 border-zinc-800 text-zinc-300 hover:bg-zinc-800 hover:text-white"
               )}
               title={isMuted ? "Unmute Mic" : "Mute Mic"}
             >
@@ -638,10 +646,10 @@ export function GlobalChatClient({ usageThisMonth, usageLimit }: { usageThisMont
 
             <button
               onClick={() => setIsVoiceOpen(false)}
-              className="px-4 py-2.5 rounded-full bg-red-600 hover:bg-red-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-md transition"
+              className="px-5 py-3 rounded-full bg-red-600 hover:bg-red-500 text-white text-xs font-bold flex items-center gap-2 shadow-md transition-all border border-red-500/30"
               title="Hang Up"
             >
-              <PhoneOff className="size-4" /> End Voice
+              <PhoneOff className="size-4" /> End Call
             </button>
           </div>
         </aside>
