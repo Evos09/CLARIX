@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { getOrCreateContext } from "@/lib/auth";
 import { canCreateMeeting, canUseType, getOrgPlan } from "@/lib/plan";
+import { meetingLimiter, clientIp, RATE_LIMIT_MESSAGE } from "@/lib/rateLimit";
 
 const CreateBody = z.object({
   title: z.string().min(1).max(200),
@@ -37,6 +38,9 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+  if (!meetingLimiter.limit(clientIp(req)).success) {
+    return NextResponse.json({ error: RATE_LIMIT_MESSAGE }, { status: 429 });
+  }
   const ctx = await getOrCreateContext();
   if (!ctx) return NextResponse.json({ error: "Database not configured" }, { status: 503 });
 

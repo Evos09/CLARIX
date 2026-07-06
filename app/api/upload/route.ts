@@ -3,6 +3,7 @@ import { z } from "zod";
 import { getSupabaseAdmin, AUDIO_BUCKET, isSupabaseConfigured, ensureAudioBucket } from "@/lib/supabase";
 import { getOrCreateContext } from "@/lib/auth";
 import { getOrgPlan, storageLimitBytes, maxUploadBytes, orgStorageUsed } from "@/lib/plan";
+import { uploadLimiter, clientIp, RATE_LIMIT_MESSAGE } from "@/lib/rateLimit";
 
 const Body = z.object({
   filename: z.string().min(1).max(255),
@@ -13,6 +14,9 @@ const Body = z.object({
 const mb = (n: number) => `${Math.round(n / (1024 * 1024))} MB`;
 
 export async function POST(req: Request) {
+  if (!uploadLimiter.limit(clientIp(req)).success) {
+    return NextResponse.json({ error: RATE_LIMIT_MESSAGE }, { status: 429 });
+  }
   if (!isSupabaseConfigured()) {
     return NextResponse.json({ error: "Storage not configured" }, { status: 503 });
   }

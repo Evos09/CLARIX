@@ -5,11 +5,15 @@ import { getOrCreateContext } from "@/lib/auth";
 import { getOrgPlan, globalChatLimit } from "@/lib/plan";
 import { isClaudeConfigured } from "@/lib/claude";
 import { answerGlobalChat, bumpChatUsage, getChatUsage, retrieveContext } from "@/lib/globalChat";
+import { chatLimiter, clientIp, RATE_LIMIT_MESSAGE } from "@/lib/rateLimit";
 
 type Params = { params: Promise<{ sessionId: string }> };
 const Body = z.object({ message: z.string().min(1).max(4000), mode: z.enum(["focused", "research", "writer"]).optional() });
 
 export async function POST(req: Request, { params }: Params) {
+  if (!chatLimiter.limit(clientIp(req)).success) {
+    return NextResponse.json({ error: RATE_LIMIT_MESSAGE }, { status: 429 });
+  }
   const { sessionId } = await params;
   const ctx = await getOrCreateContext();
   if (!ctx) return NextResponse.json({ error: "Database not configured" }, { status: 503 });

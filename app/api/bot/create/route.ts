@@ -4,10 +4,14 @@ import { prisma } from "@/lib/prisma";
 import { getOrCreateContext } from "@/lib/auth";
 import { isRecallConfigured, detectPlatform, createBot } from "@/lib/recall";
 import { canCreateMeeting, canUseType, getOrgPlan } from "@/lib/plan";
+import { botLimiter, clientIp, RATE_LIMIT_MESSAGE } from "@/lib/rateLimit";
 
 const Body = z.object({ meetingUrl: z.string().url(), title: z.string().min(1).max(200), meetingType: z.string().default("GENERAL") });
 
 export async function POST(req: Request) {
+  if (!botLimiter.limit(clientIp(req)).success) {
+    return NextResponse.json({ error: RATE_LIMIT_MESSAGE }, { status: 429 });
+  }
   const ctx = await getOrCreateContext();
   if (!ctx) return NextResponse.json({ error: "Database not configured" }, { status: 503 });
   if (!isRecallConfigured()) return NextResponse.json({ error: "Meeting bot not configured (MEETING_BAAS_API_KEY)" }, { status: 503 });
