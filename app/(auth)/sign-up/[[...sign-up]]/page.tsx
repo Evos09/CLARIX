@@ -48,7 +48,10 @@ export default function SignUpPage() {
                   </li>
                 </ul>
                 <p className="text-[10px] bg-muted/60 rounded p-2 text-zinc-500 font-medium">
-                  ⚖️ <strong>Recording Notice:</strong> You represent that you will obtain all legally required consents from meeting participants before recording.
+                  ⚖️ <strong>Recording Notice:</strong> You represent that you will obtain all legally required consents from meeting participants before recording.{" "}
+                  <Link href="/legal/recording-consent" target="_blank" className="underline text-violet-600 hover:text-violet-700">
+                    Learn more →
+                  </Link>
                 </p>
               </div>
 

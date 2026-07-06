@@ -26,7 +26,12 @@ export function NewMeetingClient() {
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
+  // The Recorder only emits a file after its consent checkbox was ticked, so a
+  // file from the "record" tab carries the acknowledgment; plain uploads don't.
+  const [recordedConsent, setRecordedConsent] = useState(false);
+
   function onFile(f: File) {
+    setRecordedConsent(tab === "record");
     setFile(f);
     setTitle(f.name.replace(/\.[^.]+$/, ""));
     setPhase("config");
@@ -39,7 +44,7 @@ export function NewMeetingClient() {
     try {
       const id = await createMeetingFromFile(
         file,
-        { title: title || "Untitled meeting", meetingType, autoDetect },
+        { title: title || "Untitled meeting", meetingType, autoDetect, consentAcknowledged: recordedConsent },
         setProgress,
       );
       router.push(`/meetings/${id}`);

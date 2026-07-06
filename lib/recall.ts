@@ -41,7 +41,11 @@ export async function createBot(meetingUrl: string, title: string, orgId?: strin
     headers: headers(),
     body: JSON.stringify({
       meeting_url: meetingUrl,
-      bot_name: "CLARIX",
+      // Name + entry message make the recording unmissable to participants
+      // (all-party-consent states require that presence be announced).
+      bot_name: "CLARIX (Recording)",
+      entry_message:
+        "CLARIX is recording and transcribing this meeting. By continuing, participants consent to being recorded.",
       recording_mode: "speaker_view",
       transcription_enabled: true,
       transcription_config: { 

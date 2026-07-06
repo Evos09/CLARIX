@@ -28,7 +28,9 @@ export async function POST(req: Request) {
   if (platform === "UNKNOWN") return NextResponse.json({ error: "Unsupported meeting link. Use Zoom, Google Meet, or Teams." }, { status: 400 });
 
   const meeting = await prisma.meeting.create({
-    data: { title: parsed.data.title, meetingType: parsed.data.meetingType, status: "TRANSCRIBING", orgId: ctx.orgId, userId: ctx.userId },
+    // Consent basis for bot meetings: the bot joins as "CLARIX (Recording)" and
+    // posts an entry message announcing the recording to all participants.
+    data: { title: parsed.data.title, meetingType: parsed.data.meetingType, status: "TRANSCRIBING", orgId: ctx.orgId, userId: ctx.userId, consentAcknowledged: true, consentAcknowledgedAt: new Date() },
     select: { id: true },
   });
 

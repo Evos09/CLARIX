@@ -9,6 +9,7 @@ export function Recorder({ onFile, disabled }: { onFile: (f: File) => void; disa
   const [recording, setRecording] = useState(false);
   const [seconds, setSeconds] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [consent, setConsent] = useState(false);
   const recRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -57,7 +58,22 @@ export function Recorder({ onFile, disabled }: { onFile: (f: File) => void; disa
         <>
           <p className="font-medium">Record in your browser</p>
           <p className="text-sm text-muted-foreground">No upload needed — capture live.</p>
-          <Button variant="accent" onClick={start} disabled={disabled}>
+          <label className="flex max-w-sm cursor-pointer items-start gap-2 text-left text-xs text-muted-foreground">
+            <input
+              type="checkbox"
+              checked={consent}
+              onChange={(e) => setConsent(e.target.checked)}
+              className="mt-0.5 size-3.5 shrink-0 accent-teal-600"
+            />
+            <span>
+              I confirm I have permission to record this meeting, including consent from all
+              participants where required by law.{" "}
+              <a href="/legal/recording-consent" target="_blank" rel="noreferrer" className="underline hover:text-foreground">
+                Learn more
+              </a>
+            </span>
+          </label>
+          <Button variant="accent" onClick={start} disabled={disabled || !consent}>
             <Mic className="size-4" /> Start recording
           </Button>
         </>

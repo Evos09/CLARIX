@@ -4,6 +4,8 @@ export interface CreateMeetingOpts {
   title: string;
   meetingType: string;
   autoDetect: boolean;
+  /** User confirmed they have participant consent to record (in-browser recordings). */
+  consentAcknowledged?: boolean;
 }
 
 function putWithProgress(url: string, file: Blob, onProgress: (pct: number) => void): Promise<void> {

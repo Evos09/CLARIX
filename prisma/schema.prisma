@@ -71,6 +71,8 @@ model Meeting {
   meetingType        String        @default("GENERAL")
   detectedType       String?
   autoDetect         Boolean       @default(false)
+  consentAcknowledged   Boolean   @default(false)
+  consentAcknowledgedAt DateTime?
   status             MeetingStatus @default(UPLOADING)
   duration           Int?
   speakerCount       Int?
