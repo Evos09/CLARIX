@@ -1,0 +1,13 @@
+/**
+ * Browser error monitoring (Sentry). Dormant until NEXT_PUBLIC_SENTRY_DSN is
+ * set. Runs before hydration (Next instrumentation-client convention).
+ */
+import * as Sentry from "@sentry/nextjs";
+
+if (process.env.NEXT_PUBLIC_SENTRY_DSN) {
+  Sentry.init({
+    dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
+    tracesSampleRate: 0.1,
+    sendDefaultPii: false,
+  });
+}
