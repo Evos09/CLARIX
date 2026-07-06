@@ -4,6 +4,7 @@ import { IntegrationsHub } from "@/components/settings/IntegrationsHub";
 import { CRMConnectionCard } from "@/components/settings/CRMConnectionCard";
 import { DigestCard } from "@/components/settings/DigestCard";
 import { AutoJoinCard } from "@/components/settings/AutoJoinCard";
+import { DangerZone } from "@/components/settings/DangerZone";
 import { prisma } from "@/lib/prisma";
 import { getOrCreateContext, hasDb } from "@/lib/auth";
 
@@ -32,6 +33,8 @@ export default async function SettingsPage() {
         <AutoJoinCard />
         <DigestCard />
       </div>
+      <h2 className="mb-3 mt-8 text-lg font-semibold">Account</h2>
+      <DangerZone />
     </main>
   );
 }
