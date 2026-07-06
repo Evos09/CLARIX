@@ -11,6 +11,7 @@ const footerLinks: Record<string, { name: string; href: string }[]> = {
     { name: "Integrations", href: "/integrations" },
   ],
   Company: [
+    { name: "About", href: "/about" },
     { name: "Contact", href: "/contact" },
   ],
   Legal: [
