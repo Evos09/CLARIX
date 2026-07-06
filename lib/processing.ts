@@ -7,6 +7,7 @@ import { buildProcessingPrompt, BASE_SYSTEM } from "@/lib/prompts/base";
 import type { BaseOutput } from "@/lib/outputTypes";
 import { sendMeetingComplete } from "@/lib/email";
 import { extractKeyPoints } from "@/lib/keyPoints";
+import { captureServer } from "@/lib/tracking-server";
 
 /**
  * Runs Claude analysis for a meeting: picks the prompt by type, calls Claude,
@@ -66,6 +67,11 @@ export async function processMeeting(meetingId: string, instruction?: string): P
 
     await extractKeyPoints(meetingId, meeting.rawTranscript);
 
+    // Funnel analytics (no PII — type/plan only). "first" = org's 1st complete.
+    const completeCount = await prisma.meeting.count({ where: { orgId: meeting.orgId, status: "COMPLETE" } });
+    captureServer("meeting_processed", meeting.userId, { meetingType: typeId, plan });
+    if (completeCount <= 1) captureServer("first_meeting_processed", meeting.userId, { plan });
+
     // Index the transcript for cross-meeting semantic search (best-effort;
     // no-op unless OPENAI_API_KEY is set).
     try {
@@ -103,6 +109,9 @@ export async function processMeeting(meetingId: string, instruction?: string): P
 
     return output;
   } catch (err) {
+    captureServer("meeting_processing_failed", meeting.userId, {
+      reason: err instanceof Error ? err.name : "unknown",
+    });
     // Transcript remains available; leave the meeting COMPLETE so it isn't stuck.
     await prisma.meeting.update({ where: { id: meetingId }, data: { status: "COMPLETE" } });
     throw err;

@@ -11,6 +11,7 @@ import { UploadZone } from "./UploadZone";
 import { Recorder } from "./Recorder";
 import { MeetingTypeSelector } from "./MeetingTypeSelector";
 import { createMeetingFromFile } from "@/lib/uploadClient";
+import { track } from "@/lib/tracking";
 import { cn } from "@/lib/utils";
 
 type Phase = "select" | "config" | "uploading" | "error";
@@ -47,6 +48,7 @@ export function NewMeetingClient() {
         { title: title || "Untitled meeting", meetingType, autoDetect, consentAcknowledged: recordedConsent },
         setProgress,
       );
+      track("meeting_created", { meetingType, source: tab });
       router.push(`/meetings/${id}`);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Something went wrong");

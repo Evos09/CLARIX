@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import type Stripe from "stripe";
 import { prisma } from "@/lib/prisma";
 import { getStripe, isStripeConfigured, PLANS, type PlanId } from "@/lib/stripe";
+import { captureServer } from "@/lib/tracking-server";
 
 export const dynamic = "force-dynamic";
 
@@ -42,6 +43,7 @@ export async function POST(req: Request) {
             verticals: plan === "ENTERPRISE" ? ["HEALTHCARE", "LEGAL", "FINANCIAL"] : [],
           },
         });
+        captureServer("upgraded_to_paid_plan", orgId, { plan });
       }
       break;
     }
