@@ -407,7 +407,7 @@ export function GlobalChatClient({ usageThisMonth, usageLimit }: { usageThisMont
           </button>
         </div>
         <div className="px-4 py-3 text-xs text-muted-foreground">
-          {usageLimit === null ? "Unlimited Ask CLARIX messages" : `${usage} of ${usageLimit} Ask CLARIX messages this month`}
+          {usageLimit === null ? "Unlimited Clarix Chat messages" : `${usage} of ${usageLimit} Clarix Chat messages this month`}
           {usageLimit !== null && (
             <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-muted">
               <div className="h-full bg-violet-600" style={{ width: `${Math.min(100, (usage / usageLimit) * 100)}%` }} />

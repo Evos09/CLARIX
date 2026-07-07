@@ -6,12 +6,12 @@ export type Plan = {
 export const plans: Plan[] = [
   { name: "Free", description: "For trying CLARIX on your own meetings.", price: { monthly: 0, annual: 0 }, unit: "/month", cta: "Start Free", href: "/sign-up",
     features: ["10 meetings per month", "General meeting type", "Summary and action items", "In-browser recording", "PDF export"] },
-  { name: "Starter", description: "For individuals who meet often.", price: { monthly: 14, annual: 12 }, unit: "/user/mo", cta: "Start Free", href: "/sign-up",
-    features: ["20 meetings per month", "All standard meeting types", "Unlimited Ask CLARIX chat", "PDF, DOCX & CSV export", "Auto-join meeting bot (Zoom, Meet, Teams)", "Forever audio library", "Email integration (Gmail)"] },
-  { name: "Pro", description: "For teams that run on meetings.", price: { monthly: 29, annual: 24 }, unit: "/user/mo", cta: "Start 14-day trial", href: "/sign-up", popular: true,
-    features: ["Unlimited meetings", "All exports (PDF, DOCX, CSV, JSON)", "Unlimited Ask CLARIX chat", "Auto-join meeting bot", "Forever library + reprocessing", "Google Calendar, Gmail & Notion", "Voice Mode (coming soon)"] },
-  { name: "Business", description: "For power users and teams who want the full self-serve toolkit.", price: { monthly: 59, annual: 49 }, unit: "/user/mo", cta: "Start 14-day trial", href: "/sign-up",
-    features: ["Everything in Pro", "Unlimited Ask CLARIX chat", "Custom AI templates", "Team sharing", "Priority support"] },
+  { name: "Starter", description: "For individuals who meet often.", price: { monthly: 15, annual: 12.45 }, unit: "/user/mo", cta: "Start Free", href: "/sign-up",
+    features: ["20 meetings per month", "All standard meeting types", "25 Clarix Chat messages / month (Haiku)", "PDF, DOCX & CSV export", "Auto-join meeting bot (Zoom, Meet, Teams)", "Forever audio library", "Email integration (Gmail)"] },
+  { name: "Pro", description: "For teams that run on meetings.", price: { monthly: 30, annual: 24.90 }, unit: "/user/mo", cta: "Start 14-day trial", href: "/sign-up", popular: true,
+    features: ["Unlimited meetings", "All exports (PDF, DOCX, CSV, JSON)", "100 Clarix Chat messages / month (Sonnet 5)", "Auto-join meeting bot", "Forever library + reprocessing", "Google Calendar, Gmail & Notion", "Voice Mode (coming soon)"] },
+  { name: "Business", description: "For power users and teams who want the full self-serve toolkit.", price: { monthly: 49, annual: 40.67 }, unit: "/user/mo", cta: "Start 14-day trial", href: "/sign-up",
+    features: ["Everything in Pro", "Unlimited Clarix Chat (Sonnet 5)", "Custom AI templates", "Team sharing", "Priority support"] },
 ];
 
 export type MeetingType = { name: string; summary: string; extracts: string[] };

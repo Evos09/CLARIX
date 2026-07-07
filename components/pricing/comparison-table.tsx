@@ -20,7 +20,7 @@ const groups: { group: string; rows: { label: string; values: [Cell, Cell, Cell,
     rows: [
       { label: "Meeting types", values: ["General", "All 20+", "All 20+", "All 20+"] },
       { label: "Summary & action items", values: [true, true, true, true] },
-      { label: "Ask CLARIX chat (unlimited)", values: [false, true, true, true] },
+      { label: "Clarix Chat (messages / mo)", values: [false, "25 · Haiku", "100 · Sonnet 5", "Unlimited · Sonnet 5"] },
       { label: "Audio library & reprocessing", values: [false, false, true, true] },
       { label: "Custom AI templates", values: [false, false, false, true] },
     ],

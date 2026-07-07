@@ -33,7 +33,7 @@ export function BillingToggle({
         Annual
       </span>
       <span className="ml-1 px-2 py-1 bg-brand text-brand-foreground text-xs font-mono rounded-full">
-        2 months free
+        Save 17%
       </span>
     </div>
   );
@@ -78,7 +78,7 @@ export function PricingCards({ showToggle = true }: { showToggle?: boolean }) {
 
               <div className="mb-6 pb-6 border-b border-foreground/10">
                 <div className="flex items-baseline gap-1.5">
-                  <span className="font-display text-4xl">${price}</span>
+                  <span className="font-display text-4xl">${typeof price === "number" && !Number.isInteger(price) ? price.toFixed(2) : price}</span>
                   <span className="text-sm text-muted-foreground">{plan.unit}</span>
                 </div>
               </div>

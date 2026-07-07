@@ -6,7 +6,7 @@ const faqs = [
   { q: "Does the meeting bot show up as a visible participant?", a: "Yes. When CLARIX auto-joins a Zoom, Google Meet, or Teams call it appears as a clearly labeled participant named CLARIX, so everyone knows it's present and recording. Auto-join is available on Starter and above." },
   { q: "Is my data secure?", a: "Your data is encrypted in transit and at rest, scoped to your workspace, and never used to train our models. CLARIX is an early-stage product and is not yet SOC 2 or HIPAA certified — see our Security page." },
   { q: "Can I use CLARIX for in-person meetings?", a: "Absolutely. Use in-browser recording to capture mic and room audio, or upload a recording afterward. CLARIX detects the meeting type and produces structured outputs just like it does for virtual calls." },
-  { q: "How does billing work for teams with multiple seats?", a: "Paid plans are billed per user, per month. You can add or remove seats at any time, and annual billing gives you the equivalent of two months free across all seats." },
+  { q: "How does billing work for teams with multiple seats?", a: "Paid plans are billed per user, per month. You can add or remove seats at any time, and annual billing saves you 17% across all seats." },
 ];
 
 export function PricingFaq() {

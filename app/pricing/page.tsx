@@ -12,7 +12,7 @@ import { ArrowRight } from "lucide-react";
 export const metadata = {
   title: "Pricing — CLARIX",
   description:
-    "Simple, scalable pricing for CLARIX. Start free, then choose Starter, Pro, or Business — or talk to sales for Enterprise. Monthly and annual billing with two months free on annual.",
+    "Simple, scalable pricing for CLARIX. Start free, then choose Starter, Pro, or Business — or talk to sales for Enterprise. Monthly and annual billing — save 17% on annual.",
 };
 
 export default function PricingPage() {
@@ -23,7 +23,7 @@ export default function PricingPage() {
       <PageHero
         eyebrow="Pricing"
         title="Simple pricing that scales with your team"
-        description="Start free and upgrade when you're ready. Every paid plan is billed per user, and annual billing gives you two months free."
+        description="Start free and upgrade when you're ready. Every paid plan is billed per user, and annual billing saves you 17%."
       />
 
       {/* Plans */}
