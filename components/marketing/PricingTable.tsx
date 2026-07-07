@@ -10,9 +10,9 @@ import { cn } from "@/lib/utils";
 
 const FEATURES: Record<PlanId, string[]> = {
   FREE: ["10 meetings / month", "General meeting type", "Summary + action items", "PDF export"],
-  STARTER: ["20 meetings / month", "All standard meeting types", "Unlimited Ask CLARIX chat", "PDF, DOCX & CSV export", "Auto-join meeting bot", "Forever audio library"],
-  PRO: ["Unlimited meetings", "All standard meeting types", "PDF, DOCX, CSV & JSON export", "Unlimited Ask CLARIX chat", "Auto-join meeting bot", "Forever audio library", "Voice Mode (Coming Soon)"],
-  BUSINESS: ["Everything in Pro", "Unlimited Ask CLARIX chat", "Custom AI templates", "Team sharing", "Priority support"],
+  STARTER: ["20 meetings / month", "All standard meeting types", "25 Clarix Chat messages / month", "PDF, DOCX & CSV export", "Auto-join meeting bot", "Forever audio library"],
+  PRO: ["Unlimited meetings", "All standard meeting types", "PDF, DOCX, CSV & JSON export", "100 Clarix Chat messages / month", "Auto-join meeting bot", "Forever audio library", "Voice Mode (Coming Soon)"],
+  BUSINESS: ["Everything in Pro", "Unlimited Clarix Chat", "Custom AI templates", "Team sharing", "Priority support"],
   ENTERPRISE: ["Everything in Business", "Pro Verticals (Health/Legal/Finance)", "EHR / FHIR export", "SSO / SAML (Coming Soon)", "Salesforce & HubSpot CRM (Coming Soon)", "SLA & dedicated support"],
 };
 
@@ -92,7 +92,7 @@ export function PricingTable({
           >
             Yearly
             <span className="rounded-full bg-accent text-white px-2 py-0.5 text-[9px] font-bold">
-              Save ~20%
+              Save 17%
             </span>
           </button>
         </div>
@@ -126,7 +126,7 @@ export function PricingTable({
                     )}
                   </CardTitle>
                   <div className="mt-2">
-                    <span className="text-3xl font-bold tracking-tight">${price}</span>
+                    <span className="text-3xl font-bold tracking-tight">${billingPeriod === "yearly" && price > 0 ? price.toFixed(2) : price}</span>
                     <span className="text-sm font-normal text-muted-foreground">/user/mo</span>
                     {price > 0 && billingPeriod === "yearly" && (
                       <p className="text-[10px] text-muted-foreground font-medium mt-0.5">

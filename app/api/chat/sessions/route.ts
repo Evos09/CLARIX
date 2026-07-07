@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getOrCreateContext } from "@/lib/auth";
 import { getOrgPlan, globalChatLimit } from "@/lib/plan";
-import { getChatUsage } from "@/lib/globalChat";
+import { getChatBonus, getChatUsage } from "@/lib/globalChat";
 
 export const dynamic = "force-dynamic";
 
@@ -18,10 +18,11 @@ export async function GET() {
     orderBy: { updatedAt: "desc" },
     include: { messages: { take: 1, orderBy: { createdAt: "asc" }, select: { content: true } } },
   });
+  const [usageThisMonth, bonus] = await Promise.all([getChatUsage(ctx.userId), getChatBonus(ctx.userId)]);
   return NextResponse.json({
     locked: false,
-    usageThisMonth: await getChatUsage(ctx.userId),
-    usageLimit: limit,
+    usageThisMonth,
+    usageLimit: limit === null ? null : limit + bonus,
     sessions: sessions.map((s) => ({
       id: s.id,
       title: s.title ?? s.messages[0]?.content.slice(0, 60) ?? "New chat",

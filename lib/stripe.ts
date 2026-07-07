@@ -56,8 +56,8 @@ export const PLANS: Record<PlanId, PlanConfig> = {
   STARTER: {
     id: "STARTER",
     name: "Starter",
-    price: 14,
-    annualPrice: 12,
+    price: 15,
+    annualPrice: 12.45, // 17% off monthly (15 × 0.83)
     meetingsPerMonth: 20,
     exports: ["PDF", "DOCX", "CSV"],
     allMeetingTypes: true,
@@ -69,13 +69,13 @@ export const PLANS: Record<PlanId, PlanConfig> = {
     foreverRetention: true,
     priceEnv: "STRIPE_STARTER_PRICE_ID",
     annualPriceEnv: "STRIPE_STARTER_ANNUAL_PRICE_ID",
-    blurb: "20 meetings/month, all General types, PDF export, auto-join bot, forever library.",
+    blurb: "20 meetings/month, all General types, PDF export, 25 Clarix Chat messages/mo, auto-join bot, forever library.",
   },
   PRO: {
     id: "PRO",
     name: "Pro",
-    price: 29,
-    annualPrice: 24,
+    price: 30,
+    annualPrice: 24.90, // 17% off monthly (30 × 0.83)
     meetingsPerMonth: null,
     exports: ["PDF", "DOCX", "CSV", "JSON"],
     allMeetingTypes: true,
@@ -87,7 +87,7 @@ export const PLANS: Record<PlanId, PlanConfig> = {
     foreverRetention: true,
     priceEnv: "STRIPE_PRO_PRICE_ID",
     annualPriceEnv: "STRIPE_PRO_ANNUAL_PRICE_ID",
-    blurb: "Unlimited meetings, all types, all exports, Ask CLARIX, auto-join bot.",
+    blurb: "Unlimited meetings, all types, all exports, 100 Clarix Chat messages/mo, auto-join bot.",
   },
   // Top self-serve tier. Everything in Pro + unlimited Ask CLARIX, custom AI
   // templates, and priority support. The regulated stuff (Pro Verticals, EHR,
@@ -95,8 +95,8 @@ export const PLANS: Record<PlanId, PlanConfig> = {
   BUSINESS: {
     id: "BUSINESS",
     name: "Business",
-    price: 59,
-    annualPrice: 49,
+    price: 49,
+    annualPrice: 40.67, // 17% off monthly (49 × 0.83)
     meetingsPerMonth: null,
     exports: ["PDF", "DOCX", "CSV", "JSON"],
     allMeetingTypes: true,

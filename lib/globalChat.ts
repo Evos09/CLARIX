@@ -16,6 +16,12 @@ export async function getChatUsage(userId: string): Promise<number> {
   return u && u.monthYear === monthKey() ? u.count : 0;
 }
 
+/** Extra messages this user has bought via $9/100-message packs this cycle. */
+export async function getChatBonus(userId: string): Promise<number> {
+  const u = await prisma.chatUsage.findUnique({ where: { userId } });
+  return u && u.monthYear === monthKey() ? u.bonusMessages : 0;
+}
+
 export async function bumpChatUsage(userId: string): Promise<number> {
   const mk = monthKey();
   const existing = await prisma.chatUsage.findUnique({ where: { userId } });
@@ -132,6 +138,7 @@ export async function answerGlobalChat(opts: {
   meetings: RelevantMeeting[];
   excerpts?: Excerpt[];
   mode?: "focused" | "research" | "writer";
+  model?: string;
 }): Promise<string> {
   const ctx = opts.meetings
     .map((m) => {
@@ -179,5 +186,5 @@ ${ctx || "No completed meetings found yet."}${excerptBlock}`;
     .join("\n");
   const prompt = `${historyText ? historyText + "\n" : ""}User: ${opts.message}\nCLARIX:`;
 
-  return claudeText({ system, prompt, maxTokens: opts.mode === "writer" ? 2048 : 1024, temperature: 0.3 });
+  return claudeText({ system, prompt, maxTokens: opts.mode === "writer" ? 2048 : 1024, temperature: 0.3, model: opts.model });
 }

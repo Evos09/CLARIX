@@ -2,8 +2,14 @@ import Anthropic from "@anthropic-ai/sdk";
 
 /** Models used across CLARIX for analysis, auto-detect, and Ask CLARIX. */
 export const CLAUDE_SONNET = "claude-sonnet-4-6";
+export const CLAUDE_SONNET_5 = "claude-sonnet-5";
 export const CLAUDE_HAIKU = "claude-haiku-4-5";
 export const CLAUDE_MODEL = CLAUDE_SONNET;
+
+// Newer models (Sonnet 5, Opus 4.7/4.8, Fable 5) reject `temperature`/`top_p`
+// and turn adaptive thinking on by default. For these we send no sampling param
+// and disable thinking, keeping calls cheap and snappy. Older models are unchanged.
+const SAMPLING_LOCKED = new Set<string>([CLAUDE_SONNET_5, "claude-opus-4-7", "claude-opus-4-8", "claude-fable-5"]);
 
 let client: Anthropic | null = null;
 
@@ -33,10 +39,15 @@ export async function claudeText(opts: {
   model?: string;
 }): Promise<string> {
   const model = opts.model ?? CLAUDE_MODEL;
+  const locked = SAMPLING_LOCKED.has(model);
   const res = await getClaude().messages.create({
     model,
     max_tokens: opts.maxTokens ?? 4096,
-    temperature: opts.temperature ?? 0.2,
+    // Sampling-locked models reject `temperature` and default thinking on;
+    // send neither. Older models keep the tuned temperature.
+    ...(locked
+      ? { thinking: { type: "disabled" as const } }
+      : { temperature: opts.temperature ?? 0.2 }),
     system: opts.system,
     messages: [{ role: "user", content: opts.prompt }],
   });

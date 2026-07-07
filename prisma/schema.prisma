@@ -263,6 +263,9 @@ model ChatUsage {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   monthYear String
   count     Int      @default(0)
+  // Extra messages granted this cycle via purchased $9/100-message packs.
+  // Added on top of the plan's monthly allowance; resets with the cycle like `count`.
+  bonusMessages Int   @default(0)
   updatedAt DateTime @updatedAt
 }
 

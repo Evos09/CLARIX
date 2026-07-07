@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { PLANS, type PlanConfig, type PlanId } from "@/lib/stripe";
 import { getMeetingType } from "@/lib/meetingTypes";
+import { CLAUDE_HAIKU, CLAUDE_SONNET_5 } from "@/lib/claude";
 
 export async function getOrgPlan(orgId: string): Promise<PlanConfig> {
   const org = await prisma.organization.findUnique({ where: { id: orgId } });
@@ -37,9 +38,29 @@ export function canExportFormat(plan: PlanConfig, format: string): boolean {
 
 /** Monthly global-chat message cap. null = unlimited, 0 = locked. */
 export function globalChatLimit(plan: PlanConfig): number | null {
-  // Free is locked; Starter and up get unlimited Ask CLARIX chat.
-  if (plan.id === "FREE") return 0;
-  return null;
+  // Ascending ladder: Free locked, then each tier buys more Clarix Chat.
+  // Pro is capped so a single power user can't run up unbounded Claude cost;
+  // over the cap they buy a $9/100-message pack or upgrade to Business.
+  switch (plan.id) {
+    case "FREE": return 0;
+    case "STARTER": return 25;
+    case "PRO": return 100;
+    default: return null; // Business & Enterprise: unlimited
+  }
+}
+
+/** Messages sold per purchased overage pack, and the pack price in USD. */
+export const CHAT_PACK_SIZE = 100;
+export const CHAT_PACK_PRICE = 9;
+
+/**
+ * Which Claude model powers Clarix Chat for a plan. Pro/Business/Enterprise get
+ * Sonnet 5; Free/Starter get Haiku. Purchased packs inherit the plan's model.
+ */
+export function chatModelForPlan(plan: PlanConfig): string {
+  return plan.id === "PRO" || plan.id === "BUSINESS" || plan.id === "ENTERPRISE"
+    ? CLAUDE_SONNET_5
+    : CLAUDE_HAIKU;
 }
 
 /** Per-file upload ceiling in bytes (override with NEXT_PUBLIC_MAX_UPLOAD_MB). */

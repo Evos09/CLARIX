@@ -2,9 +2,9 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { getOrCreateContext } from "@/lib/auth";
-import { getOrgPlan, globalChatLimit } from "@/lib/plan";
+import { chatModelForPlan, getOrgPlan, globalChatLimit } from "@/lib/plan";
 import { isClaudeConfigured } from "@/lib/claude";
-import { answerGlobalChat, bumpChatUsage, getChatUsage, retrieveContext } from "@/lib/globalChat";
+import { answerGlobalChat, bumpChatUsage, getChatBonus, getChatUsage, retrieveContext } from "@/lib/globalChat";
 import { chatLimiter, clientIp, RATE_LIMIT_MESSAGE } from "@/lib/rateLimit";
 
 type Params = { params: Promise<{ sessionId: string }> };
@@ -22,8 +22,22 @@ export async function POST(req: Request, { params }: Params) {
   const plan = await getOrgPlan(ctx.orgId);
   const limit = globalChatLimit(plan);
   if (limit === 0) return NextResponse.json({ error: "Upgrade to Starter for CLARIX AI." }, { status: 403 });
-  if (limit !== null && (await getChatUsage(ctx.userId)) >= limit) {
-    return NextResponse.json({ error: `You've used all ${limit} messages this month. Upgrade for more.` }, { status: 429 });
+  if (limit !== null) {
+    // Effective allowance = plan cap + any packs bought this cycle.
+    const [used, bonus] = await Promise.all([getChatUsage(ctx.userId), getChatBonus(ctx.userId)]);
+    if (used >= limit + bonus) {
+      // Pro can buy $9/100-message packs (wires in with Stripe) or upgrade to Business.
+      const nextStep =
+        plan.id === "PRO"
+          ? "Add a 100-message pack ($9) or upgrade to Business for unlimited Clarix Chat."
+          : plan.id === "STARTER"
+            ? "Add a 100-message pack ($9), or upgrade to Pro (100/mo) or Business (unlimited)."
+            : "Upgrade for more.";
+      return NextResponse.json(
+        { error: `You've used all ${limit + bonus} Clarix Chat messages this month. ${nextStep}` },
+        { status: 429 },
+      );
+    }
   }
 
   const session = await prisma.globalChatSession.findFirst({
@@ -46,6 +60,7 @@ export async function POST(req: Request, { params }: Params) {
       meetings,
       excerpts,
       mode: parsed.data.mode,
+      model: chatModelForPlan(plan),
     });
 
     const citations = meetings.map((m) => ({ id: m.id, title: m.title, date: m.createdAt }));
