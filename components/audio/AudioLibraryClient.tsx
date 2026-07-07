@@ -81,7 +81,7 @@ export function AudioLibraryClient() {
   return (
     <div className="space-y-5">
       {storage && (
-        <div className="rounded-lg border border-border p-4">
+        <div className="rounded-2xl border border-border bg-card p-4">
           <div className="flex items-center justify-between text-sm">
             <span className="font-medium">Storage</span>
             <span className="text-muted-foreground">
@@ -104,9 +104,9 @@ export function AudioLibraryClient() {
       <div className="flex flex-wrap gap-3">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search recordings…" className="h-9 w-full rounded-md border border-input bg-card pl-9 pr-3 text-sm" />
+          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search recordings…" className="h-9 w-full rounded-full border border-border bg-card pl-9 pr-4 text-sm transition focus:border-accent focus:outline-none" />
         </div>
-        <select value={sort} onChange={(e) => setSort(e.target.value)} className="h-9 rounded-md border border-input bg-card px-3 text-sm">
+        <select value={sort} onChange={(e) => setSort(e.target.value)} className="h-9 cursor-pointer rounded-full border border-border bg-card px-4 text-sm transition hover:border-accent/40">
           <option value="newest">Newest</option>
           <option value="oldest">Oldest</option>
           <option value="longest">Longest</option>
@@ -117,9 +117,9 @@ export function AudioLibraryClient() {
       {loading ? (
         <p className="text-sm text-muted-foreground">Loading…</p>
       ) : items.length === 0 ? (
-        <p className="rounded-lg border border-dashed border-border p-10 text-center text-sm text-muted-foreground">No recordings yet.</p>
+        <p className="rounded-2xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">No recordings yet.</p>
       ) : (
-        <div className="divide-y divide-border rounded-lg border border-border">
+        <div className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card">
           {items.map((it) => (
             <div key={it.id} className="p-4">
               <div className="flex flex-wrap items-center gap-3">

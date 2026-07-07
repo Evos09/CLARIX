@@ -2,8 +2,6 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import { cn } from "@/lib/utils";
 
@@ -24,9 +22,9 @@ interface Member {
 }
 
 const PRIORITY: Record<string, string> = {
-  HIGH: "bg-red-100 text-red-700 ring-red-600/20",
-  MEDIUM: "bg-amber-100 text-amber-800 ring-amber-600/20",
-  LOW: "bg-gray-100 text-gray-600 ring-gray-500/20",
+  HIGH: "border-red-200 bg-red-50 text-red-700",
+  MEDIUM: "border-amber-200 bg-amber-50 text-amber-800",
+  LOW: "border-border bg-muted text-muted-foreground",
 };
 
 export function ActionItemsClient() {
@@ -81,13 +79,13 @@ export function ActionItemsClient() {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap gap-3">
-        <select value={priority} onChange={(e) => setPriority(e.target.value)} className="h-9 rounded-md border border-input bg-card px-3 text-sm">
+        <select value={priority} onChange={(e) => setPriority(e.target.value)} className="h-9 cursor-pointer rounded-full border border-border bg-card px-4 text-sm transition hover:border-accent/40">
           <option value="">All priorities</option>
           <option value="HIGH">High</option>
           <option value="MEDIUM">Medium</option>
           <option value="LOW">Low</option>
         </select>
-        <select value={status} onChange={(e) => setStatus(e.target.value)} className="h-9 rounded-md border border-input bg-card px-3 text-sm">
+        <select value={status} onChange={(e) => setStatus(e.target.value)} className="h-9 cursor-pointer rounded-full border border-border bg-card px-4 text-sm transition hover:border-accent/40">
           <option value="">All statuses</option>
           <option value="false">Open</option>
           <option value="true">Completed</option>
@@ -99,15 +97,14 @@ export function ActionItemsClient() {
       ) : items.length === 0 ? (
         <EmptyState icon="ListTodo" title="No action items" description="Action items extracted across your meetings appear here." />
       ) : (
-        <Card>
-          <CardContent className="divide-y divide-border p-0">
+        <div className="space-y-3">
             {items.map((item) => (
-              <div key={item.id} className="flex items-start gap-3 p-4">
+              <div key={item.id} className="flex items-start gap-3 rounded-2xl border border-border bg-card p-4 transition hover:border-accent/40">
                 <input
                   type="checkbox"
                   checked={item.completed}
                   onChange={() => toggle(item)}
-                  className="mt-1 size-4 accent-teal-600 cursor-pointer"
+                  className="mt-1 size-4 accent-accent cursor-pointer"
                 />
                 <div className="min-w-0 flex-1">
                   <p className={cn("text-sm font-medium", item.completed && "text-muted-foreground line-through")}>{item.task}</p>
@@ -145,16 +142,19 @@ export function ActionItemsClient() {
 
                     <span>·</span>
 
-                    <Link href={`/meetings/${item.meeting.id}`} className="text-teal-600 hover:underline">
+                    <Link href={`/meetings/${item.meeting.id}`} className="text-accent hover:underline">
                       {item.meeting.title}
                     </Link>
                   </div>
                 </div>
-                {item.priority && <Badge className={PRIORITY[item.priority] ?? PRIORITY.LOW}>{item.priority}</Badge>}
+                {item.priority && (
+                  <span className={cn("shrink-0 rounded-full border px-2.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wider", PRIORITY[item.priority] ?? PRIORITY.LOW)}>
+                    {item.priority}
+                  </span>
+                )}
               </div>
             ))}
-          </CardContent>
-        </Card>
+        </div>
       )}
     </div>
   );
