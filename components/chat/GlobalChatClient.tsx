@@ -483,16 +483,22 @@ export function GlobalChatClient({ usageThisMonth, usageLimit }: { usageThisMont
         <div className="flex-1 overflow-y-auto p-4 md:p-8">
           {messages.length === 0 ? (
             <div className="mx-auto mt-10 max-w-2xl text-center">
-              <h2 className="text-2xl font-bold text-foreground">Ask anything about your meetings.</h2>
-              <p className="mt-2 text-sm text-muted-foreground font-medium">Searches across all your meetings. Type / for commands.</p>
-              <div className="mt-8 grid gap-4 sm:grid-cols-2">
+              <span className="inline-flex items-center gap-2 rounded-full border border-accent/20 bg-accent/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">
+                <span className="size-1.5 rounded-full bg-accent" /> Clarix Chat
+              </span>
+              <h2 className="mt-4 text-3xl font-semibold tracking-tight text-foreground">
+                Ask anything about your <span className="font-display font-normal italic text-accent">meetings</span>.
+              </h2>
+              <p className="mt-3 text-[15px] text-muted-foreground">Searches across every meeting in your workspace. Type / for commands.</p>
+              <div className="mt-8 grid gap-4 sm:grid-cols-2 text-left">
                 {SUGGESTIONS.map((s) => (
                   <button
                     key={s}
                     onClick={() => send(s)}
-                    className="rounded-xl border border-border bg-card/50 p-4 text-left text-sm font-medium transition hover:border-violet-500 hover:bg-violet-50/10 hover:shadow-sm"
+                    className="group rounded-2xl border border-border p-4 text-left text-sm transition hover:border-accent hover:bg-accent/5"
                   >
-                    {s}
+                    <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground group-hover:text-accent">{String(SUGGESTIONS.indexOf(s) + 1).padStart(2, "0")}</span>
+                    <span className="mt-1 block">{s}</span>
                   </button>
                 ))}
               </div>

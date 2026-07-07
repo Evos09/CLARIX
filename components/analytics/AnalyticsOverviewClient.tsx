@@ -142,11 +142,7 @@ export function AnalyticsOverviewClient() {
   return (
     <div className="space-y-6">
       {/* Timeframe & Filter controls */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-border/60 pb-5">
-        <div>
-          <h2 className="text-xl font-bold tracking-tight text-foreground">Executive Team Intelligence</h2>
-          <p className="text-xs text-muted-foreground">Rollup diagnostics and behavioral trends across your team's conversations.</p>
-        </div>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-4 border-b border-border/60 pb-5">
         <div className="flex items-center gap-2">
           <span className="text-xs font-semibold text-muted-foreground">Filter trend:</span>
           <select
