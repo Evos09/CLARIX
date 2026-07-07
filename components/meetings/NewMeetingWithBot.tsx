@@ -15,7 +15,7 @@ export function NewMeetingWithBot() {
           onClick={() => setTab("local")}
           className={cn(
             "rounded-md px-4 py-2 text-sm font-medium transition-colors",
-            tab === "local" ? "bg-navy text-white" : "border border-border hover:bg-muted",
+            tab === "local" ? "bg-accent text-white" : "border border-border hover:bg-muted",
           )}
         >
           Upload or Record
@@ -24,7 +24,7 @@ export function NewMeetingWithBot() {
           onClick={() => setTab("bot")}
           className={cn(
             "rounded-md px-4 py-2 text-sm font-medium transition-colors",
-            tab === "bot" ? "bg-navy text-white" : "border border-border hover:bg-muted",
+            tab === "bot" ? "bg-accent text-white" : "border border-border hover:bg-muted",
           )}
         >
           Join Live Meeting
