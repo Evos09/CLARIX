@@ -2,7 +2,6 @@ import { notFound } from "next/navigation";
 import { format } from "date-fns";
 import { Clock, Users, Globe } from "lucide-react";
 import { TopNav } from "@/components/layout/TopNav";
-import { Card, CardContent } from "@/components/ui/card";
 import { MeetingTypeBadge } from "@/components/meetings/MeetingTypeBadge";
 import { StatusBadge } from "@/components/meetings/StatusBadge";
 import { StatusPoller } from "@/components/meetings/StatusPoller";
@@ -60,28 +59,32 @@ export default async function MeetingDetailPage({ params }: Params) {
   return (
     <>
       <TopNav title={meeting.title} />
-      <main className="flex-1 space-y-6 p-4 md:p-6">
-        <Card>
-          <CardContent className="flex flex-wrap items-center justify-between gap-4 p-5">
-            <div className="space-y-2">
-              <h2 className="text-xl font-semibold">{meeting.title}</h2>
+      <main className="flex-1 space-y-6 p-4 md:p-8">
+        <header className="rounded-2xl border border-border bg-card p-6">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
                 <MeetingTypeBadge typeId={meeting.detectedType ?? meeting.meetingType} />
                 <StatusBadge status={meeting.status} />
               </div>
+              <h1 className="mt-3 text-2xl font-semibold leading-tight tracking-tight text-foreground sm:text-3xl">
+                {meeting.title}
+              </h1>
+              <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
+                <span>{format(meeting.createdAt, "MMM d, yyyy")}</span>
+                <span className="flex items-center gap-1"><Clock className="size-3.5" />{formatDuration(meeting.duration)}</span>
+                <span className="flex items-center gap-1"><Users className="size-3.5" />{meeting.speakerCount ?? "—"} speakers</span>
+                {meeting.language && <span className="flex items-center gap-1"><Globe className="size-3.5" />{meeting.language}</span>}
+              </div>
             </div>
-            <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-              <span>{format(meeting.createdAt, "MMM d, yyyy")}</span>
-              <span className="flex items-center gap-1"><Clock className="size-4" />{formatDuration(meeting.duration)}</span>
-              <span className="flex items-center gap-1"><Users className="size-4" />{meeting.speakerCount ?? "—"}</span>
-              {meeting.language && <span className="flex items-center gap-1"><Globe className="size-4" />{meeting.language}</span>}
+            <div className="flex flex-wrap items-center gap-2">
+              {meeting.status === "COMPLETE" && <ExportMenu meetingId={meeting.id} showEhr={getMeetingType(meeting.meetingType).category === "PRO"} />}
+              {meeting.status === "COMPLETE" && <CRMPushButton meetingId={meeting.id} />}
+              {meeting.status === "COMPLETE" && <PushToIntegrationButton meetingId={meeting.id} />}
+              {meeting.status === "COMPLETE" && <ShareChecklistButton meetingId={meeting.id} initialShareToken={meeting.shareToken} />}
             </div>
-            {meeting.status === "COMPLETE" && <ExportMenu meetingId={meeting.id} showEhr={getMeetingType(meeting.meetingType).category === "PRO"} />}
-            {meeting.status === "COMPLETE" && <CRMPushButton meetingId={meeting.id} />}
-            {meeting.status === "COMPLETE" && <PushToIntegrationButton meetingId={meeting.id} />}
-            {meeting.status === "COMPLETE" && <ShareChecklistButton meetingId={meeting.id} initialShareToken={meeting.shareToken} />}
-          </CardContent>
-        </Card>
+          </div>
+        </header>
 
         {meeting.status !== "COMPLETE" ? (
           <StatusPoller meetingId={meeting.id} status={meeting.status} />

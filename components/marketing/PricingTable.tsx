@@ -91,7 +91,7 @@ export function PricingTable({
             onClick={() => setBillingPeriod("yearly")}
           >
             Yearly
-            <span className="rounded-full bg-teal-500 text-white px-2 py-0.5 text-[9px] font-bold">
+            <span className="rounded-full bg-accent text-white px-2 py-0.5 text-[9px] font-bold">
               Save ~20%
             </span>
           </button>
@@ -112,7 +112,7 @@ export function PricingTable({
               key={id}
               className={cn(
                 "flex flex-col justify-between transition-all duration-200",
-                featured && "border-teal ring-2 ring-teal/30 scale-105 md:scale-100 lg:scale-105"
+                featured && "border-accent ring-2 ring-accent/30 scale-105 md:scale-100 lg:scale-105"
               )}
             >
               <div>
@@ -120,7 +120,7 @@ export function PricingTable({
                   <CardTitle className="flex items-center justify-between text-lg">
                     {plan.name}
                     {featured && (
-                      <span className="rounded-full bg-teal px-2 py-0.5 text-[10px] font-bold text-white uppercase tracking-wider">
+                      <span className="rounded-full bg-accent px-2 py-0.5 text-[10px] font-bold text-white uppercase tracking-wider">
                         Popular
                       </span>
                     )}
@@ -139,7 +139,7 @@ export function PricingTable({
                   <ul className="space-y-2.5 text-sm">
                     {FEATURES[id].map((f) => (
                       <li key={f} className="flex items-start gap-2 text-slate-600">
-                        <Check className="mt-0.5 size-4 shrink-0 text-teal-600" />
+                        <Check className="mt-0.5 size-4 shrink-0 text-accent" />
                         <span>{f}</span>
                       </li>
                     ))}
@@ -154,7 +154,7 @@ export function PricingTable({
                     </Button>
                   ) : (
                     <Button
-                      className="w-full border-teal text-teal hover:bg-teal-50"
+                      className="w-full border-accent text-accent hover:bg-accent/10"
                       variant="outline"
                       onClick={handlePortal}
                       disabled={!!loading}
@@ -174,7 +174,7 @@ export function PricingTable({
                   <Button
                     className={cn(
                       "w-full font-semibold",
-                      featured ? "bg-teal hover:bg-teal-600 text-white" : "border-teal text-teal hover:bg-teal-50"
+                      featured ? "bg-accent hover:bg-accent/90 text-white" : "border-accent text-accent hover:bg-accent/10"
                     )}
                     variant={featured ? "default" : "outline"}
                     onClick={() => handleCheckout(id)}

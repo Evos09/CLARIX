@@ -106,7 +106,7 @@ export function NewMeetingClient() {
             onClick={() => setTab(t)}
             className={cn(
               "rounded px-4 py-1.5 text-sm font-medium capitalize transition-colors",
-              tab === t ? "bg-navy text-white" : "text-muted-foreground hover:text-foreground",
+              tab === t ? "bg-accent text-white" : "text-muted-foreground hover:text-foreground",
             )}
           >
             {t === "upload" ? "Upload" : "Record"}
