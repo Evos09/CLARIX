@@ -361,12 +361,15 @@ export function GlobalChatClient({ usageThisMonth, usageLimit }: { usageThisMont
   async function send(text: string) {
     const msg = text.trim();
     if (!msg || sending) return;
-    let sid = activeId;
+    // Use the ref (synchronously current) so back-to-back sends reuse the same
+    // session instead of each spawning a new one — otherwise history is lost.
+    let sid = activeIdRef.current;
     if (!sid) {
       const r = await fetch("/api/chat/sessions", { method: "POST" });
       if (!r.ok) return;
       sid = (await r.json()).sessionId as string;
       setActiveId(sid);
+      activeIdRef.current = sid;
     }
     setInput("");
     setMessages((m) => [...m, { role: "user", content: msg }]);

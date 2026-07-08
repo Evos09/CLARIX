@@ -32,15 +32,12 @@ export function BillingToggle({
       <span className={`text-sm transition-colors ${isAnnual ? "text-foreground" : "text-muted-foreground"}`}>
         Annual
       </span>
-      <span className="ml-1 px-2 py-1 bg-brand text-brand-foreground text-xs font-mono rounded-full">
-        Save 17%
-      </span>
     </div>
   );
 }
 
 export function PricingCards({ showToggle = true }: { showToggle?: boolean }) {
-  const [isAnnual, setIsAnnual] = useState(true);
+  const [isAnnual, setIsAnnual] = useState(false);
 
   return (
     <div>

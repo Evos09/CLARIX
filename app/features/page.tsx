@@ -11,13 +11,12 @@ import {
   AudioLibraryVisual,
   IntegrationsVisual,
   AnalyticsVisual,
-  VerticalsVisual,
 } from "@/components/features/visuals";
 
 export const metadata = {
   title: "Features — CLARIX",
   description:
-    "Transcription, structured outputs, Ask CLARIX chat, recording and bot capture, audio library, integrations, analytics, and compliance-aware Pro Verticals.",
+    "Transcription, structured outputs, Clarix Chat, recording and bot capture, audio library, integrations, and analytics.",
 };
 
 const blocks = [
@@ -76,14 +75,6 @@ const blocks = [
       "Speaker talk-time breakdowns, sentiment over time, engagement scoring, and filler-word tracking per meeting — plus an org-wide analytics dashboard to spot trends across the team.",
     bullets: ["Talk-time & engagement scoring", "Sentiment over time", "Org-wide dashboard"],
     visual: <AnalyticsVisual />,
-  },
-  {
-    eyebrow: "Pro Verticals",
-    title: "Compliance-aware outputs for regulated industries",
-    description:
-      "Specialized outputs for healthcare, legal, and financial teams: SOAP notes and ICD-10 suggestions for clinical visits, deposition action items and case timelines for legal, and compliance flags and suitability notes for financial advisory meetings.",
-    bullets: ["Healthcare: SOAP notes & ICD-10", "Legal: admissions & case timeline", "Financial: compliance & suitability"],
-    visual: <VerticalsVisual />,
   },
 ];
 

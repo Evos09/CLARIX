@@ -4,13 +4,11 @@ import { PageHero } from "@/components/site/page-hero";
 import { SectionHeading } from "@/components/site/section-heading";
 import { CtaBand } from "@/components/site/cta-band";
 import { MeetingExplorer } from "@/components/meeting-types/meeting-explorer";
-import { proVerticals } from "@/lib/site-data";
-import { Lock } from "lucide-react";
 
 export const metadata = {
   title: "Meeting Types — CLARIX",
   description:
-    "CLARIX handles 20+ meeting types — from sales calls to standups to board meetings — plus compliance-aware Pro Verticals for healthcare, legal, and financial teams.",
+    "CLARIX handles 20+ meeting types — from sales calls to standups to board meetings — detecting each format automatically and extracting exactly what matters.",
 };
 
 export default function MeetingTypesPage() {
@@ -33,38 +31,6 @@ export default function MeetingTypesPage() {
           />
           <div className="mt-12">
             <MeetingExplorer />
-          </div>
-        </div>
-      </section>
-
-      {/* Pro verticals */}
-      <section className="py-16 lg:py-24 border-t border-foreground/10">
-        <div className="max-w-[1400px] mx-auto px-6 lg:px-12">
-          <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-brand mb-6">
-            <Lock className="w-3.5 h-3.5" />
-            Pro Verticals · Enterprise · Built for regulated industries
-          </div>
-          <SectionHeading
-            eyebrow="Specialized"
-            title="Compliance-aware meeting types"
-            description="Three premium meeting types built for regulated industries, available on the Enterprise plan (talk to sales)."
-          />
-
-          <div className="grid md:grid-cols-3 gap-px bg-foreground/10 border border-foreground/10 mt-12 rounded-xl overflow-hidden">
-            {proVerticals.map((v) => (
-              <div key={v.name} className="bg-background p-8">
-                <h3 className="font-display text-2xl mb-2">{v.name}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed mb-6">{v.summary}</p>
-                <ul className="space-y-2.5">
-                  {v.extracts.map((item) => (
-                    <li key={item} className="flex items-start gap-2.5 text-sm text-foreground/80">
-                      <span className="mt-2 w-1.5 h-1.5 rounded-full bg-brand shrink-0" />
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
           </div>
         </div>
       </section>

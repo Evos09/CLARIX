@@ -12,6 +12,8 @@ const hasClerk = Boolean(process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY);
 
 export default function SignUpPage() {
   const [accepted, setAccepted] = useState(false);
+  const [agreedTerms, setAgreedTerms] = useState(false);
+  const [agreedPrivacy, setAgreedPrivacy] = useState(false);
 
   return (
     <AuthShell mode="sign-up">
@@ -33,20 +35,34 @@ export default function SignUpPage() {
                 <p>
                   Before creating your Clarix account, please review and agree to our official regulatory disclosures:
                 </p>
-                <ul className="list-disc pl-4 space-y-1.5 font-medium">
-                  <li>
-                    <Link href="/privacy" target="_blank" className="underline text-violet-600 hover:text-violet-700">
-                      Privacy Policy
-                    </Link>{" "}
-                    (describes data collections & encryption safeguards)
-                  </li>
-                  <li>
+                <label className="flex items-start gap-2.5 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={agreedTerms}
+                    onChange={(e) => setAgreedTerms(e.target.checked)}
+                    className="mt-0.5 size-4 shrink-0 accent-violet-600"
+                  />
+                  <span className="font-medium text-foreground">
+                    I agree to the{" "}
                     <Link href="/terms" target="_blank" className="underline text-violet-600 hover:text-violet-700">
                       Terms of Service
-                    </Link>{" "}
-                    (includes binding arbitration and class waivers)
-                  </li>
-                </ul>
+                    </Link>.
+                  </span>
+                </label>
+                <label className="flex items-start gap-2.5 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={agreedPrivacy}
+                    onChange={(e) => setAgreedPrivacy(e.target.checked)}
+                    className="mt-0.5 size-4 shrink-0 accent-violet-600"
+                  />
+                  <span className="font-medium text-foreground">
+                    I agree to the{" "}
+                    <Link href="/privacy" target="_blank" className="underline text-violet-600 hover:text-violet-700">
+                      Privacy Policy
+                    </Link>.
+                  </span>
+                </label>
                 <p className="text-[10px] bg-muted/60 rounded p-2 text-zinc-500 font-medium">
                   ⚖️ <strong>Recording Notice:</strong> You represent that you will obtain all legally required consents from meeting participants before recording.{" "}
                   <Link href="/legal/recording-consent" target="_blank" className="underline text-violet-600 hover:text-violet-700">
@@ -58,9 +74,10 @@ export default function SignUpPage() {
               <div className="pt-2">
                 <button
                   onClick={() => setAccepted(true)}
-                  className="w-full py-2.5 px-4 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-semibold text-xs transition-all shadow-sm flex items-center justify-center gap-1.5"
+                  disabled={!agreedTerms || !agreedPrivacy}
+                  className="w-full py-2.5 px-4 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-semibold text-xs transition-all shadow-sm flex items-center justify-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-violet-600"
                 >
-                  <Check className="size-4" /> I Agree & Accept Terms
+                  <Check className="size-4" /> Continue to Sign Up
                 </button>
               </div>
             </div>

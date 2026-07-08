@@ -38,8 +38,8 @@ export default function ContactPage() {
           href={`mailto:${SUPPORT_EMAIL}?subject=CLARIX%20sales`}
           className="rounded-xl border border-border bg-card p-5 transition hover:border-accent/40"
         >
-          <h2 className="text-sm font-semibold text-foreground">Sales &amp; Enterprise</h2>
-          <p className="mt-1 text-sm text-muted-foreground">Team plans, Pro Verticals, and volume pricing.</p>
+          <h2 className="text-sm font-semibold text-foreground">Sales</h2>
+          <p className="mt-1 text-sm text-muted-foreground">Team plans and volume pricing.</p>
           <p className="mt-3 text-sm font-medium text-accent">{SUPPORT_EMAIL}</p>
         </a>
       </div>

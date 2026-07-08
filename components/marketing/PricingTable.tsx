@@ -91,9 +91,6 @@ export function PricingTable({
             onClick={() => setBillingPeriod("yearly")}
           >
             Yearly
-            <span className="rounded-full bg-accent text-white px-2 py-0.5 text-[9px] font-bold">
-              Save 17%
-            </span>
           </button>
         </div>
         {error && <p className="text-xs text-destructive mt-2">{error}</p>}
@@ -126,7 +123,7 @@ export function PricingTable({
                     )}
                   </CardTitle>
                   <div className="mt-2">
-                    <span className="text-3xl font-bold tracking-tight">${billingPeriod === "yearly" && price > 0 ? price.toFixed(2) : price}</span>
+                    <span className="text-3xl font-bold tracking-tight">${price}</span>
                     <span className="text-sm font-normal text-muted-foreground">/user/mo</span>
                     {price > 0 && billingPeriod === "yearly" && (
                       <p className="text-[10px] text-muted-foreground font-medium mt-0.5">

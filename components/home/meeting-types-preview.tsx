@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { SectionHeading } from "@/components/site/section-heading";
 import { Reveal } from "@/components/motion/Reveal";
-import { meetingTypes, proVerticals } from "@/lib/site-data";
-import { ArrowRight, Lock } from "lucide-react";
+import { meetingTypes } from "@/lib/site-data";
+import { ArrowRight } from "lucide-react";
 
 export function MeetingTypesPreview() {
   return (
@@ -38,24 +38,6 @@ export function MeetingTypesPreview() {
               {type.name}
             </span>
           ))}
-        </Reveal>
-
-        {/* Pro verticals */}
-        <Reveal delay={120}>
-        <div className="mt-12 rounded-xl border border-foreground/10 bg-foreground text-background p-8 lg:p-10">
-          <div className="flex items-center gap-2 mb-6 text-xs font-mono uppercase tracking-widest text-background/50">
-            <Lock className="w-3.5 h-3.5" />
-            Pro Verticals · Enterprise
-          </div>
-          <div className="grid md:grid-cols-3 gap-8">
-            {proVerticals.map((v) => (
-              <div key={v.name}>
-                <h3 className="font-display text-xl mb-2">{v.name}</h3>
-                <p className="text-sm text-background/60 leading-relaxed">{v.summary}</p>
-              </div>
-            ))}
-          </div>
-        </div>
         </Reveal>
       </div>
     </section>

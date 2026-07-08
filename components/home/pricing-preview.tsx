@@ -12,7 +12,7 @@ export function PricingPreview() {
           <SectionHeading
             eyebrow="Pricing"
             title="Simple pricing. Scales with your team."
-            description="Start free. Upgrade when you need more meetings, more integrations, or Pro Verticals."
+            description="Start free. Upgrade when you need more meetings, more integrations, or more Clarix Chat."
           />
           <Link
             href="/pricing"
