@@ -56,8 +56,8 @@ export const PLANS: Record<PlanId, PlanConfig> = {
   STARTER: {
     id: "STARTER",
     name: "Starter",
-    price: 13,
-    annualPrice: 13, // no annual discount
+    price: 15,
+    annualPrice: 13, // per-user/mo billed annually
     meetingsPerMonth: 20,
     exports: ["PDF", "DOCX", "CSV"],
     allMeetingTypes: true,
@@ -74,8 +74,8 @@ export const PLANS: Record<PlanId, PlanConfig> = {
   PRO: {
     id: "PRO",
     name: "Pro",
-    price: 25,
-    annualPrice: 25, // no annual discount
+    price: 30,
+    annualPrice: 25, // per-user/mo billed annually
     meetingsPerMonth: null,
     exports: ["PDF", "DOCX", "CSV", "JSON"],
     allMeetingTypes: true,
@@ -95,8 +95,8 @@ export const PLANS: Record<PlanId, PlanConfig> = {
   BUSINESS: {
     id: "BUSINESS",
     name: "Business",
-    price: 40,
-    annualPrice: 40, // no annual discount
+    price: 49,
+    annualPrice: 40, // per-user/mo billed annually
     meetingsPerMonth: null,
     exports: ["PDF", "DOCX", "CSV", "JSON"],
     allMeetingTypes: true,
