@@ -36,6 +36,7 @@ export function GlobalChatClient({ usageThisMonth, usageLimit }: { usageThisMont
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const [usage, setUsage] = useState(usageThisMonth);
+  const [limitModal, setLimitModal] = useState<{ used: number; plan: string } | null>(null);
   const mode: Mode = "focused";
   const endRef = useRef<HTMLDivElement>(null);
 
@@ -381,8 +382,14 @@ export function GlobalChatClient({ usageThisMonth, usageLimit }: { usageThisMont
         body: JSON.stringify({ message: msg, mode }),
       });
       const d = await r.json();
-      if (!r.ok) setMessages((m) => [...m, { role: "assistant", content: d.error ?? "Something went wrong." }]);
-      else {
+      if (!r.ok) {
+        if (d.limitReached) {
+          setMessages((m) => m.slice(0, -1)); // drop the un-answered user bubble
+          setLimitModal({ used: d.used, plan: d.plan });
+        } else {
+          setMessages((m) => [...m, { role: "assistant", content: d.error ?? "Something went wrong." }]);
+        }
+      } else {
         setMessages((m) => [...m, { role: "assistant", content: d.message.content, citations: d.citations }]);
         setUsage((u) => u + 1);
         void loadSessions();
@@ -737,6 +744,49 @@ export function GlobalChatClient({ usageThisMonth, usageLimit }: { usageThisMont
         </aside>
       )}
       </div>
+
+      {limitModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
+          onClick={() => setLimitModal(null)}
+        >
+          <div
+            className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <span className="inline-flex items-center gap-2 rounded-full border border-violet-600/20 bg-violet-50/60 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-violet-700">
+              Monthly limit reached
+            </span>
+            <h3 className="mt-3 text-lg font-bold text-foreground">You&apos;re out of Clarix Chat messages</h3>
+            <p className="mt-1.5 text-sm text-muted-foreground">
+              You&apos;ve used all {limitModal.used} messages this month. Add more to keep chatting, or upgrade for a higher limit.
+            </p>
+            <div className="mt-5 space-y-2.5">
+              <a
+                href="/settings/billing"
+                className="flex w-full items-center justify-between rounded-xl bg-violet-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-violet-700"
+              >
+                <span>Buy 100 more messages</span>
+                <span className="rounded-full bg-white/20 px-2 py-0.5 text-xs">$9</span>
+              </a>
+              {limitModal.plan !== "BUSINESS" && (
+                <a
+                  href="/settings/billing"
+                  className="flex w-full items-center justify-center rounded-xl border border-violet-600/40 px-4 py-3 text-sm font-semibold text-violet-600 transition hover:bg-violet-50/50"
+                >
+                  Upgrade for unlimited
+                </a>
+              )}
+            </div>
+            <button
+              onClick={() => setLimitModal(null)}
+              className="mt-4 w-full text-center text-xs text-muted-foreground hover:text-foreground"
+            >
+              Maybe later
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

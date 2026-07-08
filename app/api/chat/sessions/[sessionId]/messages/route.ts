@@ -27,15 +27,15 @@ export async function POST(req: Request, { params }: Params) {
     // Effective allowance = plan cap + any packs bought this cycle.
     const [used, bonus] = await Promise.all([getChatUsage(ctx.userId), getChatBonus(ctx.userId)]);
     if (used >= limit + bonus) {
-      // Pro can buy $9/100-message packs (wires in with Stripe) or upgrade to Business.
-      const nextStep =
-        plan.id === "PRO"
-          ? "Add a 100-message pack ($9) or upgrade to Business for unlimited Clarix Chat."
-          : plan.id === "STARTER"
-            ? "Add a 100-message pack ($9), or upgrade to Pro (100/mo) or Business (unlimited)."
-            : "Upgrade for more.";
+      const total = limit + bonus;
+      // limitReached drives the client's "buy more messages" modal.
       return NextResponse.json(
-        { error: `You've used all ${limit + bonus} Clarix Chat messages this month. ${nextStep}` },
+        {
+          error: `You've used all ${total} Clarix Chat messages this month.`,
+          limitReached: true,
+          plan: plan.id,
+          used: total,
+        },
         { status: 429 },
       );
     }
