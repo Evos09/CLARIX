@@ -763,7 +763,7 @@ export function GlobalChatClient({ usageThisMonth, usageLimit }: { usageThisMont
             </p>
             <div className="mt-5 space-y-2.5">
               <a
-                href="/settings/billing"
+                href="/pricing"
                 className="flex w-full items-center justify-between rounded-xl bg-violet-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-violet-700"
               >
                 <span>Buy 100 more messages</span>
@@ -771,7 +771,7 @@ export function GlobalChatClient({ usageThisMonth, usageLimit }: { usageThisMont
               </a>
               {limitModal.plan !== "BUSINESS" && (
                 <a
-                  href="/settings/billing"
+                  href="/pricing"
                   className="flex w-full items-center justify-center rounded-xl border border-violet-600/40 px-4 py-3 text-sm font-semibold text-violet-600 transition hover:bg-violet-50/50"
                 >
                   Upgrade for unlimited
