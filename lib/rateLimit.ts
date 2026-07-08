@@ -57,8 +57,12 @@ export const meetingLimiter = createLimiter(20, HOUR, "meeting");
 export const uploadLimiter = createLimiter(30, HOUR, "upload");
 /** Bot joins — each one costs real MeetingBaas + transcription money. */
 export const botLimiter = createLimiter(10, HOUR, "bot");
-/** Ask CLARIX chat messages — each is a Claude call. */
-export const chatLimiter = createLimiter(60, HOUR, "chat");
+/**
+ * Clarix Chat messages — keyed by userId (not IP), so it never collides across
+ * users on a shared network. Per-plan monthly caps in lib/plan.ts do the real
+ * metering; this is just a high anti-abuse ceiling to stop runaway scripts.
+ */
+export const chatLimiter = createLimiter(300, HOUR, "chat");
 
 /** Best-effort client IP (Railway sets x-forwarded-for). */
 export function clientIp(req: Request): string {
