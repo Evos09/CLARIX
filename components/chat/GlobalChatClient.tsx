@@ -38,6 +38,7 @@ export function GlobalChatClient({ usageThisMonth, usageLimit }: { usageThisMont
   const [usage, setUsage] = useState(usageThisMonth);
   const [limitModal, setLimitModal] = useState<{ used: number; plan: string } | null>(null);
   const [buyingPack, setBuyingPack] = useState(false);
+  const [packError, setPackError] = useState<string | null>(null);
   const mode: Mode = "focused";
   const endRef = useRef<HTMLDivElement>(null);
 
@@ -767,17 +768,19 @@ export function GlobalChatClient({ usageThisMonth, usageLimit }: { usageThisMont
                 disabled={buyingPack}
                 onClick={async () => {
                   setBuyingPack(true);
+                  setPackError(null);
                   try {
                     const r = await fetch("/api/billing/pack", { method: "POST" });
-                    const d = await r.json();
-                    if (d.url) {
+                    const d = await r.json().catch(() => ({}));
+                    if (r.ok && d.url) {
                       window.location.href = d.url;
                       return;
                     }
-                    setBuyingPack(false);
+                    setPackError(d.error || `Couldn't start checkout (${r.status}).`);
                   } catch {
-                    setBuyingPack(false);
+                    setPackError("Network error — please try again.");
                   }
+                  setBuyingPack(false);
                 }}
                 className="flex w-full items-center justify-between rounded-xl bg-violet-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-violet-700 disabled:opacity-60"
               >
@@ -786,12 +789,13 @@ export function GlobalChatClient({ usageThisMonth, usageLimit }: { usageThisMont
               </button>
               {limitModal.plan !== "BUSINESS" && (
                 <a
-                  href="/pricing"
+                  href="/settings/billing"
                   className="flex w-full items-center justify-center rounded-xl border border-violet-600/40 px-4 py-3 text-sm font-semibold text-violet-600 transition hover:bg-violet-50/50"
                 >
                   Upgrade for unlimited
                 </a>
               )}
+              {packError && <p className="text-center text-xs text-red-600">{packError}</p>}
             </div>
             <button
               onClick={() => setLimitModal(null)}

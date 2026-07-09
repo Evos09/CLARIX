@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { PricingTable } from "@/components/marketing/PricingTable";
 import { PlanBadge } from "@/components/layout/PlanBadge";
+import { BuyPackButton } from "@/components/billing/BuyPackButton";
 import { getOrCreateContext, hasDb } from "@/lib/auth";
 import { getOrgPlan } from "@/lib/plan";
 import { isStripeConfigured } from "@/lib/stripe";
@@ -28,6 +29,7 @@ export default async function BillingPage() {
           and we&apos;ll get you on the right plan.
         </p>
       )}
+      {isStripeConfigured() && (planId === "STARTER" || planId === "PRO") && <BuyPackButton />}
       <PricingTable highlight="PRO" currentPlan={planId} />
     </main>
   );
