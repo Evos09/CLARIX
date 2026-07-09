@@ -25,15 +25,23 @@ export async function POST(req: Request) {
   const customerEmail = customerId ? undefined : account?.email || undefined;
 
   const base = appBaseUrl(req);
-  const session = await getStripe().checkout.sessions.create({
-    mode: "payment",
-    ...(customerId ? { customer: customerId } : {}),
-    ...(customerEmail ? { customer_email: customerEmail } : {}),
-    line_items: [{ price, quantity: 1 }],
-    success_url: `${base}/chat?pack=success`,
-    cancel_url: `${base}/chat?pack=cancel`,
-    metadata: { type: "chat_pack", userId: ctx.userId, orgId: ctx.orgId, packSize: String(CHAT_PACK_SIZE) },
-    payment_intent_data: { metadata: { type: "chat_pack", userId: ctx.userId } },
-  });
-  return NextResponse.json({ url: session.url });
+  try {
+    const session = await getStripe().checkout.sessions.create({
+      mode: "payment",
+      ...(customerId ? { customer: customerId } : {}),
+      ...(customerEmail ? { customer_email: customerEmail } : {}),
+      line_items: [{ price, quantity: 1 }],
+      success_url: `${base}/chat?pack=success`,
+      cancel_url: `${base}/chat?pack=cancel`,
+      metadata: { type: "chat_pack", userId: ctx.userId, orgId: ctx.orgId, packSize: String(CHAT_PACK_SIZE) },
+      payment_intent_data: { metadata: { type: "chat_pack", userId: ctx.userId } },
+    });
+    return NextResponse.json({ url: session.url });
+  } catch (err) {
+    // Surface the Stripe reason (e.g. a test/live-mode mismatch or a recurring
+    // price used in one-time payment mode) instead of a blank 500.
+    const message = err instanceof Error ? err.message : "Could not start checkout.";
+    console.error("chat pack checkout failed:", err);
+    return NextResponse.json({ error: message }, { status: 502 });
+  }
 }
