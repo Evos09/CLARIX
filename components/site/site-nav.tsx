@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
+import { LogoMark } from "@/components/layout/LogoMark";
 
 const navLinks = [
   { name: "Features", href: "/features" },
@@ -49,9 +50,7 @@ export function SiteNav() {
         >
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5 group">
-            <span className="grid place-items-center w-7 h-7 rounded-md bg-foreground text-background font-display text-lg leading-none">
-              C
-            </span>
+            <LogoMark size={28} />
             <span
               className={`font-display tracking-tight transition-all duration-500 ${
                 isScrolled ? "text-xl" : "text-2xl"

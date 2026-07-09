@@ -45,7 +45,7 @@ const groups: { group: string; rows: { label: string; values: [Cell, Cell, Cell,
     group: "Security & support",
     rows: [
       { label: "SSO / SAML (Coming Soon)", values: [false, false, false, false] },
-      { label: "Priority support", values: [false, false, false, true] },
+      { label: "Email support", values: [false, true, true, true] },
     ],
   },
 ];

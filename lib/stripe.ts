@@ -120,7 +120,7 @@ export const PLANS: Record<PlanId, PlanConfig> = {
     foreverRetention: true,
     priceEnv: "STRIPE_BUSINESS_PRICE_ID",
     annualPriceEnv: "STRIPE_BUSINESS_ANNUAL_PRICE_ID",
-    blurb: "Everything in Pro + unlimited Ask CLARIX, custom templates, priority support.",
+    blurb: "Everything in Pro + unlimited Ask CLARIX, custom templates, email support.",
   },
   // Sales-led / talk-to-sales tier — no self-serve Stripe price. Provisioned
   // bespoke; this is where the regulated Pro Verticals, EHR/FHIR, SSO, and CRM
