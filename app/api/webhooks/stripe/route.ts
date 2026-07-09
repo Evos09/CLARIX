@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type Stripe from "stripe";
 import { prisma } from "@/lib/prisma";
 import { getStripe, isStripeConfigured, PLANS, type PlanId } from "@/lib/stripe";
-import { addChatBonus } from "@/lib/globalChat";
+import { addChatBonus, resetChatUsageForOrg } from "@/lib/globalChat";
 import { CHAT_PACK_SIZE } from "@/lib/plan";
 import { captureServer } from "@/lib/tracking-server";
 
@@ -78,6 +78,7 @@ export async function POST(req: Request) {
             },
           });
           captureServer("upgraded_to_paid_plan", orgId, { plan });
+          await resetChatUsageForOrg(orgId);
         }
         break;
       }
@@ -86,14 +87,18 @@ export async function POST(req: Request) {
         const plan = planFromPriceId(sub.items.data[0]?.price.id);
         const customer = typeof sub.customer === "string" ? sub.customer : sub.customer.id;
         if (plan) {
+          const orgs = await prisma.organization.findMany({ where: { stripeId: customer }, select: { id: true } });
           await prisma.organization.updateMany({ where: { stripeId: customer }, data: { plan } });
+          for (const o of orgs) await resetChatUsageForOrg(o.id);
         }
         break;
       }
       case "customer.subscription.deleted": {
         const sub = event.data.object as Stripe.Subscription;
         const customer = typeof sub.customer === "string" ? sub.customer : sub.customer.id;
+        const orgs = await prisma.organization.findMany({ where: { stripeId: customer }, select: { id: true } });
         await prisma.organization.updateMany({ where: { stripeId: customer }, data: { plan: "FREE", verticals: [] } });
+        for (const o of orgs) await resetChatUsageForOrg(o.id);
         break;
       }
       case "invoice.payment_failed": {

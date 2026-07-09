@@ -43,6 +43,18 @@ export async function addChatBonus(userId: string, amount: number): Promise<numb
   return (await prisma.chatUsage.update({ where: { userId }, data: { bonusMessages: { increment: amount } } })).bonusMessages;
 }
 
+/** Clear this cycle's message usage for every member of an org — called on any
+ *  plan change so the new plan's cap applies immediately (a downgrade must not
+ *  leave someone locked out from usage racked up under the old, higher cap).
+ *  Purchased pack messages (bonusMessages) are left intact. */
+export async function resetChatUsageForOrg(orgId: string): Promise<void> {
+  const users = await prisma.user.findMany({ where: { orgId }, select: { id: true } });
+  const ids = users.map((u) => u.id);
+  if (ids.length) {
+    await prisma.chatUsage.updateMany({ where: { userId: { in: ids } }, data: { count: 0 } });
+  }
+}
+
 export interface RelevantMeeting {
   id: string;
   title: string;
