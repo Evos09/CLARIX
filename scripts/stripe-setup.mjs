@@ -26,8 +26,8 @@ const PRICES = [
   ["STRIPE_STARTER_ANNUAL_PRICE_ID", "CLARIX Starter", "clarix_starter_annual", 15600, "year"],
   ["STRIPE_PRO_PRICE_ID", "CLARIX Pro", "clarix_pro_monthly", 3000, "month"],
   ["STRIPE_PRO_ANNUAL_PRICE_ID", "CLARIX Pro", "clarix_pro_annual", 30000, "year"],
-  ["STRIPE_BUSINESS_PRICE_ID", "CLARIX Business", "clarix_business_monthly", 4900, "month"],
-  ["STRIPE_BUSINESS_ANNUAL_PRICE_ID", "CLARIX Business", "clarix_business_annual", 48000, "year"],
+  ["STRIPE_BUSINESS_PRICE_ID", "CLARIX Business", "clarix_business_monthly", 5900, "month"],
+  ["STRIPE_BUSINESS_ANNUAL_PRICE_ID", "CLARIX Business", "clarix_business_annual", 60000, "year"],
   ["STRIPE_CHAT_PACK_PRICE_ID", "CLARIX Chat Pack (100 messages)", "clarix_chat_pack", 900, null],
 ];
 
@@ -41,14 +41,18 @@ async function getProduct(name) {
 }
 
 async function ensurePrice(name, lookupKey, unitAmount, interval) {
-  const found = await stripe.prices.list({ lookup_keys: [lookupKey], limit: 1 });
-  if (found.data[0]) return found.data[0].id;
+  const found = await stripe.prices.list({ lookup_keys: [lookupKey], limit: 1, active: true });
+  const existing = found.data[0];
+  // Stripe prices are immutable, so reuse only when the amount is unchanged.
+  // A changed amount means a new price — we move the lookup_key onto it.
+  if (existing && existing.unit_amount === unitAmount) return existing.id;
   const product = await getProduct(name);
   const price = await stripe.prices.create({
     product,
     currency: "usd",
     unit_amount: unitAmount,
     lookup_key: lookupKey,
+    transfer_lookup_key: true,
     ...(interval ? { recurring: { interval } } : {}),
   });
   return price.id;

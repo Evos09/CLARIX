@@ -10,7 +10,7 @@ export const plans: Plan[] = [
     features: ["20 meetings per month", "All standard meeting types", "25 Clarix Chat messages / month", "PDF, DOCX & CSV export", "Auto-join meeting bot (Zoom, Meet, Teams)", "Forever audio library", "Email integration (Gmail)"] },
   { name: "Pro", description: "For teams that run on meetings.", price: { monthly: 30, annual: 25 }, unit: "/user/mo", cta: "Start 14-day trial", href: "/sign-up", popular: true,
     features: ["Unlimited meetings", "All exports (PDF, DOCX, CSV, JSON)", "100 Clarix Chat messages / month", "Auto-join meeting bot", "Forever library + reprocessing", "Google Calendar, Gmail & Notion", "Voice Mode (coming soon)", "Email support"] },
-  { name: "Business", description: "For power users and teams who want the full self-serve toolkit.", price: { monthly: 49, annual: 40 }, unit: "/user/mo", cta: "Start 14-day trial", href: "/sign-up",
+  { name: "Business", description: "For power users and teams who want the full self-serve toolkit.", price: { monthly: 59, annual: 50 }, unit: "/user/mo", cta: "Start 14-day trial", href: "/sign-up",
     features: ["Everything in Pro", "Unlimited Clarix Chat", "Custom AI templates", "Team sharing", "Email support"] },
 ];
 

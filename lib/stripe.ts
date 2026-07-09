@@ -107,8 +107,8 @@ export const PLANS: Record<PlanId, PlanConfig> = {
   BUSINESS: {
     id: "BUSINESS",
     name: "Business",
-    price: 49,
-    annualPrice: 40, // per-user/mo billed annually
+    price: 59,
+    annualPrice: 50, // per-user/mo billed annually ($600/yr)
     meetingsPerMonth: null,
     exports: ["PDF", "DOCX", "CSV", "JSON"],
     allMeetingTypes: true,
