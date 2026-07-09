@@ -34,20 +34,52 @@ export async function POST(req: Request) {
   const customerId = account?.org.stripeId ?? undefined;
   const customerEmail = customerId ? undefined : account?.email || undefined;
 
+  const stripe = getStripe();
   const base = appBaseUrl(req);
-  const session = await getStripe().checkout.sessions.create({
-    mode: "subscription",
-    ...(customerId ? { customer: customerId } : {}),
-    ...(customerEmail ? { customer_email: customerEmail } : {}),
-    subscription_data: {
-      trial_period_days: 14,
-      trial_settings: { end_behavior: { missing_payment_method: "cancel" } },
-    },
-    payment_method_collection: "if_required",
-    line_items: [{ price, quantity: 1 }],
-    success_url: `${base}/settings/billing?status=success`,
-    cancel_url: `${base}/settings/billing?status=cancel`,
-    metadata: { orgId: ctx.orgId, plan: planId },
-  });
-  return NextResponse.json({ url: session.url });
+  // The 14-day trial is a first-time-only offer: anyone we've already created a
+  // Stripe customer for has had their shot and pays immediately from here on.
+  const isReturning = Boolean(customerId);
+
+  try {
+    // If they already have a live subscription, a plan change must go through
+    // the Billing Portal — opening a second Checkout subscription would double
+    // bill them (and hand out another trial). Send them there to switch.
+    if (customerId) {
+      const subs = await stripe.subscriptions.list({ customer: customerId, status: "all", limit: 20 });
+      const hasLiveSub = subs.data.some((s) =>
+        ["active", "trialing", "past_due", "unpaid"].includes(s.status),
+      );
+      if (hasLiveSub) {
+        const portal = await stripe.billingPortal.sessions.create({
+          customer: customerId,
+          return_url: `${base}/settings/billing`,
+        });
+        return NextResponse.json({ url: portal.url });
+      }
+    }
+
+    const session = await stripe.checkout.sessions.create({
+      mode: "subscription",
+      ...(customerId ? { customer: customerId } : {}),
+      ...(customerEmail ? { customer_email: customerEmail } : {}),
+      subscription_data: {
+        // Trial only for genuinely new customers; returning ones are billed now.
+        ...(isReturning
+          ? {}
+          : { trial_period_days: 14, trial_settings: { end_behavior: { missing_payment_method: "cancel" } } }),
+        metadata: { orgId: ctx.orgId, plan: planId },
+      },
+      // First-timer on trial: no card up front. Returning: collect payment now.
+      payment_method_collection: isReturning ? "always" : "if_required",
+      line_items: [{ price, quantity: 1 }],
+      success_url: `${base}/settings/billing?status=success`,
+      cancel_url: `${base}/settings/billing?status=cancel`,
+      metadata: { orgId: ctx.orgId, plan: planId },
+    });
+    return NextResponse.json({ url: session.url });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Could not start checkout.";
+    console.error("checkout failed:", err);
+    return NextResponse.json({ error: message }, { status: 502 });
+  }
 }
