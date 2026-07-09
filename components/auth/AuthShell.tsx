@@ -44,14 +44,14 @@ export function AuthShell({
       <style dangerouslySetInnerHTML={{ __html: AUTH_CSS }} />
 
       {/* LEFT — form */}
-      <div className="relative flex flex-col bg-surface px-6 py-8 sm:px-10">
+      <div className="relative flex flex-col bg-background px-6 py-8 sm:px-10">
         <header>
           <Logo />
         </header>
 
         <div className="flex flex-1 flex-col justify-center py-8">
           <div className="mx-auto w-full max-w-md">
-            <h1 className="text-3xl font-extrabold tracking-tight text-navy sm:text-[34px]">
+            <h1 className="font-display text-4xl tracking-tight text-foreground sm:text-5xl">
               {isSignUp ? "Start free in 30 seconds" : "Welcome back"}
             </h1>
             <p className="mt-2 mb-7 text-[15px] leading-relaxed text-muted-foreground">
@@ -66,14 +66,14 @@ export function AuthShell({
               {isSignUp ? (
                 <>
                   Already have an account?{" "}
-                  <a href="/sign-in" className="font-semibold text-navy hover:text-teal-600">
+                  <a href="/sign-in" className="font-semibold text-accent hover:text-accent/80">
                     Sign in
                   </a>
                 </>
               ) : (
                 <>
                   New to CLARIX?{" "}
-                  <a href="/sign-up" className="font-semibold text-navy hover:text-teal-600">
+                  <a href="/sign-up" className="font-semibold text-accent hover:text-accent/80">
                     Create an account
                   </a>
                 </>
@@ -110,7 +110,7 @@ export function AuthShell({
           <span className="inline-flex items-center gap-2 rounded-full border border-teal/30 bg-teal/10 px-3 py-1.5 text-[12.5px] font-semibold text-teal">
             No setup. Value in 2 taps.
           </span>
-          <h2 className="mt-6 mb-7 text-[28px] font-extrabold leading-tight tracking-tight text-white">
+          <h2 className="mt-6 mb-7 font-display text-[30px] leading-tight tracking-tight text-white">
             Watch a messy meeting become <span className="text-teal">done</span>.
           </h2>
 
