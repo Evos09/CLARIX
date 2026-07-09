@@ -28,6 +28,10 @@ export async function POST(req: Request) {
   try {
     const session = await getStripe().checkout.sessions.create({
       mode: "payment",
+      // One-time payments need an explicit method: dynamic payment methods only
+      // auto-resolve for subscriptions here, so payment mode errored with
+      // "No valid payment method types". Card covers the $9 overage pack.
+      payment_method_types: ["card"],
       ...(customerId ? { customer: customerId } : {}),
       ...(customerEmail ? { customer_email: customerEmail } : {}),
       line_items: [{ price, quantity: 1 }],
