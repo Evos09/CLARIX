@@ -37,6 +37,7 @@ export function GlobalChatClient({ usageThisMonth, usageLimit }: { usageThisMont
   const [sending, setSending] = useState(false);
   const [usage, setUsage] = useState(usageThisMonth);
   const [limitModal, setLimitModal] = useState<{ used: number; plan: string } | null>(null);
+  const [buyingPack, setBuyingPack] = useState(false);
   const mode: Mode = "focused";
   const endRef = useRef<HTMLDivElement>(null);
 
@@ -762,13 +763,27 @@ export function GlobalChatClient({ usageThisMonth, usageLimit }: { usageThisMont
               You&apos;ve used all {limitModal.used} messages this month. Add more to keep chatting, or upgrade for a higher limit.
             </p>
             <div className="mt-5 space-y-2.5">
-              <a
-                href="/pricing"
-                className="flex w-full items-center justify-between rounded-xl bg-violet-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-violet-700"
+              <button
+                disabled={buyingPack}
+                onClick={async () => {
+                  setBuyingPack(true);
+                  try {
+                    const r = await fetch("/api/billing/pack", { method: "POST" });
+                    const d = await r.json();
+                    if (d.url) {
+                      window.location.href = d.url;
+                      return;
+                    }
+                    setBuyingPack(false);
+                  } catch {
+                    setBuyingPack(false);
+                  }
+                }}
+                className="flex w-full items-center justify-between rounded-xl bg-violet-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-violet-700 disabled:opacity-60"
               >
-                <span>Buy 100 more messages</span>
+                <span>{buyingPack ? "Starting checkout…" : "Buy 100 more messages"}</span>
                 <span className="rounded-full bg-white/20 px-2 py-0.5 text-xs">$9</span>
-              </a>
+              </button>
               {limitModal.plan !== "BUSINESS" && (
                 <a
                   href="/pricing"

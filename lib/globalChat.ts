@@ -31,6 +31,18 @@ export async function bumpChatUsage(userId: string): Promise<number> {
   return (await prisma.chatUsage.update({ where: { userId }, data: { count: { increment: 1 } } })).count;
 }
 
+/** Credit purchased pack messages onto this user's current cycle (idempotency
+ *  is enforced by the caller via the StripeEvent ledger). */
+export async function addChatBonus(userId: string, amount: number): Promise<number> {
+  const mk = monthKey();
+  const existing = await prisma.chatUsage.findUnique({ where: { userId } });
+  if (!existing)
+    return (await prisma.chatUsage.create({ data: { userId, monthYear: mk, count: 0, bonusMessages: amount } })).bonusMessages;
+  if (existing.monthYear !== mk)
+    return (await prisma.chatUsage.update({ where: { userId }, data: { monthYear: mk, count: 0, bonusMessages: amount } })).bonusMessages;
+  return (await prisma.chatUsage.update({ where: { userId }, data: { bonusMessages: { increment: amount } } })).bonusMessages;
+}
+
 export interface RelevantMeeting {
   id: string;
   title: string;

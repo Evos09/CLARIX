@@ -269,6 +269,15 @@ model ChatUsage {
   updatedAt DateTime @updatedAt
 }
 
+// Idempotency ledger for inbound Stripe webhooks. We record an event id only
+// after it has been fully processed; a redelivered event whose id is already
+// here is skipped, so a purchased pack can never be credited twice.
+model StripeEvent {
+  id        String   @id // Stripe event id (evt_...)
+  type      String
+  createdAt DateTime @default(now())
+}
+
 model EmailConnection {
   id           String   @id @default(cuid())
   userId       String   @unique
