@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getOrCreateContext } from "@/lib/auth";
-import { getStripe, isStripeConfigured } from "@/lib/stripe";
+import { appBaseUrl, getStripe, isStripeConfigured } from "@/lib/stripe";
 import { CHAT_PACK_SIZE } from "@/lib/plan";
 
 /**
