@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { getOrCreateContext } from "@/lib/auth";
-import { getStripe, isStripeConfigured, PLANS, type PlanId } from "@/lib/stripe";
+import { appBaseUrl, getStripe, isStripeConfigured, PLANS, type PlanId } from "@/lib/stripe";
 
 const Body = z.object({
   plan: z.enum(["STARTER", "PRO", "BUSINESS"]),
@@ -34,7 +34,7 @@ export async function POST(req: Request) {
   const customerId = account?.org.stripeId ?? undefined;
   const customerEmail = customerId ? undefined : account?.email || undefined;
 
-  const base = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  const base = appBaseUrl(req);
   const session = await getStripe().checkout.sessions.create({
     mode: "subscription",
     ...(customerId ? { customer: customerId } : {}),

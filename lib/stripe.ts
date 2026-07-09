@@ -16,6 +16,18 @@ export function isStripeConfigured(): boolean {
   return Boolean(process.env.STRIPE_SECRET_KEY);
 }
 
+/**
+ * Public origin used to build Stripe success/cancel/return URLs. Prefers the
+ * request's own Origin header so redirects always land back on the exact domain
+ * the user is on (custom domain, preview, or railway subdomain) — NEXT_PUBLIC_APP_URL
+ * is only a fallback for non-browser callers, and localhost a last resort.
+ */
+export function appBaseUrl(req?: Request): string {
+  const origin = req?.headers.get("origin");
+  if (origin) return origin;
+  return process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+}
+
 export type PlanId = "FREE" | "STARTER" | "PRO" | "BUSINESS" | "ENTERPRISE";
 
 export interface PlanConfig {
