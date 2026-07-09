@@ -69,8 +69,9 @@ export async function POST(req: Request) {
           : { trial_period_days: 14, trial_settings: { end_behavior: { missing_payment_method: "cancel" } } }),
         metadata: { orgId: ctx.orgId, plan: planId },
       },
-      // First-timer on trial: no card up front. Returning: collect payment now.
-      payment_method_collection: isReturning ? "always" : "if_required",
+      // Always capture a card, including for the trial: Stripe auto-charges when
+      // the 14 days end, and cancelling before then charges nothing.
+      payment_method_collection: "always",
       line_items: [{ price, quantity: 1 }],
       success_url: `${base}/settings/billing?status=success`,
       cancel_url: `${base}/settings/billing?status=cancel`,
