@@ -49,13 +49,17 @@ function PageviewTracker() {
 
   useEffect(() => {
     trackPageview();
-    // First arrival on onboarding = a completed signup.
-    if (pathname.startsWith("/onboarding")) {
+    // New signups land on /dashboard?welcome=1 (set by the sign-up redirect).
+    if (pathname === "/dashboard" && searchParams.get("welcome") === "1") {
       trackOncePerSession("signup", "CompleteRegistration");
     }
-    // Stripe checkout success returns to /settings/billing?status=success.
+    // Stripe subscription checkout returns to /settings/billing?status=success.
     if (pathname === "/settings/billing" && searchParams.get("status") === "success") {
       trackOncePerSession("subscribe", "Subscribe");
+    }
+    // $9 chat-message pack purchase returns to /chat?pack=success.
+    if (pathname === "/chat" && searchParams.get("pack") === "success") {
+      trackOncePerSession("pack", "Purchase");
     }
   }, [pathname, searchParams]);
 

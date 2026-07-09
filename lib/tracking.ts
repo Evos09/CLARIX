@@ -11,6 +11,7 @@ const META_STANDARD_EVENTS = new Set([
   "CompleteRegistration",
   "InitiateCheckout",
   "Subscribe",
+  "Purchase",
   "StartTrial",
   "Lead",
   "Contact",

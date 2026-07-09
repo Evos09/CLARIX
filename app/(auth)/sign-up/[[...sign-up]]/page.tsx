@@ -90,7 +90,7 @@ export default function SignUpPage() {
               </ClerkLoading>
               <ClerkLoaded>
                 <div className="flex flex-col items-center gap-4 w-full animate-in fade-in duration-300">
-                  <SignUp appearance={clerkAppearance} forceRedirectUrl="/dashboard" signInUrl="/sign-in" />
+                  <SignUp appearance={clerkAppearance} forceRedirectUrl="/dashboard?welcome=1" signInUrl="/sign-in" />
                   <button 
                     onClick={() => setAccepted(false)}
                     className="text-[10px] text-muted-foreground hover:text-foreground underline transition-colors"
