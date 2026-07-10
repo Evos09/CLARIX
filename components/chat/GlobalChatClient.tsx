@@ -7,7 +7,7 @@ import { MarkdownView } from "./MarkdownView";
 import { LogoSpinner } from "@/components/layout/LogoSpinner";
 
 interface SessionMeta { id: string; title: string; updatedAt: string }
-interface Citation { id: string; title: string; date: string }
+interface Citation { id: string; title: string; date: string; hl?: string }
 interface Msg { role: string; content: string; citations?: Citation[] }
 type Mode = "focused" | "research" | "writer";
 
@@ -522,7 +522,14 @@ export function GlobalChatClient({ usageThisMonth, usageLimit }: { usageThisMont
                     {m.citations && m.citations.length > 0 && (
                       <div className="mt-3 flex flex-wrap gap-2">
                         {m.citations.map((c) => (
-                          <a key={c.id} href={`/meetings/${c.id}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-md border border-border bg-card px-2 py-1 text-xs text-muted-foreground transition-colors hover:border-accent/40 hover:text-foreground">
+                          <a
+                            key={c.id}
+                            href={`/meetings/${c.id}${c.hl ? `?tab=transcript&hl=${encodeURIComponent(c.hl)}` : ""}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            title={c.hl ? "Opens the transcript at the cited moment" : undefined}
+                            className="inline-flex items-center gap-1 rounded-md border border-border bg-card px-2 py-1 text-xs text-muted-foreground transition-colors hover:border-accent/40 hover:text-foreground"
+                          >
                             <FileText className="size-3" /> {c.title}
                           </a>
                         ))}

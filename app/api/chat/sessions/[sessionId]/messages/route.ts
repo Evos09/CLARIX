@@ -52,11 +52,15 @@ export async function POST(req: Request, { params }: Params) {
   const message = parsed.data.message;
 
   try {
-    const org = await prisma.organization.findUnique({ where: { id: ctx.orgId } });
+    const [org, account] = await Promise.all([
+      prisma.organization.findUnique({ where: { id: ctx.orgId } }),
+      prisma.user.findUnique({ where: { id: ctx.userId }, select: { email: true } }),
+    ]);
     const { meetings, excerpts } = await retrieveContext(ctx.orgId, message);
     const answer = await answerGlobalChat({
       orgId: ctx.orgId,
       orgName: org?.name ?? "your team",
+      userEmail: account?.email || undefined,
       message,
       history: session.messages.map((m) => ({ role: m.role, content: m.content })),
       meetings,
@@ -65,7 +69,24 @@ export async function POST(req: Request, { params }: Params) {
       model: chatModelForPlan(plan),
     });
 
-    const citations = meetings.map((m) => ({ id: m.id, title: m.title, date: m.createdAt }));
+    // Citations deep-link into the transcript: `hl` is a short phrase from the
+    // matched excerpt that the transcript tab highlights and scrolls to.
+    const snippetFor = (title: string): string | undefined => {
+      const ex = excerpts.find((e) => e.title === title);
+      if (!ex) return undefined;
+      const line = ex.text
+        .replace(/Speaker [^:]{1,20}:\s*/g, "")
+        .split("\n")
+        .map((l) => l.trim())
+        .find((l) => l.split(/\s+/).length >= 4);
+      return line ? line.split(/\s+/).slice(0, 6).join(" ") : undefined;
+    };
+    const citations = meetings.map((m) => ({
+      id: m.id,
+      title: m.title,
+      date: m.createdAt,
+      hl: snippetFor(m.title),
+    }));
     await prisma.globalChatMessage.create({ data: { sessionId, role: "user", content: message } });
     const assistant = await prisma.globalChatMessage.create({
       data: { sessionId, role: "assistant", content: answer, citations },

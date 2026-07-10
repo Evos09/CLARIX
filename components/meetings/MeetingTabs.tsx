@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Check, Copy, Lock } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -43,7 +44,14 @@ export function MeetingTabs({
     : (["Summary", "Transcript", "Analytics", "Ask CLARIX", "Raw JSON"] as const);
 
   type TabType = (typeof tabsList)[number];
-  const [tab, setTab] = useState<string>(structuredOutput ? "Summary" : "Transcript");
+  // Chat citations deep-link here with ?tab=transcript&hl=<phrase> — open the
+  // transcript pre-filtered to the cited moment.
+  const params = useSearchParams();
+  const wantsTranscript = params.get("tab")?.toLowerCase() === "transcript";
+  const highlight = params.get("hl") ?? "";
+  const [tab, setTab] = useState<string>(
+    wantsTranscript ? "Transcript" : structuredOutput ? "Summary" : "Transcript",
+  );
   const [copied, setCopied] = useState(false);
 
   const json = JSON.stringify(structuredOutput ?? {}, null, 2);
@@ -100,6 +108,7 @@ export function MeetingTabs({
               rawTranscript={rawTranscript}
               keyPoints={keyPoints}
               speakerMap={speakerMap}
+              initialQuery={wantsTranscript ? highlight : ""}
             />
           </CardContent>
         </Card>

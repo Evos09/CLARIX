@@ -41,6 +41,7 @@ export function TranscriptViewer({
   rawTranscript,
   keyPoints = [],
   speakerMap = {},
+  initialQuery = "",
 }: {
   meetingId: string;
   segments: TranscriptSegment[];
@@ -48,12 +49,23 @@ export function TranscriptViewer({
   rawTranscript: string | null;
   keyPoints?: KeyPoint[];
   speakerMap?: Record<string, string>;
+  /** Pre-filled search (chat citation deep-links) — cleared if nothing matches. */
+  initialQuery?: string;
 }) {
   const waveRef = useRef<HTMLDivElement>(null);
   const wsRef = useRef<{ playPause: () => void; setTime: (s: number) => void; play: () => void; destroy: () => void } | null>(null);
   const [playing, setPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(initialQuery);
+
+  // A citation phrase that doesn't literally appear in any segment would hide
+  // the whole transcript — drop it instead.
+  useEffect(() => {
+    if (initialQuery && !segments.some((s) => s.text.toLowerCase().includes(initialQuery.toLowerCase()))) {
+      setQuery("");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [comments, setComments] = useState<Comment[]>([]);
   const [openComment, setOpenComment] = useState<number | null>(null);
   const [draft, setDraft] = useState("");
