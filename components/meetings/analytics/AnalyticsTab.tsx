@@ -142,7 +142,16 @@ export function AnalyticsTab({ meetingId }: { meetingId: string }) {
     filler: s.fillerWords ?? 0,
   }));
 
-  const fillerDetails = data.fillerWordDetails ? Object.entries(data.fillerWordDetails) : [];
+  // generateAnalytics stores an array of {word, count, speaker}; older rows
+  // (and the original type) used a Record<word, count>. Normalize both.
+  const fillerDetails: [string, number][] = Array.isArray(data.fillerWordDetails)
+    ? (data.fillerWordDetails as { word?: string; count?: number }[]).map((f) => [
+        String(f.word ?? "?"),
+        Number(f.count ?? 0),
+      ])
+    : data.fillerWordDetails
+      ? Object.entries(data.fillerWordDetails).map(([w, c]) => [w, Number(c)])
+      : [];
 
   return (
     <div className="space-y-6">

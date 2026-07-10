@@ -46,24 +46,33 @@ async function main() {
 
   // 1. Wait for server
   await waitForServer('http://localhost:3000/');
+  console.log('Waiting 5s for Next.js to fully initialize API routes...');
+  await delay(5000);
 
-  // 2. Trigger sample meeting creation
+  // 2. Trigger sample meeting creation with retry
   console.log('Creating public demo meeting...');
   let meetingId = 'sample';
-  try {
-    const res = await fetch('http://localhost:3000/api/public/demo/meetings/sample', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' }
-    });
-    if (res.ok) {
-      const data = await res.json();
-      meetingId = data.id;
-      console.log('✓ Successfully created sample meeting with ID:', meetingId);
-    } else {
-      console.warn('Failed to create sample meeting via API, status:', res.status);
+  
+  for (let attempt = 1; attempt <= 6; attempt++) {
+    try {
+      console.log(`POST attempt ${attempt}/6...`);
+      const res = await fetch('http://localhost:3000/api/public/demo/meetings/sample', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        meetingId = data.id;
+        console.log('✓ Successfully created sample meeting with ID:', meetingId);
+        break;
+      } else {
+        console.warn(`Failed attempt ${attempt}, status:`, res.status);
+        if (attempt < 6) await delay(5000);
+      }
+    } catch (err) {
+      console.error(`Error on attempt ${attempt}:`, err.message);
+      if (attempt < 6) await delay(5000);
     }
-  } catch (err) {
-    console.error('Error creating sample meeting:', err.message);
   }
 
   // 3. Launch browser
@@ -76,18 +85,17 @@ async function main() {
   const page = await browser.newPage();
   await page.setViewport({ width: 1440, height: 900 });
 
-  const targets = [
+  // 4. Capture static pages
+  const staticTargets = [
     { name: 'home', url: 'http://localhost:3000/' },
     { name: 'features', url: 'http://localhost:3000/features' },
-    { name: 'pricing', url: 'http://localhost:3000/pricing' },
-    { name: 'demo_dashboard', url: `http://localhost:3000/demo/${meetingId}` }
+    { name: 'pricing', url: 'http://localhost:3000/pricing' }
   ];
 
-  for (const target of targets) {
+  for (const target of staticTargets) {
     console.log(`Capturing screenshot of ${target.name} from: ${target.url}`);
     try {
       await page.goto(target.url, { waitUntil: 'networkidle2', timeout: 35000 });
-      // Extra delay to let animations complete
       await delay(2000);
       const filePath = path.join(outputDir, `${target.name}.png`);
       await page.screenshot({ path: filePath, fullPage: false });
@@ -95,6 +103,45 @@ async function main() {
     } catch (e) {
       console.error(`Failed to capture ${target.name}:`, e.message);
     }
+  }
+
+  // 5. Capture active meeting detail page & tabs
+  const meetingUrl = `http://localhost:3000/demo/${meetingId}`;
+  console.log('Navigating to unlocked demo details page:', meetingUrl);
+  try {
+    await page.goto(meetingUrl, { waitUntil: 'networkidle2', timeout: 35000 });
+    await delay(3000);
+    
+    // Screenshot 1: Summary / Dashboard tab
+    let filePath = path.join(outputDir, 'meeting_summary.png');
+    await page.screenshot({ path: filePath, fullPage: false });
+    console.log(`✓ Saved meeting summary tab screenshot: ${filePath}`);
+
+    // Click the Analytics tab
+    console.log('Switching to Analytics tab...');
+    const buttons = await page.$$('button');
+    let clicked = false;
+    for (const btn of buttons) {
+      const text = await page.evaluate(el => el.textContent, btn);
+      if (text && text.toUpperCase().includes('ANALYTICS')) {
+        await btn.click();
+        clicked = true;
+        break;
+      }
+    }
+    
+    if (clicked) {
+      console.log('Waiting for charts animation to complete...');
+      await delay(3000);
+      filePath = path.join(outputDir, 'meeting_analytics.png');
+      await page.screenshot({ path: filePath, fullPage: false });
+      console.log(`✓ Saved meeting analytics tab screenshot: ${filePath}`);
+    } else {
+      console.warn('Analytics tab button was not found.');
+    }
+
+  } catch (e) {
+    console.error('Failed to capture meeting details tabs:', e.message);
   }
 
   await browser.close();

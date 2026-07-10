@@ -1,43 +1,37 @@
 import type { ReactNode } from "react";
 
 /**
- * Editorial page header for dashboard pages — the same visual language as the
- * marketing site and the dashboard hero: pulsing eyebrow chip, display headline
- * with an italic serif accent word, muted description, optional actions slot.
- *
- * Usage:
- *   <PageHeader eyebrow="Analytics" title={<>Your team, <Accent>understood</Accent>.</>}
- *               description="…" />
+ * Compact, professional page header for dashboard pages: functional title,
+ * one-line muted description, actions on the right. The old editorial hero
+ * (eyebrow chip + serif italic headline) was retired — `eyebrow` is now the
+ * page title and the decorative `title` prop is accepted but ignored so
+ * existing pages keep compiling.
  */
 export function Accent({ children }: { children: ReactNode }) {
-  return <span className="font-display font-normal italic text-accent">{children}</span>;
+  return <>{children}</>;
 }
 
 export function PageHeader({
   eyebrow,
-  title,
   description,
   children,
 }: {
   eyebrow: string;
-  title: ReactNode;
+  title?: ReactNode; // legacy editorial headline — no longer rendered
   description?: string;
   children?: ReactNode;
 }) {
   return (
-    <header className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-      <div>
-        <span className="inline-flex items-center gap-2 rounded-full border border-accent/20 bg-accent/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">
-          <span className="size-1.5 rounded-full bg-accent" /> {eyebrow}
-        </span>
-        <h1 className="mt-3 text-[26px] font-semibold leading-tight tracking-tight text-foreground sm:text-3xl">
-          {title}
+    <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="min-w-0">
+        <h1 className="text-[22px] font-semibold leading-tight tracking-tight text-foreground">
+          {eyebrow}
         </h1>
         {description && (
-          <p className="mt-2 max-w-xl text-[15px] text-muted-foreground">{description}</p>
+          <p className="mt-1 max-w-2xl text-sm text-muted-foreground">{description}</p>
         )}
       </div>
-      {children && <div className="shrink-0 self-start sm:self-auto">{children}</div>}
+      {children && <div className="flex shrink-0 items-center gap-2 self-start sm:self-auto">{children}</div>}
     </header>
   );
 }

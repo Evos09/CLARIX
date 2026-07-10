@@ -21,10 +21,10 @@ interface Member {
   email: string;
 }
 
-const PRIORITY: Record<string, string> = {
-  HIGH: "border-red-200 bg-red-50 text-red-700",
-  MEDIUM: "border-amber-200 bg-amber-50 text-amber-800",
-  LOW: "border-border bg-muted text-muted-foreground",
+const PRIORITY: Record<string, { dot: string; text: string; label: string }> = {
+  HIGH: { dot: "bg-red-500", text: "text-red-600", label: "High" },
+  MEDIUM: { dot: "bg-amber-500", text: "text-amber-600", label: "Medium" },
+  LOW: { dot: "bg-muted-foreground/40", text: "text-muted-foreground", label: "Low" },
 };
 
 export function ActionItemsClient() {
@@ -79,13 +79,13 @@ export function ActionItemsClient() {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap gap-3">
-        <select value={priority} onChange={(e) => setPriority(e.target.value)} className="h-9 cursor-pointer rounded-full border border-border bg-card px-4 text-sm transition hover:border-accent/40">
+        <select value={priority} onChange={(e) => setPriority(e.target.value)} className="h-9 cursor-pointer rounded-lg border border-border bg-card px-3 text-[13px] font-medium transition hover:border-accent/40">
           <option value="">All priorities</option>
           <option value="HIGH">High</option>
           <option value="MEDIUM">Medium</option>
           <option value="LOW">Low</option>
         </select>
-        <select value={status} onChange={(e) => setStatus(e.target.value)} className="h-9 cursor-pointer rounded-full border border-border bg-card px-4 text-sm transition hover:border-accent/40">
+        <select value={status} onChange={(e) => setStatus(e.target.value)} className="h-9 cursor-pointer rounded-lg border border-border bg-card px-3 text-[13px] font-medium transition hover:border-accent/40">
           <option value="">All statuses</option>
           <option value="false">Open</option>
           <option value="true">Completed</option>
@@ -97,14 +97,14 @@ export function ActionItemsClient() {
       ) : items.length === 0 ? (
         <EmptyState icon="ListTodo" title="No action items" description="Action items extracted across your meetings appear here." />
       ) : (
-        <div className="space-y-3">
+        <div className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-card">
             {items.map((item) => (
-              <div key={item.id} className="flex items-start gap-3 rounded-2xl border border-border bg-card p-4 transition hover:border-accent/40">
+              <div key={item.id} className="flex items-start gap-3 px-4 py-3.5 transition-colors hover:bg-muted/40">
                 <input
                   type="checkbox"
                   checked={item.completed}
                   onChange={() => toggle(item)}
-                  className="mt-1 size-4 accent-accent cursor-pointer"
+                  className="mt-0.5 size-4 accent-accent cursor-pointer"
                 />
                 <div className="min-w-0 flex-1">
                   <p className={cn("text-sm font-medium", item.completed && "text-muted-foreground line-through")}>{item.task}</p>
@@ -148,8 +148,9 @@ export function ActionItemsClient() {
                   </div>
                 </div>
                 {item.priority && (
-                  <span className={cn("shrink-0 rounded-full border px-2.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wider", PRIORITY[item.priority] ?? PRIORITY.LOW)}>
-                    {item.priority}
+                  <span className={cn("flex shrink-0 items-center gap-1.5 pt-0.5 text-xs font-medium", (PRIORITY[item.priority] ?? PRIORITY.LOW).text)}>
+                    <span className={cn("size-1.5 rounded-full", (PRIORITY[item.priority] ?? PRIORITY.LOW).dot)} />
+                    {(PRIORITY[item.priority] ?? PRIORITY.LOW).label}
                   </span>
                 )}
               </div>

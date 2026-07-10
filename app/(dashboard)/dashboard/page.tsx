@@ -79,23 +79,19 @@ export default async function DashboardPage() {
           `,
         }}
       />
-      <main className="flex-1 space-y-8 p-4 md:p-8">
-        {/* Editorial header */}
-        <header className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+      <main className="mx-auto w-full max-w-6xl flex-1 space-y-6 p-4 md:p-8">
+        <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <span className="inline-flex items-center gap-2 rounded-full border border-accent/20 bg-accent/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">
-              <span className="size-1.5 rounded-full bg-accent" /> Dashboard
-            </span>
-            <h1 className="mt-3 text-[28px] font-semibold leading-tight tracking-tight text-foreground sm:text-4xl">
-              Your meetings, <span className="font-display font-normal italic text-accent">handled</span>.
+            <h1 className="text-[22px] font-semibold leading-tight tracking-tight text-foreground">
+              Overview
             </h1>
-            <p className="mt-2 max-w-md text-[15px] text-muted-foreground">
-              Turn your next conversation into a summary and action items in about 12 seconds.
+            <p className="mt-1 text-sm text-muted-foreground">
+              Everything from your meetings this month, in one place.
             </p>
           </div>
           <Link
             href="/meetings/new"
-            className="inline-flex shrink-0 items-center gap-2 self-start rounded-xl bg-accent px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-teal-600 sm:self-auto"
+            className="inline-flex shrink-0 items-center gap-2 self-start rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-teal-600 sm:self-auto"
           >
             <Plus className="size-4" /> Upload meeting
           </Link>
@@ -110,9 +106,9 @@ export default async function DashboardPage() {
         {/* Recent meetings — primary focus */}
         <section className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold tracking-tight text-foreground">Recent meetings</h2>
+            <h2 className="text-[15px] font-semibold tracking-tight text-foreground">Recent meetings</h2>
             {hasMeetings && (
-              <Link href="/meetings" className="text-sm font-medium text-accent hover:underline">
+              <Link href="/meetings" className="text-[13px] font-medium text-muted-foreground transition-colors hover:text-accent">
                 View all →
               </Link>
             )}

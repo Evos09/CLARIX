@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Plus, Trash2, Send, Loader2, FileText, Download, Copy, Mic, MicOff, Volume2, VolumeX, PhoneOff, X, Brain, ListTodo, CheckCircle2, Mail, BarChart3, AlertCircle } from "lucide-react";
+import { Plus, Trash2, Send, Loader2, FileText, Download, Copy, Mic, MicOff, Volume2, VolumeX, PhoneOff, X, ListTodo, CheckCircle2, Mail, BarChart3, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { MarkdownView } from "./MarkdownView";
 import { LogoSpinner } from "@/components/layout/LogoSpinner";
@@ -410,12 +410,11 @@ export function GlobalChatClient({ usageThisMonth, usageLimit }: { usageThisMont
     <div className="flex h-screen">
       <aside className="hidden w-72 shrink-0 flex-col border-r border-border bg-card md:flex">
         <div className="flex items-center gap-2 px-4 py-4">
-          <Brain className="size-4 text-violet-600" />
-          <span className="text-sm font-bold text-foreground">Clarix AI</span>
+          <span className="text-[13px] font-semibold text-foreground">Chats</span>
         </div>
         <div className="px-3">
-          <button onClick={newChat} className="flex w-full items-center justify-center gap-2 rounded-md border border-violet-600/40 py-2 text-sm font-semibold text-violet-600 hover:bg-violet-50/5 hover:border-violet-600 transition-colors">
-            <Plus className="size-4" /> New Chat
+          <button onClick={newChat} className="flex w-full items-center justify-center gap-2 rounded-lg bg-accent py-2 text-[13px] font-semibold text-white transition-colors hover:bg-teal-600">
+            <Plus className="size-4" /> New chat
           </button>
         </div>
         <div className="px-4 py-3 text-xs text-muted-foreground">
@@ -432,10 +431,10 @@ export function GlobalChatClient({ usageThisMonth, usageLimit }: { usageThisMont
               key={s.id}
               onClick={() => openSession(s.id)}
               className={cn(
-                "group flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm transition-colors",
+                "group flex cursor-pointer items-center justify-between rounded-lg px-3 py-2 text-[13px] transition-colors",
                 activeId === s.id
-                  ? "border-l-2 border-violet-600 bg-violet-50/10 text-violet-700 font-semibold"
-                  : "hover:bg-muted text-muted-foreground hover:text-foreground",
+                  ? "bg-muted font-medium text-foreground"
+                  : "text-muted-foreground hover:bg-muted/60 hover:text-foreground",
               )}
             >
               <span className="truncate">{s.title}</span>
@@ -448,15 +447,11 @@ export function GlobalChatClient({ usageThisMonth, usageLimit }: { usageThisMont
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <div className="flex items-center justify-between border-b border-border px-4 py-3.5 bg-card shrink-0">
-          <div className="flex items-center gap-2">
-            <div className="rounded-full bg-violet-100 p-1.5 text-violet-700">
-              <Brain className="size-4" />
-            </div>
-            <div>
-              <span className="text-sm font-bold text-foreground">Clarix Chat</span>
-              <span className="ml-2 rounded-full bg-violet-100 text-violet-700 px-2 py-0.5 text-[10px] font-bold">AI Companion</span>
-            </div>
+        <div className="flex h-[52px] items-center justify-between border-b border-border px-4 bg-card shrink-0">
+          <div className="flex min-w-0 items-center gap-1.5 text-[13px]">
+            <span className="text-muted-foreground">Workspace</span>
+            <span className="text-muted-foreground/50">/</span>
+            <span className="truncate font-medium text-foreground">Clarix Chat</span>
           </div>
           <div className="flex items-center gap-2">
             {/* Voice Mode button commented out as it is not released yet
@@ -494,44 +489,40 @@ export function GlobalChatClient({ usageThisMonth, usageLimit }: { usageThisMont
         </div>
         <div className="flex-1 overflow-y-auto p-4 md:p-8">
           {messages.length === 0 ? (
-            <div className="mx-auto mt-10 max-w-2xl text-center">
-              <span className="inline-flex items-center gap-2 rounded-full border border-accent/20 bg-accent/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">
-                <span className="size-1.5 rounded-full bg-accent" /> Clarix Chat
-              </span>
-              <h2 className="mt-4 text-3xl font-semibold tracking-tight text-foreground">
-                Ask anything about your <span className="font-display font-normal italic text-accent">meetings</span>.
+            <div className="mx-auto mt-14 max-w-2xl text-center">
+              <h2 className="text-2xl font-semibold tracking-tight text-foreground">
+                Ask anything about your meetings
               </h2>
-              <p className="mt-3 text-[15px] text-muted-foreground">Searches across every meeting in your workspace. Type / for commands.</p>
-              <div className="mt-8 grid gap-4 sm:grid-cols-2 text-left">
+              <p className="mt-2 text-sm text-muted-foreground">Searches across every meeting in your workspace. Type / for commands.</p>
+              <div className="mt-8 grid gap-3 sm:grid-cols-2 text-left">
                 {SUGGESTIONS.map((s) => (
                   <button
                     key={s}
                     onClick={() => send(s)}
-                    className="group rounded-2xl border border-border p-4 text-left text-sm transition hover:border-accent hover:bg-accent/5"
+                    className="rounded-xl border border-border bg-card p-4 text-left text-sm text-foreground transition-all hover:border-accent/40 hover:shadow-sm"
                   >
-                    <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground group-hover:text-accent">{String(SUGGESTIONS.indexOf(s) + 1).padStart(2, "0")}</span>
-                    <span className="mt-1 block">{s}</span>
+                    {s}
                   </button>
                 ))}
               </div>
             </div>
           ) : (
-            <div className="mx-auto max-w-3xl space-y-4">
+            <div className="mx-auto max-w-3xl space-y-6">
               {messages.map((m, i) => (
                 <div key={i} className={cn("flex", m.role === "user" ? "justify-end" : "justify-start")}>
                   <div
                     className={cn(
-                      "max-w-[85%] text-sm shadow-sm leading-relaxed",
+                      "text-sm leading-relaxed",
                       m.role === "user"
-                        ? "whitespace-pre-wrap rounded-2xl rounded-br-sm bg-gradient-to-tr from-violet-600 to-indigo-600 px-4 py-2.5 text-white font-medium"
-                        : "rounded-2xl rounded-bl-sm border border-border bg-card px-4 py-3 text-foreground"
+                        ? "max-w-[80%] whitespace-pre-wrap rounded-2xl bg-muted px-4 py-2.5 text-foreground"
+                        : "w-full text-foreground"
                     )}
                   >
                     {m.role === "assistant" ? <MarkdownView content={m.content} /> : m.content}
                     {m.citations && m.citations.length > 0 && (
                       <div className="mt-3 flex flex-wrap gap-2">
                         {m.citations.map((c) => (
-                          <a key={c.id} href={`/meetings/${c.id}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded border border-border bg-muted px-2 py-0.5 text-xs hover:border-teal">
+                          <a key={c.id} href={`/meetings/${c.id}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-md border border-border bg-card px-2 py-1 text-xs text-muted-foreground transition-colors hover:border-accent/40 hover:text-foreground">
                             <FileText className="size-3" /> {c.title}
                           </a>
                         ))}
@@ -540,7 +531,7 @@ export function GlobalChatClient({ usageThisMonth, usageLimit }: { usageThisMont
                   </div>
                 </div>
               ))}
-              {sending && <div className="flex items-center gap-2 text-sm text-muted-foreground"><LogoSpinner size={18} /> CLARIX is thinking…</div>}
+              {sending && <div className="flex items-center gap-2 text-sm text-muted-foreground"><LogoSpinner size={18} /> Thinking…</div>}
               <div ref={endRef} />
             </div>
           )}
@@ -567,7 +558,7 @@ export function GlobalChatClient({ usageThisMonth, usageLimit }: { usageThisMont
                 })}
               </div>
             )}
-            <div className="flex items-end gap-2 rounded-[1.75rem] border border-input bg-card p-1.5 shadow-sm focus-within:ring-2 focus-within:ring-violet-600/30">
+            <div className="flex items-end gap-2 rounded-2xl border border-input bg-card p-1.5 shadow-sm transition-shadow focus-within:border-accent/40 focus-within:shadow-md">
               <textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
@@ -684,7 +675,7 @@ export function GlobalChatClient({ usageThisMonth, usageLimit }: { usageThisMont
             {voiceState === "thinking" && (
               <div className="relative size-20 flex items-center justify-center">
                 <div className="absolute inset-0 rounded-full border-2 border-t-violet-500 border-r-transparent border-b-transparent border-l-transparent animate-spin duration-1000" />
-                <Brain className="size-6 text-violet-500/80 animate-pulse" />
+                <Loader2 className="size-6 animate-spin text-violet-500/80" />
               </div>
             )}
 
