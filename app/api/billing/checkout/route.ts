@@ -60,9 +60,12 @@ export async function POST(req: Request) {
 
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
-      // Stripe Tax adds the correct sales tax/VAT on top so the customer pays it.
-      automatic_tax: { enabled: true },
-      ...(customerId ? { customer: customerId, customer_update: { address: "auto" } } : {}),
+      // Stripe Tax adds sales tax/VAT on top so the customer pays it. Gated by
+      // STRIPE_TAX_ENABLED so it stays off (no checkout errors) until Stripe Tax
+      // is actually activated in the dashboard.
+      automatic_tax: { enabled: process.env.STRIPE_TAX_ENABLED === "true" },
+      ...(customerId ? { customer: customerId } : {}),
+      ...(customerId && process.env.STRIPE_TAX_ENABLED === "true" ? { customer_update: { address: "auto" } } : {}),
       ...(customerEmail ? { customer_email: customerEmail } : {}),
       subscription_data: {
         // Trial only for genuinely new customers; returning ones are billed now.
