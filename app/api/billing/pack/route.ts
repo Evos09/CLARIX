@@ -28,11 +28,13 @@ export async function POST(req: Request) {
   try {
     const session = await getStripe().checkout.sessions.create({
       mode: "payment",
+      // Stripe Tax adds the correct sales tax/VAT on top so the customer pays it.
+      automatic_tax: { enabled: true },
       // One-time payments need an explicit method: dynamic payment methods only
       // auto-resolve for subscriptions here, so payment mode errored with
       // "No valid payment method types". Card covers the $9 overage pack.
       payment_method_types: ["card"],
-      ...(customerId ? { customer: customerId } : {}),
+      ...(customerId ? { customer: customerId, customer_update: { address: "auto" } } : {}),
       ...(customerEmail ? { customer_email: customerEmail } : {}),
       line_items: [{ price, quantity: 1 }],
       success_url: `${base}/chat?pack=success`,
