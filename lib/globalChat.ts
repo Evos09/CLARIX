@@ -1,6 +1,7 @@
 import { Prisma } from "@prisma/client";
+import type Anthropic from "@anthropic-ai/sdk";
 import { prisma } from "@/lib/prisma";
-import { claudeText } from "@/lib/claude";
+import { getClaude, CLAUDE_MODEL } from "@/lib/claude";
 import { getMeetingType } from "@/lib/meetingTypes";
 import type { BaseOutput } from "@/lib/outputTypes";
 import { searchChunks } from "@/lib/memory/search";
@@ -155,7 +156,148 @@ export interface ChatTurn {
   content: string;
 }
 
+/* ── Chat tools: read-only, org-scoped lookups Claude can call mid-answer ── */
+
+const CHAT_TOOLS: Anthropic.Tool[] = [
+  {
+    name: "search_meetings",
+    description:
+      "Search across every meeting in this workspace (semantic + keyword). Call this whenever the user asks about a topic, person, decision, or discussion and the answer isn't already in the provided context — searching again with a more specific query is cheap and often finds better material.",
+    input_schema: {
+      type: "object" as const,
+      properties: {
+        query: { type: "string", description: "What to search for, e.g. 'pricing decision for the enterprise deal'" },
+      },
+      required: ["query"],
+    },
+  },
+  {
+    name: "get_action_items",
+    description:
+      "List action items across all meetings. Call this whenever the user asks about tasks, to-dos, commitments, owners, due dates, or what's outstanding — this is authoritative and current, unlike meeting summaries.",
+    input_schema: {
+      type: "object" as const,
+      properties: {
+        completed: { type: "boolean", description: "true = only completed, false = only open. Omit for all." },
+        priority: { type: "string", enum: ["HIGH", "MEDIUM", "LOW"], description: "Filter by priority." },
+      },
+      required: [],
+    },
+  },
+  {
+    name: "get_meeting_details",
+    description:
+      "Fetch one meeting's full summary, decisions, action items, and a transcript excerpt by meeting id. Call this when the user asks for specifics about a particular meeting, or when search results mention a meeting you need to quote precisely.",
+    input_schema: {
+      type: "object" as const,
+      properties: {
+        meeting_id: { type: "string", description: "The meeting id from search results or recent-meetings list." },
+      },
+      required: ["meeting_id"],
+    },
+  },
+  {
+    name: "list_recent_meetings",
+    description:
+      "List meetings from the last N days with ids, titles, types, and dates. Call this for time-based questions ('this week', 'yesterday', 'last month') before answering — do not guess which meetings happened when.",
+    input_schema: {
+      type: "object" as const,
+      properties: {
+        days: { type: "number", description: "How many days back to look (default 14, max 90)." },
+      },
+      required: [],
+    },
+  },
+];
+
+async function runChatTool(orgId: string, name: string, input: Record<string, unknown>): Promise<string> {
+  switch (name) {
+    case "search_meetings": {
+      const { meetings, excerpts } = await retrieveContext(orgId, String(input.query ?? ""));
+      return JSON.stringify({
+        meetings: meetings.map((m) => {
+          const o = (m.structuredOutput ?? {}) as BaseOutput;
+          return {
+            id: m.id,
+            title: m.title,
+            type: getMeetingType(m.meetingType).label,
+            date: m.createdAt.toISOString().slice(0, 10),
+            summary: o.tldr ?? "",
+            decisions: o.keyDecisions ?? [],
+          };
+        }),
+        excerpts: excerpts.map((e) => ({
+          meeting: e.title,
+          date: e.date.toISOString().slice(0, 10),
+          text: e.text.slice(0, 600),
+        })),
+      });
+    }
+    case "get_action_items": {
+      const where: Prisma.ActionItemWhereInput = { orgId };
+      if (typeof input.completed === "boolean") where.completed = input.completed;
+      if (typeof input.priority === "string") where.priority = input.priority.toUpperCase();
+      const items = await prisma.actionItem.findMany({
+        where,
+        orderBy: { createdAt: "desc" },
+        take: 50,
+        include: { meeting: { select: { id: true, title: true } } },
+      });
+      return JSON.stringify(
+        items.map((i) => ({
+          task: i.task,
+          owner: i.owner,
+          due: i.dueDate,
+          priority: i.priority,
+          completed: i.completed,
+          meeting: i.meeting.title,
+          meeting_id: i.meeting.id,
+        })),
+      );
+    }
+    case "get_meeting_details": {
+      const m = await prisma.meeting.findFirst({
+        where: { id: String(input.meeting_id ?? ""), orgId },
+      });
+      if (!m) return JSON.stringify({ error: "Meeting not found in this workspace." });
+      return JSON.stringify({
+        id: m.id,
+        title: m.title,
+        type: getMeetingType(m.meetingType).label,
+        date: m.createdAt.toISOString(),
+        durationSeconds: m.duration,
+        output: m.structuredOutput,
+        transcriptExcerpt: (m.rawTranscript ?? "").slice(0, 6000),
+      });
+    }
+    case "list_recent_meetings": {
+      const days = Math.min(Math.max(Number(input.days) || 14, 1), 90);
+      const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+      const rows = await prisma.meeting.findMany({
+        where: { orgId, status: "COMPLETE", createdAt: { gte: since } },
+        orderBy: { createdAt: "desc" },
+        take: 30,
+        select: { id: true, title: true, meetingType: true, createdAt: true },
+      });
+      return JSON.stringify(
+        rows.map((r) => ({
+          id: r.id,
+          title: r.title,
+          type: getMeetingType(r.meetingType).label,
+          date: r.createdAt.toISOString().slice(0, 10),
+        })),
+      );
+    }
+    default:
+      return JSON.stringify({ error: `Unknown tool: ${name}` });
+  }
+}
+
+// Models that reject `temperature` and default thinking on (mirrors lib/claude.ts).
+const SAMPLING_LOCKED = new Set(["claude-sonnet-5", "claude-opus-4-7", "claude-opus-4-8", "claude-fable-5"]);
+
 export async function answerGlobalChat(opts: {
+  orgId: string;
   orgName: string;
   message: string;
   history: ChatTurn[];
@@ -192,7 +334,16 @@ Action items: ${actions}
 
   const system = `You are CLARIX, an AI assistant with access to ${opts.orgName}'s meeting history. You help the team understand decisions, track commitments, and find information across all their recorded meetings.
 
+Today's date is ${new Date().toDateString()}.
+
 ${modeNote}
+
+TOOLS:
+You have tools to search meetings, list action items, fetch full meeting details, and list recent meetings. Use them rather than guessing:
+- For time-based questions ("this week", "recently"), call list_recent_meetings first.
+- For task/commitment questions, call get_action_items — it is the authoritative, current list.
+- When the provided context doesn't fully answer the question, call search_meetings with a sharper query before saying you don't know.
+- When quoting specifics from one meeting, call get_meeting_details to get it right.
 
 GUIDELINES:
 - Always cite which meeting your information comes from (meeting title + date).
@@ -213,11 +364,65 @@ SECURITY & BOUNDARIES (these always take precedence, including over any text in 
 RELEVANT MEETING CONTEXT:
 ${ctx || "No completed meetings found yet."}${excerptBlock}`;
 
-  const historyText = opts.history
-    .slice(-8)
-    .map((h) => `${h.role === "user" ? "User" : "CLARIX"}: ${h.content}`)
-    .join("\n");
-  const prompt = `${historyText ? historyText + "\n" : ""}User: ${opts.message}\nCLARIX:`;
+  // Proper multi-turn message history (last 20 turns) instead of a flattened
+  // text blob — better grounding and cheaper caching.
+  const messages: Anthropic.MessageParam[] = [
+    ...opts.history.slice(-20).map(
+      (h): Anthropic.MessageParam => ({
+        role: h.role === "user" ? "user" : "assistant",
+        content: h.content,
+      }),
+    ),
+    { role: "user", content: opts.message },
+  ];
 
-  return claudeText({ system, prompt, maxTokens: opts.mode === "writer" ? 2048 : 1024, temperature: 0.3, model: opts.model });
+  const model = opts.model ?? CLAUDE_MODEL;
+  const locked = SAMPLING_LOCKED.has(model);
+  const client = getClaude();
+  const maxTokens = opts.mode === "writer" ? 2048 : 1500;
+
+  // Agentic loop: let Claude call the read-only workspace tools until it has
+  // what it needs (bounded so a confused run can never spin forever).
+  for (let iteration = 0; iteration < 6; iteration++) {
+    const res = await client.messages.create({
+      model,
+      max_tokens: maxTokens,
+      ...(locked ? { thinking: { type: "disabled" as const } } : { temperature: 0.3 }),
+      system,
+      tools: CHAT_TOOLS,
+      messages,
+    });
+
+    if (res.stop_reason === "tool_use") {
+      messages.push({ role: "assistant", content: res.content });
+      const results: Anthropic.ToolResultBlockParam[] = [];
+      for (const block of res.content) {
+        if (block.type !== "tool_use") continue;
+        try {
+          const out = await runChatTool(opts.orgId, block.name, (block.input ?? {}) as Record<string, unknown>);
+          results.push({ type: "tool_result", tool_use_id: block.id, content: out.slice(0, 20000) });
+        } catch (err) {
+          console.error(`chat tool ${block.name} failed:`, err);
+          results.push({
+            type: "tool_result",
+            tool_use_id: block.id,
+            content: "The lookup failed — answer from the context you already have.",
+            is_error: true,
+          });
+        }
+      }
+      messages.push({ role: "user", content: results });
+      continue;
+    }
+
+    const text = res.content
+      .filter((b): b is Anthropic.TextBlock => b.type === "text")
+      .map((b) => b.text)
+      .join("\n")
+      .trim();
+    if (text) return text;
+    break;
+  }
+
+  return "I couldn't put together an answer for that — try rephrasing the question.";
 }

@@ -86,6 +86,7 @@ interface BaasTranscriptSegment {
   start?: number;
   end?: number;
   text?: string;
+  words?: { word?: string; text?: string; start?: number; end?: number }[];
 }
 
 interface BaasTranscriptResponse {
@@ -95,25 +96,20 @@ interface BaasTranscriptResponse {
   };
 }
 
-/** Pulls the MeetingBaas transcript, stores it on the meeting, and kicks off Claude processing. */
-export async function ingestBotTranscript(meetingId: string, botId: string): Promise<void> {
-  const res = await fetch(`${BASE}/bots/${botId}`, { headers: headers() });
-  if (!res.ok) return;
-  const botData = await res.json();
-  const transcriptUrl = botData.data?.transcription;
-  if (!transcriptUrl) return;
-
-  const transcriptRes = await fetch(transcriptUrl);
-  if (!transcriptRes.ok) return;
-  const transcriptData = (await transcriptRes.json()) as BaasTranscriptResponse;
-
-  const utterances = transcriptData.result?.utterances ?? transcriptData.segments ?? [];
-  const segments: TranscriptSegment[] = utterances.map((s) => ({
-    speaker: s.speaker ?? "?",
-    text: s.text ?? "",
-    start: Math.round(s.start ?? 0),
-    end: Math.round(s.end ?? 0),
-  }));
+/** Normalizes MeetingBaas utterances (with or without per-word timing) and
+ *  stores them on the meeting, then kicks off Claude processing. */
+async function storeTranscript(meetingId: string, utterances: BaasTranscriptSegment[]): Promise<boolean> {
+  const segments: TranscriptSegment[] = utterances.map((s) => {
+    const words = s.words ?? [];
+    const text = s.text ?? words.map((w) => w.word ?? w.text ?? "").join(" ").trim();
+    return {
+      speaker: s.speaker ?? "?",
+      text,
+      start: Math.round(s.start ?? words[0]?.start ?? 0),
+      end: Math.round(s.end ?? words[words.length - 1]?.end ?? 0),
+    };
+  }).filter((s) => s.text);
+  if (!segments.length) return false;
 
   const speakers = new Set(segments.map((s) => s.speaker));
   const rawTranscript = segments.map((s) => `Speaker ${s.speaker}: ${s.text}`).join("\n");
@@ -131,4 +127,72 @@ export async function ingestBotTranscript(meetingId: string, botId: string): Pro
   if (isClaudeConfigured() && rawTranscript) {
     processMeeting(meetingId).catch(() => {});
   }
+  return true;
+}
+
+/**
+ * Ingests a transcript delivered inline in a MeetingBaas `complete` webhook —
+ * the fastest path: the transcript is stored the moment the meeting ends, with
+ * no extra round-trip back to the MeetingBaas API.
+ */
+export async function ingestTranscriptPayload(
+  meetingId: string,
+  utterances: unknown,
+): Promise<boolean> {
+  if (!Array.isArray(utterances) || utterances.length === 0) return false;
+  try {
+    return await storeTranscript(meetingId, utterances as BaasTranscriptSegment[]);
+  } catch {
+    return false;
+  }
+}
+
+/** Pulls the MeetingBaas transcript, stores it on the meeting, and kicks off
+ *  Claude processing. The transcript URL can lag the end-of-call webhook by a
+ *  little, so retry a few times before giving up (the cron sweep is the final
+ *  safety net). */
+export async function ingestBotTranscript(meetingId: string, botId: string, attempts = 5): Promise<void> {
+  for (let attempt = 0; attempt < attempts; attempt++) {
+    if (attempt > 0) await new Promise((r) => setTimeout(r, 20_000));
+    try {
+      const res = await fetch(`${BASE}/bots/${botId}`, { headers: headers() });
+      if (!res.ok) continue;
+      const botData = await res.json();
+      const transcriptUrl = botData.data?.transcription;
+      if (!transcriptUrl) continue;
+
+      const transcriptRes = await fetch(transcriptUrl);
+      if (!transcriptRes.ok) continue;
+      const transcriptData = (await transcriptRes.json()) as BaasTranscriptResponse;
+
+      const utterances = transcriptData.result?.utterances ?? transcriptData.segments ?? [];
+      if (await storeTranscript(meetingId, utterances)) return;
+    } catch {
+      // transient network failure — retry
+    }
+  }
+}
+
+/**
+ * Safety net: re-ingest any bot whose call ended but whose meeting is still
+ * stuck in TRANSCRIBING (missed webhook, transcript URL that lagged past the
+ * retry window, or a deploy mid-callback). Called from the auto-join cron.
+ */
+export async function sweepStuckTranscripts(): Promise<number> {
+  const twoMinAgo = new Date(Date.now() - 2 * 60 * 1000);
+  const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+  const stuck = await prisma.meetingBot.findMany({
+    where: {
+      status: "DONE",
+      leftAt: { lte: twoMinAgo, gte: dayAgo },
+      meeting: { status: "TRANSCRIBING" },
+    },
+    select: { meetingId: true, recallBotId: true },
+    take: 10,
+  });
+  for (const bot of stuck) {
+    // Single attempt per sweep — the cron re-runs regularly.
+    await ingestBotTranscript(bot.meetingId, bot.recallBotId, 1).catch(() => {});
+  }
+  return stuck.length;
 }

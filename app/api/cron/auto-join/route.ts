@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { isRecallConfigured, detectPlatform, createBot } from "@/lib/recall";
+import { isRecallConfigured, detectPlatform, createBot, sweepStuckTranscripts } from "@/lib/recall";
 import { canCreateMeeting, getOrgPlan } from "@/lib/plan";
 
 export const dynamic = "force-dynamic";
@@ -91,7 +91,11 @@ async function run(req: Request) {
     }
   }
 
-  return NextResponse.json({ ok: true, considered, joined, skipped });
+  // Safety net: re-ingest transcripts for any ended calls still stuck in
+  // TRANSCRIBING (missed webhook or a transcript URL that lagged).
+  const swept = await sweepStuckTranscripts().catch(() => 0);
+
+  return NextResponse.json({ ok: true, considered, joined, skipped, swept });
 }
 
 export async function POST(req: Request) {

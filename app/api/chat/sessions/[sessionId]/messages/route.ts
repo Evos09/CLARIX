@@ -55,6 +55,7 @@ export async function POST(req: Request, { params }: Params) {
     const org = await prisma.organization.findUnique({ where: { id: ctx.orgId } });
     const { meetings, excerpts } = await retrieveContext(ctx.orgId, message);
     const answer = await answerGlobalChat({
+      orgId: ctx.orgId,
       orgName: org?.name ?? "your team",
       message,
       history: session.messages.map((m) => ({ role: m.role, content: m.content })),

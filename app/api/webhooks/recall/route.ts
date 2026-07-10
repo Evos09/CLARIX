@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { ingestBotTranscript } from "@/lib/recall";
+import { ingestBotTranscript, ingestTranscriptPayload } from "@/lib/recall";
 
 export const dynamic = "force-dynamic";
 
@@ -30,11 +30,20 @@ export async function POST(req: Request) {
     code === "complete" || 
     (code === "bot.status_change" && body?.data?.status?.code === "ended")
   ) {
-    await prisma.meetingBot.update({ 
-      where: { recallBotId: botId }, 
-      data: { status: "DONE", leftAt: new Date() } 
+    await prisma.meetingBot.update({
+      where: { recallBotId: botId },
+      data: { status: "DONE", leftAt: new Date() }
     });
-    ingestBotTranscript(bot.meetingId, botId).catch(() => {});
+    // Fast path: the `complete` webhook carries the transcript inline — store
+    // it immediately so everything is loaded the moment the meeting ends.
+    // Fall back to fetching from the API (with retries) when it's absent.
+    const inline = await ingestTranscriptPayload(
+      bot.meetingId,
+      body?.data?.transcript ?? body?.transcript,
+    ).catch(() => false);
+    if (!inline) {
+      ingestBotTranscript(bot.meetingId, botId).catch(() => {});
+    }
   }
   
   return NextResponse.json({ ok: true });
