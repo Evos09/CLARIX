@@ -2,16 +2,10 @@ import type { Metadata } from "next";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { hasClerk } from "@/lib/auth";
-import { SiteNav } from "@/components/site/site-nav";
+import LenisProvider from "@/components/landing/LenisProvider";
+import ChromaticFringe from "@/components/landing/ChromaticFringe";
+import TransitionContainer from "@/components/landing/TransitionContainer";
 import { SiteFooter } from "@/components/site/site-footer";
-import { CtaBand } from "@/components/site/cta-band";
-import { HomeHero } from "@/components/home/home-hero";
-import { FeatureHighlights } from "@/components/home/feature-highlights";
-import { MeetingTypesPreview } from "@/components/home/meeting-types-preview";
-import { HowItWorks } from "@/components/home/how-it-works";
-import { IntegrationsPreview } from "@/components/home/integrations-preview";
-import { PricingPreview } from "@/components/home/pricing-preview";
-import { Marquee } from "@/components/motion/Marquee";
 
 export const metadata: Metadata = {
   title: { absolute: "CLARIX — Your AI Assistant for Every Meeting" },
@@ -24,19 +18,19 @@ export default async function Home() {
     if (userId) redirect("/dashboard");
   }
   return (
-    <main className="relative min-h-screen overflow-x-hidden">
-      <SiteNav />
-      <HomeHero />
-      <div className="relative z-10 bg-background">
-      <FeatureHighlights />
-      <Marquee />
-      <MeetingTypesPreview />
-      <HowItWorks />
-      <IntegrationsPreview />
-      <PricingPreview />
-      <CtaBand />
-      <SiteFooter />
-      </div>
-    </main>
+    <LenisProvider>
+      <main className="relative min-h-screen overflow-x-hidden bg-paper text-ink">
+        {/* Absolute SVG filter overlay definitions */}
+        <ChromaticFringe />
+
+        {/* Scroll-driven Transition Core */}
+        <TransitionContainer />
+
+        {/* Full footer (same one used across the marketing site) */}
+        <div className="relative z-10 bg-paper">
+          <SiteFooter />
+        </div>
+      </main>
+    </LenisProvider>
   );
 }

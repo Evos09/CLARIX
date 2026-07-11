@@ -124,6 +124,61 @@ body {
 .speaker-4 { color: #db2777; }
 .speaker-5 { color: #0891b2; }
 
+/* Landing ("Inside the Mind") design tokens — ink/paper + brand violet scale */
+@theme {
+  --color-ink: #0b0b14;
+  --color-ink-2: #15152a;
+  --color-ink-3: #1f1f38;
+  --color-paper: #fafaf7;
+  --color-paper-2: #f2f2ec;
+  --color-paper-3: #e8e8e0;
+
+  --color-violet-50: #f4f1fe;
+  --color-violet-100: #e9e2fd;
+  --color-violet-200: #d2c2fb;
+  --color-violet-300: #b69af8;
+  --color-violet-400: #9670f0;
+  --color-violet-500: #7c4fe8;
+  --color-violet-600: #6d28d9;
+  --color-violet-700: #5b21b6;
+  --color-violet-800: #4c1d95;
+  --color-violet-900: #2e1065;
+}
+
+/* Lenis smooth scroll (landing page) */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+.lenis.lenis-stopped { overflow: hidden; }
+.lenis.lenis-scrolling iframe { pointer-events: none; }
+
+/* Landing glassmorphism */
+.glass-panel {
+  background: rgba(250, 250, 247, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(11, 11, 20, 0.08);
+}
+
+/* Landing "Inside the Brain" tech grid & data flow */
+.cyber-matrix-grid {
+  background-image: linear-gradient(rgba(124, 79, 232, 0.04) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(124, 79, 232, 0.04) 1px, transparent 1px);
+  background-size: 50px 50px;
+  background-position: center center;
+}
+@keyframes matrix-flow {
+  0% { background-position: 0px 0px; }
+  100% { background-position: 0px 500px; }
+}
+.cyber-data-stream {
+  background-image: linear-gradient(180deg, transparent, rgba(124, 79, 232, 0.06) 50%, transparent 100%);
+  background-size: 100% 200px;
+  animation: matrix-flow 10s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .cyber-data-stream { animation: none !important; }
+}
+
 /* Marketing motion system */
 @keyframes motion-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 .motion-marquee { animation: motion-marquee 46s linear infinite; }
