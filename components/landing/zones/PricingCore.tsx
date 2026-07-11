@@ -119,7 +119,7 @@ export default function PricingCore() {
                   : "bg-violet-50 text-violet-600 hover:bg-violet-100 border border-violet-200"
               }`}
             >
-              Annual (save up to 17%)
+              Annual
             </button>
           </div>
         </div>

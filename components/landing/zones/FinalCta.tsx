@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { ArrowRight, Sparkles, MessageSquare } from "lucide-react";
+import { ArrowRight, Sparkles } from "lucide-react";
 
 export default function FinalCta() {
   return (
@@ -29,13 +29,6 @@ export default function FinalCta() {
           >
             Start Free Today
             <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-          </a>
-          <a
-            href="/contact"
-            className="inline-flex items-center justify-center gap-2 border border-gray-200 bg-white hover:bg-gray-50 text-ink text-sm font-semibold px-8 h-12 rounded-full shadow-sm transition-all"
-          >
-            <MessageSquare className="w-4 h-4 text-violet-600" />
-            Talk to Sales
           </a>
         </div>
       </div>

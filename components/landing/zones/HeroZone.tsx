@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { ArrowRight, Play, Sparkles, Check } from "lucide-react";
+import { ArrowRight, Sparkles, Check } from "lucide-react";
 
 export default function HeroZone() {
   return (
@@ -31,10 +31,6 @@ export default function HeroZone() {
       {/* Main Hero Copy - Linked to fade out in Phase 0 */}
       <div className="hero-overlay-text w-full max-w-7xl mx-auto grid lg:grid-cols-12 gap-12 items-center my-auto z-20 pt-16">
         <div className="lg:col-span-6 flex flex-col items-start text-left">
-          <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-violet-100 bg-violet-50/50 text-xs font-mono text-violet-700 mb-6">
-            <span className="w-1.5 h-1.5 rounded-full bg-violet-600 animate-pulse" />
-            New · Clarix Chat Voice Mode
-          </span>
           <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-normal leading-[1.1] tracking-tight text-ink">
             The AI that <span className="italic text-violet-600 font-serif">handles</span> every meeting you never have time to recap.
           </h1>
@@ -45,10 +41,6 @@ export default function HeroZone() {
             <a href="/sign-up" className="inline-flex items-center gap-2 bg-ink hover:bg-ink-2 text-paper text-sm font-semibold px-6 h-12 rounded-full shadow-md transition-all group">
               Start Free
               <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-            </a>
-            <a href="/demo" className="inline-flex items-center gap-2 border border-gray-200 bg-white hover:bg-gray-50 text-ink text-sm font-semibold px-6 h-12 rounded-full shadow-sm transition-all">
-              <Play className="w-4 h-4 text-violet-600 fill-violet-600" />
-              Try the Demo
             </a>
           </div>
           <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-gray-100 pt-6 w-full max-w-xl text-xs text-gray-500">
