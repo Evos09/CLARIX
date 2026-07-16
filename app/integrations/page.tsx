@@ -5,15 +5,15 @@ import { PageHero } from "@/components/site/page-hero";
 import { SectionHeading } from "@/components/site/section-heading";
 import { CtaBand } from "@/components/site/cta-band";
 import { integrations, type Integration } from "@/lib/site-data";
-import { Bot, MessageSquare, FileText, Building2 } from "lucide-react";
+import { Bot, MessageSquare, FileText } from "lucide-react";
 
 export const metadata = {
   title: "Integrations — CLARIX",
   description:
-    "CLARIX connects to Zoom, Google Meet, Teams, Google Calendar, Gmail, and Notion — with Slack, Linear, Salesforce, and HubSpot on the way.",
+    "CLARIX connects to Zoom, Google Meet, Teams, Google Calendar, Gmail, and Notion — with Slack and Linear on the way.",
 };
 
-const categories: Integration["category"][] = ["Conferencing", "Calendar", "Email", "Workspace", "CRM"];
+const categories: Integration["category"][] = ["Conferencing", "Calendar", "Email", "Workspace"];
 
 const explainers = [
   {
@@ -34,12 +34,6 @@ const explainers = [
     tools: "Workspace pages",
     body: "CLARIX creates a structured Notion page for each meeting — complete with the summary, decisions, and action items — in the workspace and database you choose. Your meeting notes become a searchable, linked part of your knowledge base.",
   },
-  {
-    icon: Building2,
-    title: "CRM",
-    tools: "Salesforce · HubSpot · Coming soon",
-    body: "Keep your pipeline current without manual data entry. CLARIX logs meeting notes as activities and creates tasks against the right contacts and deals in Salesforce and HubSpot, so every conversation is reflected in your CRM.",
-  },
 ];
 
 export default function IntegrationsPage() {
@@ -50,7 +44,7 @@ export default function IntegrationsPage() {
       <PageHero
         eyebrow="Integrations"
         title="CLARIX works with the tools you already use"
-        description="Connect your conferencing, calendar, email, workspace, and CRM tools — then let CLARIX capture meetings and keep everything in sync, automatically."
+        description="Connect your conferencing, calendar, email, and workspace tools — then let CLARIX capture meetings and keep everything in sync, automatically."
       />
 
       {/* Grid by category */}

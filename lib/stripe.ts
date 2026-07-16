@@ -103,7 +103,7 @@ export const PLANS: Record<PlanId, PlanConfig> = {
   },
   // Top self-serve tier. Everything in Pro + unlimited Ask CLARIX, custom AI
   // templates, and priority support. The regulated stuff (Pro Verticals, EHR,
-  // SSO, CRM) lives on the sales-led ENTERPRISE tier below.
+  // SSO) lives on the sales-led ENTERPRISE tier below.
   BUSINESS: {
     id: "BUSINESS",
     name: "Business",
@@ -123,7 +123,7 @@ export const PLANS: Record<PlanId, PlanConfig> = {
     blurb: "Everything in Pro + unlimited Ask CLARIX, custom templates, email support.",
   },
   // Sales-led / talk-to-sales tier — no self-serve Stripe price. Provisioned
-  // bespoke; this is where the regulated Pro Verticals, EHR/FHIR, SSO, and CRM
+  // bespoke; this is where the regulated Pro Verticals, EHR/FHIR, and SSO
   // live. Rendered as the "Talk to Sales" callout, never as a checkout card.
   ENTERPRISE: {
     id: "ENTERPRISE",
@@ -138,6 +138,6 @@ export const PLANS: Record<PlanId, PlanConfig> = {
     customTemplates: true,
     autoJoinBot: true,
     foreverRetention: true,
-    blurb: "Custom, sales-led: Pro Verticals, EHR/FHIR export, SSO/SAML, CRM, SLA & dedicated support.",
+    blurb: "Custom, sales-led: Pro Verticals, EHR/FHIR export, SSO/SAML, SLA & dedicated support.",
   },
 };

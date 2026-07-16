@@ -31,7 +31,7 @@ const features = [
     icon: Plug,
     title: "Works everywhere you meet",
     description:
-      "Connects to Google Calendar, Gmail, and Notion today — Slack, Linear, and CRM connectors are next.",
+      "Connects to Google Calendar, Gmail, and Notion today — Slack and Linear connectors are next.",
   },
 ];
 

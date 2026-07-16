@@ -172,7 +172,7 @@ export function SettingsClient({ initialName }: { initialName: string }) {
           </div>
           <div className="flex gap-2">
             <Input
-              placeholder="e.g. Clarix, HubSpot, Svelte"
+              placeholder="e.g. Clarix, Kubernetes, Svelte"
               value={newWord}
               onChange={(e) => setNewWord(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && addWord()}

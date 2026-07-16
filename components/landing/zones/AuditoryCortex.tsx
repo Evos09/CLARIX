@@ -76,7 +76,7 @@ export default function AuditoryCortex() {
                 <span className="text-[10px] text-gray-500 font-mono">00:41</span>
               </div>
               <p className="text-sm text-gray-800 leading-relaxed">
-                Excellent. Once Daniel deploys, I will start hookups with HubSpot and Notion to run tests on CRM webhooks.
+                Excellent. Once Daniel deploys, I will start hookups with Slack and Notion to run tests on the summary webhooks.
               </p>
             </div>
           </div>

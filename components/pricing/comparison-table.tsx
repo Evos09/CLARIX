@@ -38,7 +38,6 @@ const groups: { group: string; rows: { label: string; values: [Cell, Cell, Cell,
     rows: [
       { label: "Email", values: [false, true, true, true] },
       { label: "Calendar, Slack, Notion, Linear", values: [false, false, true, true] },
-      { label: "Salesforce & HubSpot CRM", values: [false, false, false, false] },
     ],
   },
   {

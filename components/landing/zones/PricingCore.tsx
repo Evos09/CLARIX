@@ -188,7 +188,7 @@ export default function PricingCore() {
           <div>
             <h3 className="text-base font-bold font-display text-violet-700">Enterprise</h3>
             <p className="text-xs text-gray-600 mt-1 leading-relaxed">
-              Custom, sales-led. Pro vertical types (healthcare, legal, financial), EHR/HL7 export, SSO/SAML, CRM, SLA &amp; dedicated support.
+              Custom, sales-led. Pro vertical types (healthcare, legal, financial), EHR/HL7 export, SSO/SAML, SLA &amp; dedicated support.
             </p>
           </div>
           <a

@@ -12,8 +12,6 @@ const INTEGRATIONS = [
   { name: "Slack", type: "Workspace", status: "Coming soon" },
   { name: "Notion", type: "Workspace", status: "Active" },
   { name: "Linear", type: "Workspace", status: "Coming soon" },
-  { name: "Salesforce", type: "CRM", status: "Coming soon" },
-  { name: "HubSpot", type: "CRM", status: "Coming soon" },
 ];
 
 export default function SensoryPorts() {
@@ -37,7 +35,7 @@ export default function SensoryPorts() {
             Works <span className="italic text-violet-600 font-serif">everywhere</span> you meet.
           </h2>
           <p className="text-gray-600 text-lg leading-relaxed mb-6">
-            Connects to Google Calendar, Gmail, and Notion today — Slack, Linear, and CRM connectors are next. No new tabs to check.
+            Connects to Google Calendar, Gmail, and Notion today — Slack and Linear connectors are next. No new tabs to check.
           </p>
 
           <a

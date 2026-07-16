@@ -6,7 +6,6 @@ import { MeetingTypeBadge } from "@/components/meetings/MeetingTypeBadge";
 import { StatusBadge } from "@/components/meetings/StatusBadge";
 import { StatusPoller } from "@/components/meetings/StatusPoller";
 import { ExportMenu } from "@/components/meetings/ExportMenu";
-import { CRMPushButton } from "@/components/meetings/crm/CRMPushButton";
 import { PushToIntegrationButton } from "@/components/meetings/integrations/PushToIntegrationButton";
 import { ShareChecklistButton } from "@/components/meetings/ShareChecklistButton";
 import { getMeetingType } from "@/lib/meetingTypes";
@@ -79,7 +78,6 @@ export default async function MeetingDetailPage({ params }: Params) {
             </div>
             <div className="flex flex-wrap items-center gap-2">
               {meeting.status === "COMPLETE" && <ExportMenu meetingId={meeting.id} showEhr={getMeetingType(meeting.meetingType).category === "PRO"} />}
-              {meeting.status === "COMPLETE" && <CRMPushButton meetingId={meeting.id} />}
               {meeting.status === "COMPLETE" && <PushToIntegrationButton meetingId={meeting.id} />}
               {meeting.status === "COMPLETE" && <ShareChecklistButton meetingId={meeting.id} initialShareToken={meeting.shareToken} />}
             </div>

@@ -224,12 +224,12 @@ export const proVerticals: ProVertical[] = [
       "Compliance & suitability flags",
       "Client goals",
       "Risk tolerance",
-      "CRM-ready summary"
+      "Structured client summary"
     ]
   }
 ];
 
-export type Integration = { name: string; logo: string; category: "Conferencing" | "Calendar" | "Email" | "Workspace" | "CRM"; description: string; soon?: boolean };
+export type Integration = { name: string; logo: string; category: "Conferencing" | "Calendar" | "Email" | "Workspace"; description: string; soon?: boolean };
 export const integrations: Integration[] = [
   {
     "name": "Zoom",
@@ -280,19 +280,5 @@ export const integrations: Integration[] = [
     "category": "Workspace",
     "soon": true,
     "description": "Turn meeting action items into Linear issues automatically."
-  },
-  {
-    "name": "Salesforce",
-    "logo": "/logos/salesforce.svg",
-    "category": "CRM",
-    "soon": true,
-    "description": "Push meeting notes and tasks into Salesforce as activities."
-  },
-  {
-    "name": "HubSpot",
-    "logo": "/logos/hubspot.svg",
-    "category": "CRM",
-    "soon": true,
-    "description": "Log meetings and create tasks directly in HubSpot CRM."
   }
 ];
