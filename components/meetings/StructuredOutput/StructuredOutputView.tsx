@@ -11,11 +11,13 @@ export function StructuredOutputView({
   output,
   meetingType,
   isDemo = false,
+  canEdit = true,
 }: {
   meetingId: string;
   output: any;
   meetingType?: string;
   isDemo?: boolean;
+  canEdit?: boolean;
 }) {
   const isMed = meetingType === "MEDICAL_APPOINTMENT";
   const isLegal = meetingType === "LEGAL_DEPOSITION";
@@ -23,7 +25,7 @@ export function StructuredOutputView({
 
   return (
     <div className="space-y-6">
-      {!isDemo && (
+      {!isDemo && canEdit && (
         <div className="flex justify-end">
           <RegenerateButton meetingId={meetingId} />
         </div>

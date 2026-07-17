@@ -4,10 +4,15 @@ import { prisma } from "@/lib/prisma";
 import { getOrCreateContext } from "@/lib/auth";
 import { getAccessibleMeeting } from "@/lib/meetingAccess";
 import { getOrgPlan } from "@/lib/plan";
+import { isResendConfigured, sendHtml } from "@/lib/email";
 
 export const dynamic = "force-dynamic";
 
 type Params = { params: Promise<{ id: string }> };
+
+function esc(s: string): string {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
 
 /** List the people a meeting is shared with (owner or any collaborator may view). */
 export async function GET(_req: Request, { params }: Params) {
@@ -87,6 +92,30 @@ export async function POST(req: Request, { params }: Params) {
     update: { role: parsed.data.role },
     create: { meetingId: id, userId: target.id, role: parsed.data.role, invitedBy: ctx.userId },
   });
+
+  // Best-effort: let the invitee know by email. Never fail the share on this.
+  try {
+    if (isResendConfigured()) {
+      const sharer = await prisma.user.findUnique({ where: { id: ctx.userId }, select: { name: true, email: true } });
+      const who = sharer?.name || sharer?.email || "A teammate";
+      const base = process.env.NEXT_PUBLIC_APP_URL ?? "https://www.clarixmeetings.com";
+      const link = `${base}/meetings/${id}`;
+      const canEditCopy = parsed.data.role === "EDITOR" ? "view and edit" : "view";
+      await sendHtml({
+        to: [email],
+        subject: `${who} shared a meeting with you on CLARIX`,
+        html: `<div style="font-family:Inter,Arial,sans-serif;color:#0b0b14;max-width:560px">
+      <h2 style="margin:0 0 4px">CLAR<span style="color:#6d28d9">IX</span></h2>
+      <p style="margin:0 0 16px;font-size:14px;line-height:1.6">${esc(who)} shared the meeting <strong>${esc(meeting.title)}</strong> with you. You can ${canEditCopy} the transcript, summary, and action items.</p>
+      <p style="margin:0 0 20px"><a href="${link}" style="background:#6d28d9;color:#fff;padding:10px 18px;border-radius:8px;text-decoration:none;font-size:14px;display:inline-block">Open the meeting →</a></p>
+      <p style="margin:0;font-size:12px;color:#6e6e66">If you didn't expect this, you can ignore this email.</p>
+    </div>`,
+      });
+    }
+  } catch {
+    // notification is best-effort
+  }
+
   return NextResponse.json({ success: true, collaborator: { userId: collab.userId, role: collab.role, email } });
 }
 

@@ -26,6 +26,7 @@ export function MeetingTabs({
   meetingType,
   status,
   isDemo = false,
+  canEdit = true,
 }: {
   meetingId: string;
   segments: TranscriptSegment[];
@@ -38,6 +39,7 @@ export function MeetingTabs({
   meetingType?: string;
   status?: string;
   isDemo?: boolean;
+  canEdit?: boolean;
 }) {
   const tabsList = isDemo
     ? (["Summary", "Transcript", "Analytics 🔒", "Ask CLARIX 🔒", "Raw JSON"] as const)
@@ -58,6 +60,11 @@ export function MeetingTabs({
 
   return (
     <div className="space-y-4">
+      {!canEdit && (
+        <div className="rounded-md border border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+          You have view-only access to this shared meeting. Only the owner and editors can make changes.
+        </div>
+      )}
       <div className="flex gap-1 border-b border-border overflow-x-auto">
         {tabsList.map((t) => {
           const isActive = tab === t || (t.startsWith("Analytics") && tab === "Analytics") || (t.startsWith("Ask CLARIX") && tab === "Ask CLARIX");
@@ -82,14 +89,14 @@ export function MeetingTabs({
 
       {tab === "Summary" &&
         (structuredOutput ? (
-          <StructuredOutputView meetingId={meetingId} output={structuredOutput} isDemo={isDemo} meetingType={meetingType} />
+          <StructuredOutputView meetingId={meetingId} output={structuredOutput} isDemo={isDemo} meetingType={meetingType} canEdit={canEdit} />
         ) : (
           <Card>
             <CardContent className="space-y-4 p-6 text-sm text-muted-foreground">
               {claudeConfigured ? (
                 <>
                   <p>No AI analysis yet. Run it to extract a summary, action items, and decisions.</p>
-                  {!isDemo && <RegenerateButton meetingId={meetingId} />}
+                  {!isDemo && canEdit && <RegenerateButton meetingId={meetingId} />}
                 </>
               ) : (
                 <p>Add <code className="font-mono">ANTHROPIC_API_KEY</code> to enable AI analysis.</p>

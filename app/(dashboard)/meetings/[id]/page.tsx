@@ -55,6 +55,15 @@ export default async function MeetingDetailPage({ params }: Params) {
   // Live-refresh only matters when someone else can be editing: a collaborator
   // is viewing, or the owner has shared this meeting with at least one person.
   const isShared = !isOwner || (await prisma.meetingCollaborator.count({ where: { meetingId: id } })) > 0;
+  // Owners and EDITOR collaborators can change the meeting; VIEWERs are read-only.
+  let canEdit = isOwner;
+  if (!isOwner) {
+    const collab = await prisma.meetingCollaborator.findUnique({
+      where: { meetingId_userId: { meetingId: id, userId: ctx.userId } },
+      select: { role: true },
+    });
+    canEdit = collab?.role === "EDITOR";
+  }
 
   const segments = (meeting.transcriptSegments as unknown as TranscriptSegment[] | null) ?? [];
   let audioUrl: string | null = null;
@@ -107,6 +116,7 @@ export default async function MeetingDetailPage({ params }: Params) {
             status={meeting.status}
             structuredOutput={(meeting.structuredOutput as unknown as BaseOutput | null) ?? null}
             claudeConfigured={isClaudeConfigured()}
+            canEdit={canEdit}
           />
         )}
       </main>
