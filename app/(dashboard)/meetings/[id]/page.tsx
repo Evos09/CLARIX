@@ -9,6 +9,7 @@ import { ExportMenu } from "@/components/meetings/ExportMenu";
 import { PushToIntegrationButton } from "@/components/meetings/integrations/PushToIntegrationButton";
 import { ShareChecklistButton } from "@/components/meetings/ShareChecklistButton";
 import { ShareMeetingButton } from "@/components/meetings/ShareMeetingButton";
+import { MeetingLiveRefresh } from "@/components/meetings/MeetingLiveRefresh";
 import { getAccessibleMeeting } from "@/lib/meetingAccess";
 import { getMeetingType } from "@/lib/meetingTypes";
 import type { KeyPoint } from "@/lib/keyPoints";
@@ -51,6 +52,9 @@ export default async function MeetingDetailPage({ params }: Params) {
   const meeting = ctx ? await getAccessibleMeeting(id, ctx) : null;
   if (!meeting || !ctx) notFound();
   const isOwner = meeting.orgId === ctx.orgId;
+  // Live-refresh only matters when someone else can be editing: a collaborator
+  // is viewing, or the owner has shared this meeting with at least one person.
+  const isShared = !isOwner || (await prisma.meetingCollaborator.count({ where: { meetingId: id } })) > 0;
 
   const segments = (meeting.transcriptSegments as unknown as TranscriptSegment[] | null) ?? [];
   let audioUrl: string | null = null;
@@ -88,6 +92,7 @@ export default async function MeetingDetailPage({ params }: Params) {
           </div>
         </header>
 
+        {isShared && meeting.status === "COMPLETE" && <MeetingLiveRefresh />}
         {meeting.status !== "COMPLETE" ? (
           <StatusPoller meetingId={meeting.id} status={meeting.status} />
         ) : (
