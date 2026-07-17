@@ -8,6 +8,6 @@ export async function GET() {
   const state = crypto.randomBytes(16).toString("hex");
   (await cookies()).set("clarix_oauth_state", state, { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", maxAge: 600, path: "/" });
   const base = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
-  const p = new URLSearchParams({ client_id: process.env.SLACK_CLIENT_ID ?? "", scope: "chat:write,channels:read,groups:read", redirect_uri: `${base}/api/integrations/slack/callback`, state });
+  const p = new URLSearchParams({ client_id: process.env.SLACK_CLIENT_ID ?? "", scope: "chat:write,channels:read,groups:read,channels:join", redirect_uri: `${base}/api/integrations/slack/callback`, state });
   return NextResponse.redirect(`https://slack.com/oauth/v2/authorize?${p.toString()}`);
 }

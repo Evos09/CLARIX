@@ -24,11 +24,26 @@ export async function pushToSlack(token: string, channelId: string, title: strin
     { type: "section", text: { type: "mrkdwn", text: `*Key Decisions*\n${decisions}` } },
     { type: "context", elements: [{ type: "mrkdwn", text: `<${url}|View full summary in CLARIX →>` }] },
   ];
+  // A bot can only post to channels it belongs to. Public channels can be
+  // auto-joined (needs the channels:join scope); private channels must be
+  // invited manually with /invite. Best-effort: ignore join errors and let
+  // the postMessage call surface the real problem.
+  await fetch("https://slack.com/api/conversations.join", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ channel: channelId }),
+  }).catch(() => {});
+
   const res = await fetch("https://slack.com/api/chat.postMessage", {
     method: "POST",
     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
     body: JSON.stringify({ channel: channelId, blocks, text: title }),
   });
   const d = await res.json();
-  if (!d.ok) throw new Error(d.error ?? "Slack post failed");
+  if (!d.ok) {
+    if (d.error === "not_in_channel" || d.error === "channel_not_found") {
+      throw new Error("CLARIX isn't in that channel. In Slack, run /invite @CLARIX in the channel, then try again.");
+    }
+    throw new Error(d.error ?? "Slack post failed");
+  }
 }
