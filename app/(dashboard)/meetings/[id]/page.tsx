@@ -92,7 +92,7 @@ export default async function MeetingDetailPage({ params }: Params) {
           </div>
         </header>
 
-        {isShared && meeting.status === "COMPLETE" && <MeetingLiveRefresh />}
+        {isShared && meeting.status === "COMPLETE" && <MeetingLiveRefresh intervalMs={1000} />}
         {meeting.status !== "COMPLETE" ? (
           <StatusPoller meetingId={meeting.id} status={meeting.status} />
         ) : (
