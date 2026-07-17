@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getOrCreateContext } from "@/lib/auth";
+import { getAccessibleMeeting } from "@/lib/meetingAccess";
 import type { TranscriptSegment } from "@/lib/transcription";
 import { Prisma } from "@prisma/client";
 
@@ -20,16 +21,9 @@ export async function PATCH(req: Request, { params }: Params) {
     return NextResponse.json({ error: "Missing or invalid speakerMap" }, { status: 400 });
   }
 
-  const meeting = await prisma.meeting.findUnique({
-    where: { id },
-  });
-
+  const meeting = await getAccessibleMeeting(id, ctx, { requireEdit: true });
   if (!meeting) {
     return NextResponse.json({ error: "Meeting not found" }, { status: 404 });
-  }
-
-  if (meeting.orgId !== ctx.orgId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
 
   // Update segments speaker labels using the new speakerMap

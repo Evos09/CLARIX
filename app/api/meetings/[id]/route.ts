@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { getOrCreateContext } from "@/lib/auth";
+import { getAccessibleMeeting } from "@/lib/meetingAccess";
 import { isAssemblyConfigured } from "@/lib/assemblyai";
 import { syncTranscriptStatus } from "@/lib/transcription";
 import { getSupabaseAdmin, AUDIO_BUCKET } from "@/lib/supabase";
@@ -19,14 +20,14 @@ export async function GET(_req: Request, { params }: Params) {
   const ctx = await getOrCreateContext();
   if (!ctx) return NextResponse.json({ error: "Database not configured" }, { status: 503 });
 
-  let meeting = await prisma.meeting.findFirst({ where: { id, orgId: ctx.orgId } });
+  let meeting = await getAccessibleMeeting(id, ctx);
   if (!meeting) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
   // Poll fallback: advance state if the webhook hasn't reached us (e.g. localhost).
   if (meeting.status === "TRANSCRIBING" && meeting.transcriptJobId && isAssemblyConfigured()) {
     try {
       await syncTranscriptStatus(id);
-      meeting = await prisma.meeting.findFirst({ where: { id, orgId: ctx.orgId } });
+      meeting = await getAccessibleMeeting(id, ctx);
     } catch {
       // leave status unchanged; client will retry on next poll
     }
@@ -39,7 +40,7 @@ export async function PATCH(req: Request, { params }: Params) {
   const ctx = await getOrCreateContext();
   if (!ctx) return NextResponse.json({ error: "Database not configured" }, { status: 503 });
 
-  const existing = await prisma.meeting.findFirst({ where: { id, orgId: ctx.orgId } });
+  const existing = await getAccessibleMeeting(id, ctx, { requireEdit: true });
   if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
   const parsed = PatchBody.safeParse(await req.json().catch(() => null));

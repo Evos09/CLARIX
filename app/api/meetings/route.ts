@@ -21,7 +21,9 @@ export async function GET() {
   if (!ctx) return NextResponse.json({ error: "Database not configured" }, { status: 503 });
 
   const meetings = await prisma.meeting.findMany({
-    where: { orgId: ctx.orgId },
+    where: {
+      OR: [{ orgId: ctx.orgId }, { collaborators: { some: { userId: ctx.userId } } }],
+    },
     orderBy: { createdAt: "desc" },
     select: {
       id: true,

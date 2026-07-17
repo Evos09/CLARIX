@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { getOrCreateContext } from "@/lib/auth";
+import { getAccessibleMeeting } from "@/lib/meetingAccess";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -9,7 +10,7 @@ export async function GET(_req: Request, { params }: Params) {
   const { id } = await params;
   const ctx = await getOrCreateContext();
   if (!ctx) return NextResponse.json({ error: "Database not configured" }, { status: 503 });
-  const meeting = await prisma.meeting.findFirst({ where: { id, orgId: ctx.orgId } });
+  const meeting = await getAccessibleMeeting(id, ctx);
   if (!meeting) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
   const comments = await prisma.comment.findMany({
@@ -29,7 +30,7 @@ export async function POST(req: Request, { params }: Params) {
   const { id } = await params;
   const ctx = await getOrCreateContext();
   if (!ctx) return NextResponse.json({ error: "Database not configured" }, { status: 503 });
-  const meeting = await prisma.meeting.findFirst({ where: { id, orgId: ctx.orgId } });
+  const meeting = await getAccessibleMeeting(id, ctx, { requireEdit: true });
   if (!meeting) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
   const parsed = Body.safeParse(await req.json().catch(() => null));

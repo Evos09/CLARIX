@@ -14,7 +14,9 @@ export default async function MeetingsPage() {
     const ctx = await getOrCreateContext();
     if (ctx) {
       meetings = await prisma.meeting.findMany({
-        where: { orgId: ctx.orgId },
+        where: {
+          OR: [{ orgId: ctx.orgId }, { collaborators: { some: { userId: ctx.userId } } }],
+        },
         orderBy: { createdAt: "desc" },
       });
     }

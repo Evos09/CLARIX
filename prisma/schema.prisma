@@ -98,10 +98,35 @@ model Meeting {
   meetingAnalytics  MeetingAnalytics?
   integrationPushes IntegrationPush[]
   memoryChunks      MeetingChunk[]
+  collaborators     MeetingCollaborator[]
 
   @@index([orgId])
   @@index([userId])
   @@index([status])
+}
+
+// Per-meeting sharing: lets an owner grant another CLARIX user access to a
+// single meeting (transcript, summary, action items, chat — everything hangs
+// off meetingId) across org boundaries. EDITOR = shared edit access
+// (last-write-wins), VIEWER = read-only. Access is resolved in
+// lib/meetingAccess.ts (owner org OR a collaborator row here).
+model MeetingCollaborator {
+  id        String     @id @default(cuid())
+  meetingId String
+  meeting   Meeting    @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  userId    String // the invited CLARIX user's User.id
+  role      CollabRole @default(EDITOR)
+  invitedBy String // User.id of the owner who added them
+  createdAt DateTime   @default(now())
+
+  @@unique([meetingId, userId])
+  @@index([userId])
+  @@index([meetingId])
+}
+
+enum CollabRole {
+  VIEWER
+  EDITOR
 }
 
 // Semantic-search chunks for cross-meeting memory. `embedding` is a pgvector

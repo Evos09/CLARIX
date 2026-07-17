@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { format as fmtDate } from "date-fns";
 import { prisma } from "@/lib/prisma";
 import { getOrCreateContext } from "@/lib/auth";
+import { getAccessibleMeeting } from "@/lib/meetingAccess";
 import { getOrgPlan, canExportFormat } from "@/lib/plan";
 import { getMeetingType } from "@/lib/meetingTypes";
 import { isClaudeConfigured } from "@/lib/claude";
@@ -26,7 +27,7 @@ export async function GET(req: Request, { params }: Params) {
   if (!ctx) return NextResponse.json({ error: "Database not configured" }, { status: 503 });
 
   const format = (new URL(req.url).searchParams.get("format") ?? "pdf").toLowerCase();
-  const meeting = await prisma.meeting.findFirst({ where: { id, orgId: ctx.orgId } });
+  const meeting = await getAccessibleMeeting(id, ctx);
   if (!meeting) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
   const plan = await getOrgPlan(ctx.orgId);

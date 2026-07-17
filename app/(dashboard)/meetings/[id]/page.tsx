@@ -8,6 +8,8 @@ import { StatusPoller } from "@/components/meetings/StatusPoller";
 import { ExportMenu } from "@/components/meetings/ExportMenu";
 import { PushToIntegrationButton } from "@/components/meetings/integrations/PushToIntegrationButton";
 import { ShareChecklistButton } from "@/components/meetings/ShareChecklistButton";
+import { ShareMeetingButton } from "@/components/meetings/ShareMeetingButton";
+import { getAccessibleMeeting } from "@/lib/meetingAccess";
 import { getMeetingType } from "@/lib/meetingTypes";
 import type { KeyPoint } from "@/lib/keyPoints";
 import { MeetingTabs } from "@/components/meetings/MeetingTabs";
@@ -46,8 +48,9 @@ export default async function MeetingDetailPage({ params }: Params) {
   }
 
   const ctx = await getOrCreateContext();
-  const meeting = ctx ? await prisma.meeting.findFirst({ where: { id, orgId: ctx.orgId } }) : null;
-  if (!meeting) notFound();
+  const meeting = ctx ? await getAccessibleMeeting(id, ctx) : null;
+  if (!meeting || !ctx) notFound();
+  const isOwner = meeting.orgId === ctx.orgId;
 
   const segments = (meeting.transcriptSegments as unknown as TranscriptSegment[] | null) ?? [];
   let audioUrl: string | null = null;
@@ -77,6 +80,7 @@ export default async function MeetingDetailPage({ params }: Params) {
               </div>
             </div>
             <div className="flex flex-wrap items-center gap-2">
+              {isOwner && <ShareMeetingButton meetingId={meeting.id} />}
               {meeting.status === "COMPLETE" && <ExportMenu meetingId={meeting.id} showEhr={getMeetingType(meeting.meetingType).category === "PRO"} />}
               {meeting.status === "COMPLETE" && <PushToIntegrationButton meetingId={meeting.id} />}
               {meeting.status === "COMPLETE" && <ShareChecklistButton meetingId={meeting.id} initialShareToken={meeting.shareToken} />}

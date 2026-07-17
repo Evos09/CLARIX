@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { getOrCreateContext } from "@/lib/auth";
+import { getAccessibleMeeting } from "@/lib/meetingAccess";
 import { isClaudeConfigured } from "@/lib/claude";
 import { processMeeting } from "@/lib/processing";
 
@@ -17,7 +18,7 @@ export async function POST(req: Request, { params }: Params) {
     return NextResponse.json({ error: "AI not configured (ANTHROPIC_API_KEY)" }, { status: 503 });
   }
 
-  const meeting = await prisma.meeting.findFirst({ where: { id, orgId: ctx.orgId } });
+  const meeting = await getAccessibleMeeting(id, ctx, { requireEdit: true });
   if (!meeting) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
   const parsed = Body.safeParse(await req.json().catch(() => ({})));
