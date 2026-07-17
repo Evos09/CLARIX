@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Plus } from "lucide-react";
+import { Plus, Repeat, ArrowRight } from "lucide-react";
 import { TopNav } from "@/components/layout/TopNav";
 import { StatsGrid, type Stat } from "@/components/dashboard/StatsGrid";
 import { UpcomingMeetings } from "@/components/calendar/UpcomingMeetings";
@@ -11,6 +11,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { prisma } from "@/lib/prisma";
 import { getOrCreateContext, hasDb } from "@/lib/auth";
 import { getMeetingType } from "@/lib/meetingTypes";
+import { getSeriesList, type SeriesSummary } from "@/lib/series";
 import { formatDuration } from "@/lib/utils";
 
 export const metadata = { title: "Dashboard" };
@@ -26,6 +27,7 @@ export default async function DashboardPage() {
   let breakdown: { name: string; value: number }[] = [];
   let recent: Awaited<ReturnType<typeof prisma.meeting.findMany>> = [];
   let onboarding: OnboardingStep[] = [];
+  let series: SeriesSummary[] = [];
 
   if (hasDb) {
     const ctx = await getOrCreateContext();
@@ -62,6 +64,7 @@ export default async function DashboardPage() {
       ];
       breakdown = grouped.map((g) => ({ name: getMeetingType(g.meetingType).label, value: g._count._all }));
       recent = recentMeetings;
+      series = (await getSeriesList(ctx.orgId, ctx.userId)).slice(0, 4);
     }
   }
 
@@ -129,6 +132,35 @@ export default async function DashboardPage() {
             />
           )}
         </section>
+
+        {/* Recurring series rollup */}
+        {series.length > 0 && (
+          <section className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="flex items-center gap-2 text-[15px] font-semibold tracking-tight text-foreground">
+                <Repeat className="size-4 text-accent" /> Recurring series
+              </h2>
+              <Link href="/series" className="text-[13px] font-medium text-muted-foreground transition-colors hover:text-accent">
+                View all →
+              </Link>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              {series.map((s) => (
+                <Link key={s.slug} href={`/series/${s.slug}`}>
+                  <Card className="transition-colors hover:border-accent/50">
+                    <CardContent className="flex items-center justify-between gap-3 p-4">
+                      <div className="min-w-0">
+                        <span className="block truncate font-medium">{s.title}</span>
+                        <span className="text-xs text-muted-foreground">{s.count} meetings</span>
+                      </div>
+                      <ArrowRight className="size-4 shrink-0 text-muted-foreground" />
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* Secondary: upcoming + meeting mix */}
         <div className="grid gap-6 lg:grid-cols-2">
