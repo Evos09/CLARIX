@@ -9,6 +9,7 @@ const FILE_FORMATS = [
   { fmt: "pdf", label: "PDF report" },
   { fmt: "docx", label: "Word (DOCX)" },
   { fmt: "csv", label: "Action items (CSV)" },
+  { fmt: "ics", label: "Add to Calendar (.ics)" },
   { fmt: "json", label: "JSON" },
 ];
 const DRAFTS = [

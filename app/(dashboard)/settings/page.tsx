@@ -1,6 +1,7 @@
 import { SettingsClient } from "@/components/settings/SettingsClient";
 import { IntegrationsClient } from "@/components/settings/IntegrationsClient";
 import { IntegrationsHub } from "@/components/settings/IntegrationsHub";
+import { WebhooksCard } from "@/components/settings/WebhooksCard";
 import { DigestCard } from "@/components/settings/DigestCard";
 import { AutoJoinCard } from "@/components/settings/AutoJoinCard";
 import { DangerZone } from "@/components/settings/DangerZone";
@@ -26,6 +27,9 @@ export default async function SettingsPage() {
       <IntegrationsClient />
       <h2 className="mb-3 mt-8 text-lg font-semibold">Push integrations</h2>
       <IntegrationsHub />
+      <div className="mt-4">
+        <WebhooksCard />
+      </div>
       <h2 className="mb-3 mt-8 text-lg font-semibold">Automation</h2>
       <div className="space-y-4">
         <AutoJoinCard />

@@ -44,6 +44,25 @@ export async function GET(req: Request, { params }: Params) {
     return NextResponse.json({ text });
   }
 
+  // .ics is a basic, plan-ungated export: your own meeting + action items as a
+  // calendar/task feed for Google/Apple/Outlook or any task app.
+  if (format === "ics") {
+    if (!output) return NextResponse.json({ error: "No analysis to export yet." }, { status: 409 });
+    const { meetingIcs } = await import("@/lib/exporters/ics");
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+    const ics = meetingIcs({
+      meetingId: meeting.id,
+      title: meeting.title,
+      url: `${appUrl}/meetings/${meeting.id}`,
+      createdAt: meeting.createdAt,
+      durationSec: meeting.duration,
+      output,
+    });
+    return new Response(ics, {
+      headers: { "Content-Type": "text/calendar; charset=utf-8", "Content-Disposition": `attachment; filename="${name}.ics"` },
+    });
+  }
+
   const FMT = format.toUpperCase();
   if (!canExportFormat(plan, FMT)) {
     return NextResponse.json({ error: `${FMT} export is not available on the ${plan.name} plan.` }, { status: 403 });

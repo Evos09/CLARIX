@@ -109,6 +109,24 @@ export async function processMeeting(meetingId: string, instruction?: string): P
       console.error("Failed to auto-post to Slack:", slackErr);
     }
 
+    // Fire user-configured outbound webhooks (Zapier/Make/n8n/custom). Best-effort.
+    try {
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+      const { fireMeetingWebhooks, buildMeetingPayload } = await import("@/lib/push/webhook");
+      await fireMeetingWebhooks(
+        meeting.userId,
+        buildMeetingPayload({
+          meetingId,
+          title: meeting.title,
+          url: `${appUrl}/meetings/${meetingId}`,
+          meetingType: typeId,
+          output,
+        }),
+      );
+    } catch (webhookErr) {
+      console.error("Failed to fire webhooks:", webhookErr);
+    }
+
     return output;
   } catch (err) {
     captureServer("meeting_processing_failed", meeting.userId, {

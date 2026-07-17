@@ -47,6 +47,7 @@ model User {
   slackConnection     SlackConnection?
   notionConnection    NotionConnection?
   linearConnection    LinearConnection?
+  webhookEndpoints    WebhookEndpoint[]
 
   @@index([orgId])
 }
@@ -486,6 +487,26 @@ model LinearConnection {
   connected        Boolean  @default(true)
   defaultTeamId    String?
   createdAt        DateTime @default(now())
+}
+
+// User-configured outbound webhooks. When a meeting finishes processing we POST
+// a JSON payload (event "meeting.completed") to every enabled endpoint, signed
+// with an HMAC-SHA256 header so receivers can verify authenticity. Lets users
+// wire CLARIX into Zapier, Make, n8n, or any custom endpoint without a bespoke
+// integration. Fired from lib/push/webhook.ts in lib/processing.ts.
+model WebhookEndpoint {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  url         String
+  secret      String // HMAC signing secret ("whsec_...")
+  label       String?
+  enabled     Boolean   @default(true)
+  lastFiredAt DateTime?
+  lastStatus  Int? // HTTP status of the last delivery attempt (0 = network error)
+  createdAt   DateTime  @default(now())
+
+  @@index([userId])
 }
 
 model IntegrationPush {
