@@ -1,6 +1,6 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import { claudeText, parseJson, isClaudeConfigured, CLAUDE_SONNET, CLAUDE_HAIKU } from "@/lib/claude";
+import { claudeText, parseJson, isClaudeConfigured, CLAUDE_HAIKU } from "@/lib/claude";
 import { getMeetingType } from "@/lib/meetingTypes";
 import { getPromptSpec } from "@/lib/prompts";
 import { buildProcessingPrompt, BASE_SYSTEM } from "@/lib/prompts/base";
@@ -41,7 +41,9 @@ export async function processMeeting(meetingId: string, instruction?: string): P
 
   try {
     const plan = meeting.org?.plan ?? "FREE";
-    const model = plan === "FREE" ? CLAUDE_HAIKU : CLAUDE_SONNET;
+    // Meeting analysis runs on Haiku for all plans to keep per-meeting cost low;
+    // Sonnet is reserved for Pro+ Clarix Chat. (`plan` is still used for analytics below.)
+    const model = CLAUDE_HAIKU;
 
     const raw = await claudeText({ system: BASE_SYSTEM, prompt, maxTokens: 4096, temperature: 0.2, model });
     const output = parseJson<BaseOutput>(raw);

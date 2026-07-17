@@ -4,7 +4,10 @@ import Anthropic from "@anthropic-ai/sdk";
 export const CLAUDE_SONNET = "claude-sonnet-4-6";
 export const CLAUDE_SONNET_5 = "claude-sonnet-5";
 export const CLAUDE_HAIKU = "claude-haiku-4-5";
-export const CLAUDE_MODEL = CLAUDE_SONNET;
+// Default model for all analysis-style calls (auto-detect, key points, analytics,
+// drafts, coaching, weekly brief, meeting analysis). Haiku keeps these cheap;
+// Sonnet is reserved for Pro+ Clarix Chat (see chatModelForPlan in lib/plan.ts).
+export const CLAUDE_MODEL = CLAUDE_HAIKU;
 
 // Newer models (Sonnet 5, Opus 4.7/4.8, Fable 5) reject `temperature`/`top_p`
 // and turn adaptive thinking on by default. For these we send no sampling param

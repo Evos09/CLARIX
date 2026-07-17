@@ -5,7 +5,7 @@ import { getOrCreateContext } from "@/lib/auth";
 import { getAccessibleMeeting } from "@/lib/meetingAccess";
 import { isClaudeConfigured, claudeChat } from "@/lib/claude";
 import { getMeetingType } from "@/lib/meetingTypes";
-import { getOrgPlan } from "@/lib/plan";
+import { getOrgPlan, chatModelForPlan } from "@/lib/plan";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -85,8 +85,8 @@ ${meeting.rawTranscript}
 
   let reply: string;
   try {
-    const { CLAUDE_SONNET, CLAUDE_HAIKU } = await import("@/lib/claude");
-    const model = plan.id === "FREE" ? CLAUDE_HAIKU : CLAUDE_SONNET;
+    // Pro+ Clarix Chat runs on Sonnet; Free/Starter on Haiku (see chatModelForPlan).
+    const model = chatModelForPlan(plan);
     reply = await claudeChat({ system, messages, maxTokens: 1024, model });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Chat failed";
