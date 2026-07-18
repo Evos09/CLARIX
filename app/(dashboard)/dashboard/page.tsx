@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Plus, Repeat, ArrowRight } from "lucide-react";
+import { format as fmtDate } from "date-fns";
+import { Plus, Repeat, ArrowRight, FolderPlus, Sparkles } from "lucide-react";
 import { TopNav } from "@/components/layout/TopNav";
 import { StatsGrid, type Stat } from "@/components/dashboard/StatsGrid";
 import { UpcomingMeetings } from "@/components/calendar/UpcomingMeetings";
@@ -82,19 +83,22 @@ export default async function DashboardPage() {
           `,
         }}
       />
-      <main className="mx-auto w-full max-w-6xl flex-1 space-y-6 p-4 md:p-8">
-        <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <main className="mx-auto w-full max-w-6xl flex-1 space-y-8 p-4 md:p-8">
+        <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h1 className="text-[22px] font-semibold leading-tight tracking-tight text-foreground">
+            <p className="font-mono text-[11px] font-medium uppercase tracking-[0.16em] text-accent">
               Overview
+            </p>
+            <h1 className="mt-1.5 text-[26px] font-semibold leading-tight tracking-tight text-foreground">
+              Your meetings at a glance
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              Everything from your meetings this month, in one place.
+              {fmtDate(new Date(), "EEEE, MMMM d")} — everything from this month in one place.
             </p>
           </div>
           <Link
             href="/meetings/new"
-            className="inline-flex shrink-0 items-center gap-2 self-start rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-teal-600 sm:self-auto"
+            className="inline-flex shrink-0 items-center gap-2 self-start rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-teal-600 hover:shadow-md sm:self-auto"
           >
             <Plus className="size-4" /> Upload meeting
           </Link>
@@ -108,10 +112,15 @@ export default async function DashboardPage() {
 
         {/* Recent meetings — primary focus */}
         <section className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-[15px] font-semibold tracking-tight text-foreground">Recent meetings</h2>
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex min-w-0 items-baseline gap-3">
+              <h2 className="shrink-0 font-mono text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
+                Recent meetings
+              </h2>
+              <span className="hidden h-px flex-1 bg-border sm:block sm:min-w-16" aria-hidden />
+            </div>
             {hasMeetings && (
-              <Link href="/meetings" className="text-[13px] font-medium text-muted-foreground transition-colors hover:text-accent">
+              <Link href="/meetings" className="shrink-0 text-[13px] font-medium text-muted-foreground transition-colors hover:text-accent">
                 View all →
               </Link>
             )}
@@ -136,24 +145,39 @@ export default async function DashboardPage() {
         {/* Recurring series rollup */}
         {series.length > 0 && (
           <section className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="flex items-center gap-2 text-[15px] font-semibold tracking-tight text-foreground">
-                <Repeat className="size-4 text-accent" /> Recurring series
-              </h2>
-              <Link href="/series" className="text-[13px] font-medium text-muted-foreground transition-colors hover:text-accent">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex min-w-0 items-baseline gap-3">
+                <h2 className="shrink-0 font-mono text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
+                  Series
+                </h2>
+                <span className="hidden h-px flex-1 bg-border sm:block sm:min-w-16" aria-hidden />
+              </div>
+              <Link href="/series" className="shrink-0 text-[13px] font-medium text-muted-foreground transition-colors hover:text-accent">
                 View all →
               </Link>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               {series.map((s) => (
-                <Link key={s.slug} href={`/series/${s.slug}`}>
-                  <Card className="transition-colors hover:border-accent/50">
-                    <CardContent className="flex items-center justify-between gap-3 p-4">
-                      <div className="min-w-0">
-                        <span className="block truncate font-medium">{s.title}</span>
-                        <span className="text-xs text-muted-foreground">{s.count} meetings</span>
+                <Link key={`${s.kind}-${s.slug}`} href={`/series/${s.slug}`} className="group">
+                  <Card className="h-full transition-all group-hover:-translate-y-0.5 group-hover:border-accent/40 group-hover:shadow-md">
+                    <CardContent className="flex items-center gap-3 p-4">
+                      <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-accent/[0.08] text-accent">
+                        {s.kind === "custom" ? <FolderPlus className="size-4" /> : <Repeat className="size-4" />}
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="truncate font-medium">{s.title}</span>
+                          {s.kind === "custom" && (
+                            <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-accent/10 px-2 py-0.5 text-[9px] font-medium uppercase tracking-wider text-accent">
+                              <Sparkles className="size-2.5" /> Custom
+                            </span>
+                          )}
+                        </div>
+                        <span className="text-xs text-muted-foreground">
+                          {s.count} meeting{s.count === 1 ? "" : "s"} · last {fmtDate(s.lastAt, "MMM d")}
+                        </span>
                       </div>
-                      <ArrowRight className="size-4 shrink-0 text-muted-foreground" />
+                      <ArrowRight className="size-4 shrink-0 text-muted-foreground/60 transition-all group-hover:translate-x-0.5 group-hover:text-accent" />
                     </CardContent>
                   </Card>
                 </Link>
@@ -163,15 +187,23 @@ export default async function DashboardPage() {
         )}
 
         {/* Secondary: upcoming + meeting mix */}
-        <div className="grid gap-6 lg:grid-cols-2">
-          <UpcomingMeetings />
-          {breakdown.length > 0 && (
-            <Card>
-              <CardHeader><CardTitle>Meeting mix</CardTitle></CardHeader>
-              <CardContent><MeetingTypeBreakdown data={breakdown} /></CardContent>
-            </Card>
-          )}
-        </div>
+        <section className="space-y-4">
+          <div className="flex items-baseline gap-3">
+            <h2 className="shrink-0 font-mono text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
+              This month
+            </h2>
+            <span className="hidden h-px flex-1 bg-border sm:block" aria-hidden />
+          </div>
+          <div className="grid gap-6 lg:grid-cols-2">
+            <UpcomingMeetings />
+            {breakdown.length > 0 && (
+              <Card>
+                <CardHeader><CardTitle className="text-base">Meeting mix</CardTitle></CardHeader>
+                <CardContent><MeetingTypeBreakdown data={breakdown} /></CardContent>
+              </Card>
+            )}
+          </div>
+        </section>
       </main>
     </>
   );
