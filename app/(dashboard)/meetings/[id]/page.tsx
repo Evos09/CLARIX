@@ -10,6 +10,7 @@ import { PushToIntegrationButton } from "@/components/meetings/integrations/Push
 import { ShareChecklistButton } from "@/components/meetings/ShareChecklistButton";
 import { ShareMeetingButton } from "@/components/meetings/ShareMeetingButton";
 import { MeetingLiveRefresh } from "@/components/meetings/MeetingLiveRefresh";
+import { EditableMeetingTitle } from "@/components/meetings/EditableMeetingTitle";
 import { getAccessibleMeeting } from "@/lib/meetingAccess";
 import { getMeetingType } from "@/lib/meetingTypes";
 import type { KeyPoint } from "@/lib/keyPoints";
@@ -82,9 +83,7 @@ export default async function MeetingDetailPage({ params }: Params) {
                 <MeetingTypeBadge typeId={meeting.detectedType ?? meeting.meetingType} />
                 <StatusBadge status={meeting.status} />
               </div>
-              <h1 className="mt-3 text-2xl font-semibold leading-tight tracking-tight text-foreground sm:text-3xl">
-                {meeting.title}
-              </h1>
+              <EditableMeetingTitle meetingId={meeting.id} initialTitle={meeting.title} canEdit={canEdit} />
               <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
                 <span>{format(meeting.createdAt, "MMM d, yyyy")}</span>
                 <span className="flex items-center gap-1"><Clock className="size-3.5" />{formatDuration(meeting.duration)}</span>
