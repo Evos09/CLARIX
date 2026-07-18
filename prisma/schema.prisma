@@ -495,12 +495,17 @@ model LinearConnection {
 // lib/series.ts. Org-scoped. New meetings whose normalized title matches the
 // series name are auto-added when processing completes (syncMeetingIntoSeries).
 model MeetingSeries {
-  id        String              @id @default(cuid())
-  orgId     String
-  name      String
-  createdBy String // User.id
-  createdAt DateTime            @default(now())
-  items     MeetingSeriesItem[]
+  id         String              @id @default(cuid())
+  orgId      String
+  name       String
+  createdBy  String // User.id
+  createdAt  DateTime            @default(now())
+  // AI compare/contrast across the series' meetings (markdown) + a notes list
+  // (JSON [{id, text, source: "ai"|"user"}]) users can extend/edit.
+  comparison String?             @db.Text
+  notes      Json?
+  insightsAt DateTime?
+  items      MeetingSeriesItem[]
 
   @@index([orgId])
 }

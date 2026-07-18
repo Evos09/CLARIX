@@ -4,6 +4,7 @@ import { format as fmtDate } from "date-fns";
 import { CheckSquare, ListTodo, Gavel, ArrowLeft } from "lucide-react";
 import { TopNav } from "@/components/layout/TopNav";
 import { DeleteSeriesButton, ManageSeriesMeetings, RemoveFromSeriesButton } from "@/components/series/SeriesActions";
+import { SeriesInsights } from "@/components/series/SeriesInsights";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getOrCreateContext, hasDb } from "@/lib/auth";
 import { getSeriesDetail } from "@/lib/series";
@@ -60,6 +61,17 @@ export default async function SeriesDetailPage({ params }: Params) {
             <DeleteSeriesButton slug={detail.slug} kind={kind} redirectAfter />
           </div>
         </div>
+
+        {/* Custom series: AI compare/contrast + shared notes list */}
+        {kind === "custom" && (
+          <SeriesInsights
+            seriesId={detail.slug}
+            initialComparison={detail.comparison}
+            initialNotes={detail.notes}
+            insightsAt={detail.insightsAt ? detail.insightsAt.toISOString() : null}
+            meetingCount={meetings.length}
+          />
+        )}
 
         {/* Open action items across the whole series */}
         <Card>

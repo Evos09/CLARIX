@@ -113,6 +113,8 @@ export type SeriesActionItem = {
   meetingAt: Date;
 };
 
+export type SeriesNote = { id: string; text: string; source: "ai" | "user" };
+
 export type SeriesDetail = {
   slug: string;
   title: string;
@@ -120,6 +122,10 @@ export type SeriesDetail = {
   openItems: SeriesActionItem[];
   doneCount: number;
   kind: "auto" | "custom";
+  // Custom series only: AI compare/contrast (markdown) + editable notes list.
+  comparison: string | null;
+  notes: SeriesNote[];
+  insightsAt: Date | null;
 };
 
 type GroupMeeting = { id: string; title: string; createdAt: Date; meetingType: string; structuredOutput: unknown };
@@ -198,6 +204,14 @@ export async function getSeriesDetail(orgId: string, userId: string, slug: strin
   // Newest meetings first for the display timeline.
   seriesMeetings.reverse();
 
+  const rawNotes = custom?.notes;
+  const notes: SeriesNote[] = Array.isArray(rawNotes)
+    ? (rawNotes as unknown[]).filter(
+        (n): n is SeriesNote =>
+          typeof n === "object" && n !== null && typeof (n as SeriesNote).id === "string" && typeof (n as SeriesNote).text === "string",
+      )
+    : [];
+
   return {
     slug,
     title: displayTitle,
@@ -205,6 +219,9 @@ export async function getSeriesDetail(orgId: string, userId: string, slug: strin
     openItems,
     doneCount,
     kind,
+    comparison: custom?.comparison ?? null,
+    notes,
+    insightsAt: custom?.insightsAt ?? null,
   };
 }
 
