@@ -109,6 +109,15 @@ export async function processMeeting(meetingId: string, instruction?: string): P
       console.error("Failed to auto-post to Slack:", slackErr);
     }
 
+    // Keep custom series up to date: add this meeting to any user-created
+    // series whose name matches its title (best-effort).
+    try {
+      const { syncMeetingIntoSeries } = await import("@/lib/series");
+      await syncMeetingIntoSeries(meetingId);
+    } catch (seriesErr) {
+      console.error("Failed to sync meeting into series:", seriesErr);
+    }
+
     // Fire user-configured outbound webhooks (Zapier/Make/n8n/custom). Best-effort.
     try {
       const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";

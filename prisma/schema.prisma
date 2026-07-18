@@ -100,6 +100,7 @@ model Meeting {
   integrationPushes IntegrationPush[]
   memoryChunks      MeetingChunk[]
   collaborators     MeetingCollaborator[]
+  seriesItems       MeetingSeriesItem[]
 
   @@index([orgId])
   @@index([userId])
@@ -487,6 +488,44 @@ model LinearConnection {
   connected        Boolean  @default(true)
   defaultTeamId    String?
   createdAt        DateTime @default(now())
+}
+
+// Custom (user-created) meeting series: any hand-picked set of meetings grouped
+// under a name, layered on top of the automatic title-based series in
+// lib/series.ts. Org-scoped. New meetings whose normalized title matches the
+// series name are auto-added when processing completes (syncMeetingIntoSeries).
+model MeetingSeries {
+  id        String              @id @default(cuid())
+  orgId     String
+  name      String
+  createdBy String // User.id
+  createdAt DateTime            @default(now())
+  items     MeetingSeriesItem[]
+
+  @@index([orgId])
+}
+
+model MeetingSeriesItem {
+  id        String        @id @default(cuid())
+  seriesId  String
+  series    MeetingSeries @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+  meetingId String
+  meeting   Meeting       @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  addedAt   DateTime      @default(now())
+
+  @@unique([seriesId, meetingId])
+  @@index([meetingId])
+}
+
+// Auto-detected series a user deleted: we remember the normalized slug per org
+// so it stays hidden from /series and the dashboard.
+model DismissedSeries {
+  id        String   @id @default(cuid())
+  orgId     String
+  slug      String
+  createdAt DateTime @default(now())
+
+  @@unique([orgId, slug])
 }
 
 // User-configured outbound webhooks. When a meeting finishes processing we POST

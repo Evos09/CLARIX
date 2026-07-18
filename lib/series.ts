@@ -33,11 +33,12 @@ export function seriesSlug(key: string): string {
 }
 
 export type SeriesSummary = {
-  slug: string;
+  slug: string; // auto: normalized-title slug · custom: MeetingSeries.id
   title: string; // display title (most recent meeting in the series)
   count: number;
   lastAt: Date;
   firstAt: Date;
+  kind: "auto" | "custom";
 };
 
 type MeetingWhere = { OR: [{ orgId: string }, { collaborators: { some: { userId: string } } }]; status: "COMPLETE" };
@@ -45,21 +46,38 @@ function accessibleWhere(orgId: string, userId: string): MeetingWhere {
   return { OR: [{ orgId }, { collaborators: { some: { userId } } }], status: "COMPLETE" };
 }
 
-/** All recurring series (title normalized to the same key 2+ times), newest first. */
+/** Custom (user-created) series + automatic recurring series (title normalized
+ *  to the same key 2+ times, minus any the user deleted), newest first. */
 export async function getSeriesList(orgId: string, userId: string): Promise<SeriesSummary[]> {
-  const meetings = await prisma.meeting.findMany({
-    where: accessibleWhere(orgId, userId),
-    select: { title: true, createdAt: true },
-    orderBy: { createdAt: "desc" },
+  const [meetings, custom, dismissed] = await Promise.all([
+    prisma.meeting.findMany({
+      where: accessibleWhere(orgId, userId),
+      select: { title: true, createdAt: true },
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.meetingSeries.findMany({
+      where: { orgId },
+      include: { items: { include: { meeting: { select: { createdAt: true } } } } },
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.dismissedSeries.findMany({ where: { orgId }, select: { slug: true } }),
+  ]);
+
+  const customSummaries: SeriesSummary[] = custom.map((s) => {
+    const dates = s.items.map((i) => i.meeting.createdAt);
+    const lastAt = dates.length ? new Date(Math.max(...dates.map((d) => d.getTime()))) : s.createdAt;
+    const firstAt = dates.length ? new Date(Math.min(...dates.map((d) => d.getTime()))) : s.createdAt;
+    return { slug: s.id, title: s.name, count: s.items.length, lastAt, firstAt, kind: "custom" as const };
   });
 
+  const hidden = new Set(dismissed.map((d) => d.slug));
   const map = new Map<string, SeriesSummary>();
   for (const m of meetings) {
     const key = seriesKey(m.title);
     if (!key) continue;
     const existing = map.get(key);
     if (!existing) {
-      map.set(key, { slug: seriesSlug(key), title: m.title, count: 1, lastAt: m.createdAt, firstAt: m.createdAt });
+      map.set(key, { slug: seriesSlug(key), title: m.title, count: 1, lastAt: m.createdAt, firstAt: m.createdAt, kind: "auto" });
     } else {
       existing.count += 1;
       if (m.createdAt > existing.lastAt) {
@@ -69,8 +87,9 @@ export async function getSeriesList(orgId: string, userId: string): Promise<Seri
       if (m.createdAt < existing.firstAt) existing.firstAt = m.createdAt;
     }
   }
+  const auto = [...map.values()].filter((s) => s.count >= 2 && !hidden.has(s.slug));
 
-  return [...map.values()].filter((s) => s.count >= 2).sort((a, b) => b.lastAt.getTime() - a.lastAt.getTime());
+  return [...customSummaries, ...auto].sort((a, b) => b.lastAt.getTime() - a.lastAt.getTime());
 }
 
 export type SeriesMeeting = {
@@ -100,20 +119,46 @@ export type SeriesDetail = {
   meetings: SeriesMeeting[];
   openItems: SeriesActionItem[];
   doneCount: number;
+  kind: "auto" | "custom";
 };
 
+type GroupMeeting = { id: string; title: string; createdAt: Date; meetingType: string; structuredOutput: unknown };
+
 /** Full rollup for one series: its meetings (oldest→newest), open action items
- *  across all of them, and how many have been completed. Returns null if the
- *  slug matches fewer than 2 accessible meetings. */
+ *  across all of them, and how many have been completed. `slug` is a custom
+ *  MeetingSeries.id (tried first) or an auto normalized-title slug (needs 2+
+ *  accessible meetings). Returns null if neither matches. */
 export async function getSeriesDetail(orgId: string, userId: string, slug: string): Promise<SeriesDetail | null> {
-  const meetings = await prisma.meeting.findMany({
-    where: accessibleWhere(orgId, userId),
-    select: { id: true, title: true, createdAt: true, meetingType: true, structuredOutput: true },
-    orderBy: { createdAt: "asc" },
+  // Custom series first: hand-picked membership, any size.
+  const custom = await prisma.meetingSeries.findFirst({
+    where: { id: slug, orgId },
+    include: {
+      items: {
+        include: {
+          meeting: { select: { id: true, title: true, createdAt: true, meetingType: true, structuredOutput: true } },
+        },
+      },
+    },
   });
 
-  const group = meetings.filter((m) => seriesSlug(seriesKey(m.title)) === slug);
-  if (group.length < 2) return null;
+  let group: GroupMeeting[];
+  let kind: "auto" | "custom";
+  let displayTitle: string;
+  if (custom) {
+    group = custom.items.map((i) => i.meeting).sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+    kind = "custom";
+    displayTitle = custom.name;
+  } else {
+    const meetings = await prisma.meeting.findMany({
+      where: accessibleWhere(orgId, userId),
+      select: { id: true, title: true, createdAt: true, meetingType: true, structuredOutput: true },
+      orderBy: { createdAt: "asc" },
+    });
+    group = meetings.filter((m) => seriesSlug(seriesKey(m.title)) === slug);
+    if (group.length < 2) return null;
+    kind = "auto";
+    displayTitle = group[group.length - 1].title;
+  }
 
   const seriesMeetings: SeriesMeeting[] = group.map((m) => {
     const out = (m.structuredOutput as unknown as BaseOutput | null) ?? null;
@@ -155,9 +200,35 @@ export async function getSeriesDetail(orgId: string, userId: string, slug: strin
 
   return {
     slug,
-    title: group[group.length - 1].title,
+    title: displayTitle,
     meetings: seriesMeetings,
     openItems,
     doneCount,
+    kind,
   };
+}
+
+/** Keep custom series in sync as meetings arrive: when a meeting completes
+ *  processing, auto-add it to any custom series in its org whose name
+ *  normalizes to the same key as the meeting title. Best-effort. */
+export async function syncMeetingIntoSeries(meetingId: string): Promise<void> {
+  const meeting = await prisma.meeting.findUnique({
+    where: { id: meetingId },
+    select: { id: true, title: true, orgId: true },
+  });
+  if (!meeting) return;
+  const key = seriesKey(meeting.title);
+  if (!key) return;
+
+  const series = await prisma.meetingSeries.findMany({
+    where: { orgId: meeting.orgId },
+    select: { id: true, name: true },
+  });
+  const matches = series.filter((s) => seriesKey(s.name) === key);
+  if (!matches.length) return;
+
+  await prisma.meetingSeriesItem.createMany({
+    data: matches.map((s) => ({ seriesId: s.id, meetingId: meeting.id })),
+    skipDuplicates: true,
+  });
 }

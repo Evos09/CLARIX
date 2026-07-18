@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { format as fmtDate } from "date-fns";
 import { CheckSquare, ListTodo, Gavel, ArrowLeft } from "lucide-react";
 import { TopNav } from "@/components/layout/TopNav";
+import { DeleteSeriesButton, ManageSeriesMeetings, RemoveFromSeriesButton } from "@/components/series/SeriesActions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getOrCreateContext, hasDb } from "@/lib/auth";
 import { getSeriesDetail } from "@/lib/series";
@@ -26,7 +27,7 @@ export default async function SeriesDetailPage({ params }: Params) {
   const detail = await getSeriesDetail(ctx.orgId, ctx.userId, decodeURIComponent(key));
   if (!detail) notFound();
 
-  const { title, meetings, openItems, doneCount } = detail;
+  const { title, meetings, openItems, doneCount, kind } = detail;
   const first = meetings[meetings.length - 1];
   const last = meetings[0];
 
@@ -34,16 +35,30 @@ export default async function SeriesDetailPage({ params }: Params) {
     <>
       <TopNav title="Series" />
       <main className="flex-1 space-y-6 p-4 md:p-8">
-        <div>
-          <Link href="/series" className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
-            <ArrowLeft className="size-3.5" /> All series
-          </Link>
-          <h1 className="mt-2 text-2xl font-semibold tracking-tight">{title}</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {meetings.length} meetings · {fmtDate(first.createdAt, "MMM d")} – {fmtDate(last.createdAt, "MMM d, yyyy")}
-            {" · "}
-            {openItems.length} open · {doneCount} completed action items
-          </p>
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <Link href="/series" className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
+              <ArrowLeft className="size-3.5" /> All series
+            </Link>
+            <h1 className="mt-2 text-2xl font-semibold tracking-tight">
+              {title}
+              {kind === "custom" && (
+                <span className="ml-2 align-middle rounded bg-accent/10 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-accent">
+                  Custom
+                </span>
+              )}
+            </h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {meetings.length} meeting{meetings.length === 1 ? "" : "s"}
+              {first && last && <> · {fmtDate(first.createdAt, "MMM d")} – {fmtDate(last.createdAt, "MMM d, yyyy")}</>}
+              {" · "}
+              {openItems.length} open · {doneCount} completed action items
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            {kind === "custom" && <ManageSeriesMeetings seriesId={detail.slug} memberIds={meetings.map((m) => m.id)} />}
+            <DeleteSeriesButton slug={detail.slug} kind={kind} redirectAfter />
+          </div>
         </div>
 
         {/* Open action items across the whole series */}
@@ -88,6 +103,11 @@ export default async function SeriesDetailPage({ params }: Params) {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-5">
+            {meetings.length === 0 && (
+              <p className="text-sm text-muted-foreground">
+                This series is empty — use “Add meetings” to combine any meetings you want.
+              </p>
+            )}
             {meetings.map((m) => (
               <div key={m.id} className="relative border-l-2 border-border pl-4">
                 <div className="flex flex-wrap items-baseline gap-x-2">
@@ -95,6 +115,7 @@ export default async function SeriesDetailPage({ params }: Params) {
                     {m.title}
                   </Link>
                   <span className="text-xs text-muted-foreground">{fmtDate(m.createdAt, "MMM d, yyyy")}</span>
+                  {kind === "custom" && <RemoveFromSeriesButton seriesId={detail.slug} meetingId={m.id} />}
                 </div>
                 {m.tldr && <p className="mt-1 text-sm text-muted-foreground">{m.tldr}</p>}
                 {m.decisions.length > 0 && (
