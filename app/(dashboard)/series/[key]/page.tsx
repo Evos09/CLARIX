@@ -25,13 +25,25 @@ export default async function SeriesDetailPage({ params }: Params) {
   const ctx = await getOrCreateContext();
   if (!ctx) notFound();
 
-  const detail = await getSeriesDetail(ctx.orgId, ctx.userId, decodeURIComponent(key));
+  let detail: Awaited<ReturnType<typeof getSeriesDetail>>;
+  try {
+    detail = await getSeriesDetail(ctx.orgId, ctx.userId, decodeURIComponent(key));
+  } catch (err) {
+    // TEMP DIAGNOSTIC: surface the real error for a prod-only 500 (auth-gated route).
+    return (
+      <main className="flex-1 p-8 font-mono text-xs">
+        <h1 className="mb-4 text-base font-semibold">DIAG getSeriesDetail threw</h1>
+        <pre className="whitespace-pre-wrap">{String((err as Error)?.stack ?? (err as Error)?.message ?? err)}</pre>
+      </main>
+    );
+  }
   if (!detail) notFound();
 
   const { title, meetings, openItems, doneCount, kind } = detail;
   const first = meetings[meetings.length - 1];
   const last = meetings[0];
 
+  try {
   return (
     <>
       <TopNav title="Series" />
@@ -148,4 +160,13 @@ export default async function SeriesDetailPage({ params }: Params) {
       </main>
     </>
   );
+  } catch (err) {
+    if ((err as { digest?: string })?.digest?.startsWith?.("NEXT")) throw err;
+    return (
+      <main className="flex-1 p-8 font-mono text-xs">
+        <h1 className="mb-4 text-base font-semibold">DIAG render threw</h1>
+        <pre className="whitespace-pre-wrap">{String((err as Error)?.stack ?? (err as Error)?.message ?? err)}</pre>
+      </main>
+    );
+  }
 }
