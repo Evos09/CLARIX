@@ -246,6 +246,43 @@ export function ManageSeriesMeetings({ seriesId, memberIds }: { seriesId: string
   );
 }
 
+/** On an auto-detected series page: convert it into a custom series (same
+ *  meetings) so it gains AI compare/contrast + the notes list. */
+export function ConvertToCustomButton({ name, meetingIds }: { name: string; meetingIds: string[] }) {
+  const router = useRouter();
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function convert() {
+    setBusy(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/series", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, meetingIds }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Failed to convert");
+      router.push(`/series/${data.series.id}`);
+      router.refresh();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to convert");
+      setBusy(false);
+    }
+  }
+
+  return (
+    <span className="flex items-center gap-2">
+      {error && <span className="text-xs text-destructive">{error}</span>}
+      <Button variant="outline" size="sm" onClick={convert} disabled={busy}>
+        {busy ? <Loader2 className="size-4 animate-spin" /> : <Plus className="size-4" />}
+        Save as custom series
+      </Button>
+    </span>
+  );
+}
+
 /** Small × next to a meeting row on a custom series page. */
 export function RemoveFromSeriesButton({ seriesId, meetingId }: { seriesId: string; meetingId: string }) {
   const router = useRouter();

@@ -116,6 +116,7 @@ export function MeetingTabs({
               keyPoints={keyPoints}
               speakerMap={speakerMap}
               initialQuery={wantsTranscript ? highlight : ""}
+              canEdit={canEdit}
             />
           </CardContent>
         </Card>

@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { format as fmtDate } from "date-fns";
 import { CheckSquare, ListTodo, Gavel, ArrowLeft } from "lucide-react";
 import { TopNav } from "@/components/layout/TopNav";
-import { DeleteSeriesButton, ManageSeriesMeetings, RemoveFromSeriesButton } from "@/components/series/SeriesActions";
+import { DeleteSeriesButton, ManageSeriesMeetings, RemoveFromSeriesButton, ConvertToCustomButton } from "@/components/series/SeriesActions";
 import { SeriesInsights } from "@/components/series/SeriesInsights";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getOrCreateContext, hasDb } from "@/lib/auth";
@@ -58,6 +58,7 @@ export default async function SeriesDetailPage({ params }: Params) {
           </div>
           <div className="flex items-center gap-2">
             {kind === "custom" && <ManageSeriesMeetings seriesId={detail.slug} memberIds={meetings.map((m) => m.id)} />}
+            {kind === "auto" && <ConvertToCustomButton name={title} meetingIds={meetings.map((m) => m.id)} />}
             <DeleteSeriesButton slug={detail.slug} kind={kind} redirectAfter />
           </div>
         </div>

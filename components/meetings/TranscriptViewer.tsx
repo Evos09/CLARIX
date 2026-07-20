@@ -42,6 +42,7 @@ export function TranscriptViewer({
   keyPoints = [],
   speakerMap = {},
   initialQuery = "",
+  canEdit = true,
 }: {
   meetingId: string;
   segments: TranscriptSegment[];
@@ -51,6 +52,8 @@ export function TranscriptViewer({
   speakerMap?: Record<string, string>;
   /** Pre-filled search (chat citation deep-links) — cleared if nothing matches. */
   initialQuery?: string;
+  /** VIEWER collaborators get a read-only transcript (no speaker rename). */
+  canEdit?: boolean;
 }) {
   const waveRef = useRef<HTMLDivElement>(null);
   const wsRef = useRef<{ playPause: () => void; setTime: (s: number) => void; play: () => void; destroy: () => void } | null>(null);
@@ -205,7 +208,11 @@ export function TranscriptViewer({
                 <button onClick={() => seek(s.start)} className="shrink-0 font-sans text-xs text-muted-foreground hover:text-teal-600" title="Jump to this moment">
                   {formatDuration(s.start)}
                 </button>
-                {editing === s.speaker ? (
+                {!canEdit ? (
+                  <span className={`inline-flex shrink-0 items-center font-semibold ${speakerColor.get(s.speaker)}`}>
+                    {speakerName(s.speaker)}:
+                  </span>
+                ) : editing === s.speaker ? (
                   <span className="flex items-center gap-1">
                     <input value={editVal} onChange={(e) => setEditVal(e.target.value)} onKeyDown={(e) => e.key === "Enter" && saveSpeaker(s.speaker)} autoFocus className="w-28 rounded border border-input bg-card px-1 font-sans text-xs" />
                     <button onClick={() => saveSpeaker(s.speaker)}><Check className="size-3 text-teal-600" /></button>
@@ -221,9 +228,11 @@ export function TranscriptViewer({
                   </button>
                 )}
                 <span className="text-foreground/90">{highlight(s.text, query)}</span>
-                <button onClick={() => setOpenComment(openComment === i ? null : i)} className="ml-auto shrink-0 text-muted-foreground opacity-0 transition-opacity hover:text-teal-600 group-hover:opacity-100" title="Add note">
-                  <MessageSquarePlus className="size-4" />
-                </button>
+                {canEdit && (
+                  <button onClick={() => setOpenComment(openComment === i ? null : i)} className="ml-auto shrink-0 text-muted-foreground opacity-0 transition-opacity hover:text-teal-600 group-hover:opacity-100" title="Add note">
+                    <MessageSquarePlus className="size-4" />
+                  </button>
+                )}
               </div>
               {segComments.map((c) => (
                 <p key={c.id} className="ml-12 mt-1 rounded bg-muted px-2 py-1 font-sans text-xs text-muted-foreground">📝 {c.content}</p>
