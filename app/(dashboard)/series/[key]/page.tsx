@@ -11,10 +11,7 @@ import { getSeriesDetail } from "@/lib/series";
 
 export const dynamic = "force-dynamic";
 
-type Params = {
-  params: Promise<{ key: string }>;
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
-};
+type Params = { params: Promise<{ key: string }> };
 
 const PRIORITY_COLOR: Record<string, string> = {
   HIGH: "text-red-600",
@@ -22,11 +19,8 @@ const PRIORITY_COLOR: Record<string, string> = {
   LOW: "text-muted-foreground",
 };
 
-export default async function SeriesDetailPage({ params, searchParams }: Params) {
+export default async function SeriesDetailPage({ params }: Params) {
   const { key } = await params;
-  // TEMP: `?off=` isolates a prod-only 500 by skipping custom-only children.
-  // m=manage meetings, i=insights, r=remove buttons, n=topnav, c=cards.
-  const off = String((await searchParams)?.off ?? "");
   if (!hasDb) notFound();
   const ctx = await getOrCreateContext();
   if (!ctx) notFound();
@@ -63,14 +57,14 @@ export default async function SeriesDetailPage({ params, searchParams }: Params)
             </p>
           </div>
           <div className="flex items-center gap-2">
-            {kind === "custom" && !off.includes("m") && <ManageSeriesMeetingsLazy seriesId={detail.slug} memberIds={meetings.map((m) => m.id)} />}
+            {kind === "custom" && <ManageSeriesMeetingsLazy seriesId={detail.slug} memberIds={meetings.map((m) => m.id)} />}
             {kind === "auto" && <ConvertToCustomButton name={title} meetingIds={meetings.map((m) => m.id)} />}
             <DeleteSeriesButton slug={detail.slug} kind={kind} redirectAfter />
           </div>
         </div>
 
         {/* Custom series: AI compare/contrast + shared notes list */}
-        {kind === "custom" && !off.includes("i") && (
+        {kind === "custom" && (
           <SeriesInsightsLazy
             seriesId={detail.slug}
             initialComparison={detail.comparison}
@@ -134,7 +128,7 @@ export default async function SeriesDetailPage({ params, searchParams }: Params)
                     {m.title}
                   </Link>
                   <span className="text-xs text-muted-foreground">{fmtDate(m.createdAt, "MMM d, yyyy")}</span>
-                  {kind === "custom" && !off.includes("r") && <RemoveFromSeriesButton seriesId={detail.slug} meetingId={m.id} />}
+                  {kind === "custom" && <RemoveFromSeriesButton seriesId={detail.slug} meetingId={m.id} />}
                 </div>
                 {m.tldr && <p className="mt-1 text-sm text-muted-foreground">{m.tldr}</p>}
                 {m.decisions.length > 0 && (
