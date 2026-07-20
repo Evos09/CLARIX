@@ -9,7 +9,7 @@ export const plans: Plan[] = [
   { name: "Starter", description: "For individuals who meet often.", price: { monthly: 15, annual: 13 }, unit: "/user/mo", cta: "Start 14-day trial", href: "/sign-up",
     features: ["20 meetings per month", "All standard meeting types", "25 Clarix Chat messages / month", "PDF, DOCX & CSV export", "Auto-join meeting bot (Zoom, Meet, Teams)", "Forever audio library", "Email integration (Gmail)"] },
   { name: "Pro", description: "For teams that run on meetings.", price: { monthly: 30, annual: 25 }, unit: "/user/mo", cta: "Start 14-day trial", href: "/sign-up", popular: true,
-    features: ["Unlimited meetings", "All exports (PDF, DOCX, CSV, JSON)", "100 Clarix Chat messages / month", "Auto-join meeting bot", "Forever library + reprocessing", "Google Calendar, Gmail & Notion", "Voice Mode (coming soon)", "Email support"] },
+    features: ["Unlimited meetings", "All exports (PDF, DOCX, CSV, JSON)", "100 Clarix Chat messages / month", "Auto-join meeting bot", "Forever library + reprocessing", "Google Calendar & Gmail", "Notion (coming soon)", "Voice Mode (coming soon)", "Email support"] },
   { name: "Business", description: "For power users and teams who want the full self-serve toolkit.", price: { monthly: 59, annual: 50 }, unit: "/user/mo", cta: "Start 14-day trial", href: "/sign-up",
     features: ["Everything in Pro", "Unlimited Clarix Chat", "Custom AI templates", "Team sharing", "Email support"] },
 ];
@@ -272,7 +272,8 @@ export const integrations: Integration[] = [
     "name": "Notion",
     "logo": "/logos/notion.svg",
     "category": "Workspace",
-    "description": "Automatically create structured meeting pages in your workspace."
+    "description": "Automatically create structured meeting pages in your workspace.",
+    "soon": true
   },
   {
     "name": "Linear",

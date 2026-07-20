@@ -64,8 +64,8 @@ const blocks = [
     eyebrow: "Integrations",
     title: "Connected to the tools teams already use",
     description:
-      "CLARIX links to your calendar to see upcoming meetings and attach recordings, sends summaries by email, posts to Slack, creates structured pages in Notion, and turns action items into Linear issues.",
-    bullets: ["Calendar, email, Slack, Notion, Linear", "Automatic, two-way sync"],
+      "CLARIX links to your calendar to see upcoming meetings and attach recordings, sends summaries by email, and posts a signed payload to any endpoint with outbound webhooks — so you can wire it into Zapier, Make, or your own stack today. Slack, Notion, and Linear are on the way.",
+    bullets: ["Calendar, email & outbound webhooks", "Slack, Notion & Linear coming soon"],
     visual: <IntegrationsVisual />,
   },
   {

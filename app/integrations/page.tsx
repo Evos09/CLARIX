@@ -10,7 +10,7 @@ import { Bot, MessageSquare, FileText } from "lucide-react";
 export const metadata = {
   title: "Integrations — CLARIX",
   description:
-    "CLARIX connects to Zoom, Google Meet, Teams, Google Calendar, Gmail, and Notion — with Slack and Linear on the way.",
+    "CLARIX connects to Zoom, Google Meet, Teams, Google Calendar, and Gmail — with Notion, Slack, and Linear on the way.",
 };
 
 const categories: Integration["category"][] = ["Conferencing", "Calendar", "Email", "Workspace"];
@@ -31,7 +31,7 @@ const explainers = [
   {
     icon: FileText,
     title: "Notion",
-    tools: "Workspace pages",
+    tools: "Workspace pages · Coming soon",
     body: "CLARIX creates a structured Notion page for each meeting — complete with the summary, decisions, and action items — in the workspace and database you choose. Your meeting notes become a searchable, linked part of your knowledge base.",
   },
 ];
