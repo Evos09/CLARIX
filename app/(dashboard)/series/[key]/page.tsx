@@ -3,8 +3,8 @@ import { notFound } from "next/navigation";
 import { format as fmtDate } from "date-fns";
 import { CheckSquare, ListTodo, Gavel, ArrowLeft } from "lucide-react";
 import { TopNav } from "@/components/layout/TopNav";
-import { DeleteSeriesButton, ManageSeriesMeetings, RemoveFromSeriesButton, ConvertToCustomButton } from "@/components/series/SeriesActions";
-import { SeriesInsights } from "@/components/series/SeriesInsights";
+import { DeleteSeriesButton, RemoveFromSeriesButton, ConvertToCustomButton } from "@/components/series/SeriesActions";
+import { SeriesInsightsLazy, ManageSeriesMeetingsLazy } from "@/components/series/SeriesLazy";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getOrCreateContext, hasDb } from "@/lib/auth";
 import { getSeriesDetail } from "@/lib/series";
@@ -57,7 +57,7 @@ export default async function SeriesDetailPage({ params }: Params) {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            {kind === "custom" && <ManageSeriesMeetings seriesId={detail.slug} memberIds={meetings.map((m) => m.id)} />}
+            {kind === "custom" && <ManageSeriesMeetingsLazy seriesId={detail.slug} memberIds={meetings.map((m) => m.id)} />}
             {kind === "auto" && <ConvertToCustomButton name={title} meetingIds={meetings.map((m) => m.id)} />}
             <DeleteSeriesButton slug={detail.slug} kind={kind} redirectAfter />
           </div>
@@ -65,7 +65,7 @@ export default async function SeriesDetailPage({ params }: Params) {
 
         {/* Custom series: AI compare/contrast + shared notes list */}
         {kind === "custom" && (
-          <SeriesInsights
+          <SeriesInsightsLazy
             seriesId={detail.slug}
             initialComparison={detail.comparison}
             initialNotes={detail.notes}
