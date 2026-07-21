@@ -76,11 +76,14 @@ export async function getOrCreateContext(): Promise<OrgUserContext | null> {
       where: { clerkOrgId },
       update: {},
       create: { clerkOrgId, name: "My Organization", plan: "FREE" },
+      include: { _count: { select: { users: true } } },
     });
     const user = await prisma.user.upsert({
       where: { clerkId: ctx.clerkUserId },
       update: { email: ctx.email },
-      create: { clerkId: ctx.clerkUserId, email: ctx.email, role: "ADMIN", orgId: org.id },
+      // The first user in a workspace owns it; anyone joining later is a MEMBER.
+      // Only evaluated on create — existing users keep the role they already have.
+      create: { clerkId: ctx.clerkUserId, email: ctx.email, role: org._count.users === 0 ? "ADMIN" : "MEMBER", orgId: org.id },
     });
 
     // Auto-claim demo meeting if it exists in cookies

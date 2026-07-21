@@ -28,11 +28,13 @@ export async function POST(req: Request) {
     where: { clerkOrgId },
     update: { name: orgName, useCase },
     create: { clerkOrgId, name: orgName, useCase, plan: "FREE" },
+    include: { _count: { select: { users: true } } },
   });
   const user = await prisma.user.upsert({
     where: { clerkId: ctx.clerkUserId },
     update: { email: ctx.email, orgId: org.id },
-    create: { clerkId: ctx.clerkUserId, email: ctx.email, role: "ADMIN", orgId: org.id },
+    // The first user in a workspace owns it; anyone joining later is a MEMBER.
+    create: { clerkId: ctx.clerkUserId, email: ctx.email, role: org._count.users === 0 ? "ADMIN" : "MEMBER", orgId: org.id },
   });
 
   // Auto-claim demo meeting if it exists in cookies
