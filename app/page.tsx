@@ -6,7 +6,6 @@ import LenisProvider from "@/components/landing/LenisProvider";
 import ChromaticFringe from "@/components/landing/ChromaticFringe";
 import TransitionContainer from "@/components/landing/TransitionContainer";
 import { SiteFooter } from "@/components/site/site-footer";
-import { BetaBanner } from "@/components/site/BetaBanner";
 
 export const metadata: Metadata = {
   title: { absolute: "CLARIX — Your AI Assistant for Every Meeting" },
@@ -31,9 +30,6 @@ export default async function Home() {
         <div className="relative z-10 bg-paper">
           <SiteFooter />
         </div>
-
-        {/* Beta + billing notice (dismissible) */}
-        <BetaBanner />
       </main>
     </LenisProvider>
   );

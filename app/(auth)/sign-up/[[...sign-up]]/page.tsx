@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { SignUp, ClerkLoading, ClerkLoaded } from "@clerk/nextjs";
-import { Loader2, ShieldCheck, Check, FlaskConical } from "lucide-react";
+import { Loader2, ShieldCheck, Check } from "lucide-react";
 import { AuthShell } from "@/components/auth/AuthShell";
 import { clerkAppearance } from "@/lib/clerkAppearance";
 import { buttonVariants } from "@/components/ui/button";
@@ -14,7 +14,6 @@ export default function SignUpPage() {
   const [accepted, setAccepted] = useState(false);
   const [agreedTerms, setAgreedTerms] = useState(false);
   const [agreedPrivacy, setAgreedPrivacy] = useState(false);
-  const [agreedBeta, setAgreedBeta] = useState(false);
 
   return (
     <AuthShell mode="sign-up">
@@ -64,34 +63,6 @@ export default function SignUpPage() {
                     </Link>.
                   </span>
                 </label>
-                <label className="flex items-start gap-2.5 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={agreedBeta}
-                    onChange={(e) => setAgreedBeta(e.target.checked)}
-                    className="mt-0.5 size-4 shrink-0 accent-violet-600"
-                  />
-                  <span className="font-medium text-foreground">
-                    I understand CLARIX is in beta and that paid charges are non-refundable.
-                  </span>
-                </label>
-                <div className="rounded-lg border border-amber-300/60 bg-amber-50 p-2.5 text-[10px] leading-relaxed text-amber-950">
-                  <p className="flex items-center gap-1.5 font-semibold">
-                    <FlaskConical className="size-3.5 text-amber-700" /> Beta testing notice
-                  </p>
-                  <p className="mt-1">
-                    CLARIX is actively being developed. Features may change and things may
-                    occasionally break. We&apos;ll do our best to fix any problem you report, but we
-                    can&apos;t guarantee uninterrupted service or a specific fix timeline.
-                  </p>
-                  <p className="mt-1.5">
-                    Paid plans begin with a{" "}
-                    <strong className="font-semibold">14-day free trial</strong> so you can evaluate
-                    CLARIX before paying. Once a charge is made it is{" "}
-                    <strong className="font-semibold">non-refundable</strong>, including for partial
-                    months. You can cancel anytime to stop future billing.
-                  </p>
-                </div>
                 <p className="text-[10px] bg-muted/60 rounded p-2 text-zinc-500 font-medium">
                   ⚖️ <strong>Recording Notice:</strong> You represent that you will obtain all legally required consents from meeting participants before recording.{" "}
                   <Link href="/legal/recording-consent" target="_blank" className="underline text-violet-600 hover:text-violet-700">
@@ -103,7 +74,7 @@ export default function SignUpPage() {
               <div className="pt-2">
                 <button
                   onClick={() => setAccepted(true)}
-                  disabled={!agreedTerms || !agreedPrivacy || !agreedBeta}
+                  disabled={!agreedTerms || !agreedPrivacy}
                   className="w-full py-2.5 px-4 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-semibold text-xs transition-all shadow-sm flex items-center justify-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-violet-600"
                 >
                   <Check className="size-4" /> Continue to Sign Up
