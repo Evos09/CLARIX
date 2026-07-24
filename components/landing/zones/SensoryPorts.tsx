@@ -9,9 +9,9 @@ const INTEGRATIONS = [
   { name: "Microsoft Teams", type: "Conferencing", status: "Active" },
   { name: "Google Calendar", type: "Calendar", status: "Active" },
   { name: "Gmail", type: "Email", status: "Active" },
-  { name: "Slack", type: "Workspace", status: "Coming soon" },
+  { name: "Slack", type: "Workspace", status: "Active" },
   { name: "Notion", type: "Workspace", status: "Active" },
-  { name: "Linear", type: "Workspace", status: "Coming soon" },
+  { name: "Linear", type: "Workspace", status: "Active" },
 ];
 
 export default function SensoryPorts() {
@@ -35,7 +35,7 @@ export default function SensoryPorts() {
             Works <span className="italic text-violet-600 font-serif">everywhere</span> you meet.
           </h2>
           <p className="text-gray-600 text-lg leading-relaxed mb-6">
-            Connects to Google Calendar, Gmail, and Notion today — Slack and Linear connectors are next. No new tabs to check.
+            Connects to Google Calendar, Gmail, Notion, Slack, and Linear. No new tabs to check.
           </p>
 
           <a
