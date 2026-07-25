@@ -83,6 +83,9 @@ async function startRecording() {
   setState({ error: null });
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   if (!tab) throw new Error("No active tab to record.");
+  if (!/^https?:/i.test(tab.url || "")) {
+    throw new Error("Open the meeting tab (Zoom, Meet, Teams…) and click Record there — browser system pages like chrome:// can't be captured.");
+  }
   await ensureToken(); // force sign-in before we start capturing
   await ensureOffscreen();
   const streamId = await chrome.tabCapture.getMediaStreamId({ targetTabId: tab.id });

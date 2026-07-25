@@ -19,7 +19,7 @@
   "background": {
     "service_worker": "background.js"
   },
-  "permissions": ["tabCapture", "offscreen", "storage", "tabs"],
+  "permissions": ["tabCapture", "offscreen", "storage", "tabs", "activeTab"],
   "host_permissions": ["https://www.clarixmeetings.com/*", "https://clarixmeetings.com/*"],
   "content_scripts": [
     {
