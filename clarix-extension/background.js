@@ -4,7 +4,7 @@
 // upload runs in the offscreen document (see offscreen.js); this worker hands it
 // a captured-tab stream id and a fresh bearer token on request.
 
-const CLARIX_ORIGIN = "https://clarixmeetings.com";
+const CLARIX_ORIGIN = "https://www.clarixmeetings.com";
 const CONNECT_URL = `${CLARIX_ORIGIN}/extension/connect`;
 
 // ---- in-memory state (popup reads it via GET_STATE) ----

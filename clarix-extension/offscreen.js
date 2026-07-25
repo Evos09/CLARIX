@@ -4,7 +4,7 @@
 //   POST /api/upload -> PUT signed URL -> POST /api/meetings -> POST transcribe
 // The bearer token is fetched from the service worker on demand.
 
-const CLARIX_ORIGIN = "https://clarixmeetings.com";
+const CLARIX_ORIGIN = "https://www.clarixmeetings.com";
 
 let recorder = null;
 let chunks = [];

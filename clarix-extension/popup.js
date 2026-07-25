@@ -1,7 +1,7 @@
 // CLARIX popup — pure UI. All work happens in the service worker (background.js);
 // the popup just sends messages and renders state.
 
-const CLARIX_ORIGIN = "https://clarixmeetings.com";
+const CLARIX_ORIGIN = "https://www.clarixmeetings.com";
 const $ = (id) => document.getElementById(id);
 const send = (msg) => chrome.runtime.sendMessage(msg);
 
