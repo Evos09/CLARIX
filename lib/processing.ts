@@ -45,8 +45,16 @@ export async function processMeeting(meetingId: string, instruction?: string): P
     // Sonnet is reserved for Pro+ Clarix Chat. (`plan` is still used for analytics below.)
     const model = CLAUDE_HAIKU;
 
-    const raw = await claudeText({ system: BASE_SYSTEM, prompt, maxTokens: 4096, temperature: 0.2, model });
-    const output = parseJson<BaseOutput>(raw);
+    // Retry once: a transient Claude hiccup or a single malformed-JSON response
+    // shouldn't strand a meeting on "Analyzing." Second attempt uses a fresh call.
+    let output: BaseOutput;
+    try {
+      const raw = await claudeText({ system: BASE_SYSTEM, prompt, maxTokens: 4096, temperature: 0.2, model });
+      output = parseJson<BaseOutput>(raw);
+    } catch {
+      const raw = await claudeText({ system: BASE_SYSTEM, prompt, maxTokens: 4096, temperature: 0.2, model });
+      output = parseJson<BaseOutput>(raw);
+    }
     await prisma.meeting.update({
       where: { id: meetingId },
       data: { structuredOutput: output as unknown as Prisma.InputJsonValue, status: "COMPLETE" },

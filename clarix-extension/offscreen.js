@@ -117,8 +117,12 @@ async function upload(blob, title) {
   if (!createRes.ok) throw new Error((await createRes.json()).error || "Could not create meeting");
   const meeting = await createRes.json();
 
-  // 4. kick off transcription
-  await fetch(`${CLARIX_ORIGIN}/api/meetings/${meeting.id}/transcribe`, { method: "POST", headers: auth });
+  // 4. kick off transcription — surface a failure instead of silently reporting "done"
+  const txn = await fetch(`${CLARIX_ORIGIN}/api/meetings/${meeting.id}/transcribe`, { method: "POST", headers: auth });
+  if (!txn.ok) {
+    const detail = await txn.json().catch(() => null);
+    throw new Error(detail?.error || `Could not start transcription (${txn.status})`);
+  }
   return meeting.id;
 }
 
