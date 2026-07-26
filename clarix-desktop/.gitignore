@@ -5,5 +5,9 @@ node_modules/
 src-tauri/target/
 src-tauri/gen/
 
+# Signing keys — NEVER commit these
+*.key
+*.key.pub
+
 # OS
 .DS_Store

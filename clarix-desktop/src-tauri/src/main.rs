@@ -6,6 +6,7 @@ use tauri::menu::{Menu, MenuItem};
 use tauri::tray::TrayIconBuilder;
 use tauri::{Manager, WindowEvent};
 use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Modifiers, Shortcut, ShortcutState};
+use tauri_plugin_updater::UpdaterExt;
 
 /// Bring the main window to the front (used by the tray and the global shortcut).
 fn summon(app: &tauri::AppHandle) {
@@ -16,9 +17,24 @@ fn summon(app: &tauri::AppHandle) {
     }
 }
 
+/// On launch, check GitHub Releases for a newer signed build; if found, download,
+/// install, and relaunch. Silent no-op when already up to date or offline.
+async fn check_for_updates(app: tauri::AppHandle) {
+    let updater = match app.updater() {
+        Ok(u) => u,
+        Err(_) => return,
+    };
+    if let Ok(Some(update)) = updater.check().await {
+        if update.download_and_install(|_, _| {}, || {}).await.is_ok() {
+            app.restart();
+        }
+    }
+}
+
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_notification::init())
+        .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(
             tauri_plugin_global_shortcut::Builder::new()
                 // We register exactly one shortcut (below), so any fired shortcut
@@ -35,6 +51,9 @@ fn main() {
             let summon_shortcut =
                 Shortcut::new(Some(Modifiers::CONTROL | Modifiers::SHIFT), Code::KeyR);
             app.global_shortcut().register(summon_shortcut)?;
+
+            // Check for updates in the background (GitHub Releases feed).
+            tauri::async_runtime::spawn(check_for_updates(app.handle().clone()));
 
             // System tray with a small menu.
             let open = MenuItem::with_id(app, "open", "Open CLARIX", true, None::<&str>)?;

@@ -1,0 +1,63 @@
+# Builds, signs, and publishes the CLARIX desktop app + updater feed.
+#
+# Trigger: push a tag like `desktop-v1.0.1` (or run manually).
+# Requires these repo secrets (Settings -> Secrets and variables -> Actions):
+#   TAURI_SIGNING_PRIVATE_KEY           - output of `npx tauri signer generate`
+#   TAURI_SIGNING_PRIVATE_KEY_PASSWORD  - the password you set when generating it
+# The public key must be pasted into clarix-desktop/src-tauri/tauri.conf.json
+# (plugins.updater.pubkey) so installed apps can verify the signature.
+#
+# tauri-action creates a GitHub Release and uploads the installers, the .sig
+# signatures, and `latest.json` — which the app reads from
+# https://github.com/Evos09/CLARIX/releases/latest/download/latest.json
+
+name: Desktop Release
+
+on:
+  push:
+    tags:
+      - "desktop-v*"
+  workflow_dispatch:
+
+jobs:
+  release:
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: windows-latest
+            args: ""
+          - platform: macos-latest
+            args: "--target universal-apple-darwin"
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+
+      - name: Install desktop deps
+        working-directory: clarix-desktop
+        run: npm install
+
+      - name: Build, sign, and publish
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        with:
+          projectPath: clarix-desktop
+          tagName: ${{ github.ref_name }}
+          releaseName: "CLARIX Desktop ${{ github.ref_name }}"
+          releaseDraft: true
+          prerelease: false
+          args: ${{ matrix.args }}

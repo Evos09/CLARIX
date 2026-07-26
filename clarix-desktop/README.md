@@ -46,16 +46,37 @@ the source art:
 npx tauri icon app-icon.png
 ```
 
-## Auto-update (not enabled yet — needs two things)
-The updater is intentionally **not wired in** because it can't work without:
-1. A **signing keypair** — `npx tauri signer generate` (keep the private key
-   secret; never commit it), and
-2. A **hosted update feed** — easiest is **GitHub Releases** publishing a
-   `latest.json` manifest.
+## Auto-update (wired — GitHub Releases)
+The updater is fully wired in code: the app checks GitHub Releases on launch and
+silently installs a newer **signed** build (see `check_for_updates` in
+`main.rs`, `plugins.updater` in `tauri.conf.json`, and the
+`.github/workflows/desktop-release.yml` release workflow). Feed URL:
+`https://github.com/Evos09/CLARIX/releases/latest/download/latest.json`.
 
-Once you pick a release host, enabling it is: add `tauri-plugin-updater` to
-`Cargo.toml`, add the updater plugin in `main.rs`, and add a `plugins.updater`
-block (endpoints + `pubkey`) to `tauri.conf.json`.
+**One-time activation you must do (I don't handle the private key):**
+1. Generate a signing keypair:
+   ```
+   npx tauri signer generate -w clarix.key
+   ```
+   It prints a **public key** and writes the **private key** to `clarix.key`
+   (this file is gitignored — never commit it).
+2. Paste the printed public key into `src-tauri/tauri.conf.json` →
+   `plugins.updater.pubkey` (replacing the `REPLACE_WITH_...` placeholder).
+3. In GitHub → Settings → Secrets and variables → Actions, add:
+   - `TAURI_SIGNING_PRIVATE_KEY` = the contents of `clarix.key`
+   - `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` = the password you set (blank if none)
+
+**To ship an update:** bump `version` in `tauri.conf.json`, commit, then push a
+tag:
+```
+git tag desktop-v1.0.1 && git push origin desktop-v1.0.1
+```
+The workflow builds + signs Windows/macOS, and creates a **draft** GitHub
+Release with the installers + `latest.json`. Publish the draft, and installed
+apps update themselves on next launch.
+
+> Until step 2 is done, `tauri build`/`dev` will fail on the placeholder pubkey —
+> that's expected; generate the key first.
 
 ## Notes
 - Bundle identifier: `ai.clarix.app`.
