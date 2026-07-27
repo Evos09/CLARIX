@@ -6,6 +6,7 @@ import LenisProvider from "@/components/landing/LenisProvider";
 import ChromaticFringe from "@/components/landing/ChromaticFringe";
 import TransitionContainer from "@/components/landing/TransitionContainer";
 import { SiteFooter } from "@/components/site/site-footer";
+import { PlatformStrip } from "@/components/site/platform-strip";
 
 export const metadata: Metadata = {
   title: { absolute: "CLARIX — Your AI Assistant for Every Meeting" },
@@ -26,8 +27,9 @@ export default async function Home() {
         {/* Scroll-driven Transition Core */}
         <TransitionContainer />
 
-        {/* Full footer (same one used across the marketing site) */}
+        {/* Compact "also on" platform strip + full footer */}
         <div className="relative z-10 bg-paper">
+          <PlatformStrip />
           <SiteFooter />
         </div>
       </main>
