@@ -10,6 +10,7 @@ const footerLinks: Record<string, { name: string; href: string }[]> = {
     { name: "Pricing", href: "/pricing" },
     { name: "Integrations", href: "/integrations" },
     { name: "Chrome Extension", href: "/extension" },
+    { name: "Download App", href: "/download" },
   ],
   Company: [
     { name: "About", href: "/about" },

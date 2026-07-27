@@ -1,15 +1,12 @@
-# Builds, signs, and publishes the CLARIX desktop app + updater feed.
+# Builds the CLARIX desktop app for Windows AND macOS and publishes a draft
+# GitHub Release with the installers. This is the ONLY way to produce the macOS
+# build without a Mac (it runs on a macOS runner).
 #
 # Trigger: push a tag like `desktop-v1.0.1` (or run manually).
-# Requires these repo secrets (Settings -> Secrets and variables -> Actions):
-#   TAURI_SIGNING_PRIVATE_KEY           - output of `npx tauri signer generate`
-#   TAURI_SIGNING_PRIVATE_KEY_PASSWORD  - the password you set when generating it
-# The public key must be pasted into clarix-desktop/src-tauri/tauri.conf.json
-# (plugins.updater.pubkey) so installed apps can verify the signature.
-#
-# tauri-action creates a GitHub Release and uploads the installers, the .sig
-# signatures, and `latest.json` — which the app reads from
-# https://github.com/Evos09/CLARIX/releases/latest/download/latest.json
+# No signing keys required — the app currently ships unsigned. tauri-action
+# creates a draft GitHub Release and uploads the .msi/.exe (Windows) and .dmg
+# (macOS). Download the macOS .dmg from that release to host it on the site
+# (drop it in /public/downloads and set MAC_DOWNLOAD_URL in lib/downloads.ts).
 
 name: Desktop Release
 
@@ -52,8 +49,6 @@ jobs:
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
-          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
           projectPath: clarix-desktop
           tagName: ${{ github.ref_name }}
