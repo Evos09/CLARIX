@@ -23,15 +23,6 @@
     "icon": ["icons/icon.png", "icons/icon.icns", "icons/icon.ico"],
     "category": "Productivity",
     "shortDescription": "AI meeting assistant for every meeting",
-    "copyright": "(c) 2026 CLARIX",
-    "createUpdaterArtifacts": true
-  },
-  "plugins": {
-    "updater": {
-      "endpoints": [
-        "https://github.com/Evos09/CLARIX/releases/latest/download/latest.json"
-      ],
-      "pubkey": "REPLACE_WITH_PUBLIC_KEY_FROM_tauri_signer_generate"
-    }
+    "copyright": "(c) 2026 CLARIX"
   }
 }

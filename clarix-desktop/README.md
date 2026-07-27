@@ -46,37 +46,40 @@ the source art:
 npx tauri icon app-icon.png
 ```
 
-## Auto-update (wired — GitHub Releases)
-The updater is fully wired in code: the app checks GitHub Releases on launch and
-silently installs a newer **signed** build (see `check_for_updates` in
-`main.rs`, `plugins.updater` in `tauri.conf.json`, and the
-`.github/workflows/desktop-release.yml` release workflow). Feed URL:
-`https://github.com/Evos09/CLARIX/releases/latest/download/latest.json`.
+## Auto-update (GitHub Releases) — code present, currently DISABLED
+The updater code is in place (`check_for_updates` in `main.rs`, the release
+workflow in `.github/workflows/desktop-release.yml`), but it is **disabled in
+config** so the app builds and runs with **no signing key**. In this state the
+tray's "Check for Updates…" reports that it can't check — expected until you
+enable it below.
 
-**One-time activation you must do (I don't handle the private key):**
-1. Generate a signing keypair:
+**To enable auto-update (one-time):**
+1. Generate a signing keypair (I don't handle the private key):
    ```
    npx tauri signer generate -w clarix.key
    ```
    It prints a **public key** and writes the **private key** to `clarix.key`
-   (this file is gitignored — never commit it).
-2. Paste the printed public key into `src-tauri/tauri.conf.json` →
-   `plugins.updater.pubkey` (replacing the `REPLACE_WITH_...` placeholder).
+   (gitignored — never commit it).
+2. Add this block back to `src-tauri/tauri.conf.json`, pasting the public key,
+   and set `createUpdaterArtifacts` in `bundle`:
+   ```json
+   "bundle": { ...existing..., "createUpdaterArtifacts": true },
+   "plugins": {
+     "updater": {
+       "endpoints": ["https://github.com/Evos09/CLARIX/releases/latest/download/latest.json"],
+       "pubkey": "PASTE_PUBLIC_KEY_HERE"
+     }
+   }
+   ```
 3. In GitHub → Settings → Secrets and variables → Actions, add:
    - `TAURI_SIGNING_PRIVATE_KEY` = the contents of `clarix.key`
    - `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` = the password you set (blank if none)
 
-**To ship an update:** bump `version` in `tauri.conf.json`, commit, then push a
-tag:
-```
-git tag desktop-v1.0.1 && git push origin desktop-v1.0.1
-```
-The workflow builds + signs Windows/macOS, and creates a **draft** GitHub
-Release with the installers + `latest.json`. Publish the draft, and installed
-apps update themselves on next launch.
-
-> Until step 2 is done, `tauri build`/`dev` will fail on the placeholder pubkey —
-> that's expected; generate the key first.
+**To ship an update once enabled:** bump `version` in `tauri.conf.json`, commit,
+then push a tag `git tag desktop-v1.0.1 && git push origin desktop-v1.0.1`. The
+workflow builds + signs Windows/macOS and creates a **draft** GitHub Release with
+the installers + `latest.json`. Publish the draft, and installed apps update on
+next launch.
 
 ## Notes
 - Bundle identifier: `ai.clarix.app`.
