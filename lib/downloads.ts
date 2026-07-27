@@ -7,8 +7,8 @@
 
 export const WINDOWS_DOWNLOAD_URL = "/downloads/CLARIX-Windows-Setup.exe";
 
-// Leave empty until a macOS .dmg is built + hosted. Empty => "coming soon".
-export const MAC_DOWNLOAD_URL = "";
+// macOS universal .dmg built by GitHub Actions (macos runner) and hosted here.
+export const MAC_DOWNLOAD_URL = "/downloads/CLARIX-macOS.dmg";
 
 export const WINDOWS_LIVE = WINDOWS_DOWNLOAD_URL.length > 0;
 export const MAC_LIVE = MAC_DOWNLOAD_URL.length > 0;
