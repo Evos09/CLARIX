@@ -1,7 +1,10 @@
+import Link from "next/link";
+import { Puzzle, Monitor, Apple, ArrowRight } from "lucide-react";
 import { SiteNav } from "@/components/site/site-nav";
 import { SiteFooter } from "@/components/site/site-footer";
 import { PageHero } from "@/components/site/page-hero";
 import { CtaBand } from "@/components/site/cta-band";
+import { Reveal } from "@/components/motion/Reveal";
 import { FeatureBlock } from "@/components/features/feature-block";
 import {
   TranscriptionVisual,
@@ -92,6 +95,68 @@ export default function FeaturesPage() {
         {blocks.map((block, i) => (
           <FeatureBlock key={block.title} index={i + 1} flip={i % 2 === 1} {...block} />
         ))}
+      </section>
+
+      {/* Platforms — Chrome extension + desktop apps */}
+      <section className="border-t border-foreground/10">
+        <div className="max-w-[1400px] mx-auto px-6 lg:px-12 py-20 lg:py-28">
+          <Reveal>
+            <span className="inline-flex items-center gap-3 text-sm font-mono text-muted-foreground mb-6">
+              <span className="w-8 h-px bg-foreground/30" />
+              Everywhere you work
+            </span>
+            <h2 className="font-display text-4xl md:text-5xl tracking-tight text-balance max-w-2xl mb-6">
+              Use CLARIX wherever your meetings happen
+            </h2>
+            <p className="text-lg text-muted-foreground leading-relaxed max-w-2xl mb-14">
+              Beyond the web app: record straight from your browser with the Chrome extension,
+              or run CLARIX as a native desktop app on Windows and macOS.
+            </p>
+          </Reveal>
+
+          <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
+            {[
+              {
+                icon: Puzzle,
+                title: "Chrome Extension",
+                desc: "Record any meeting tab — Zoom, Meet, Teams. No bot joins the call.",
+                href: "/extension",
+                cta: "See the extension",
+              },
+              {
+                icon: Monitor,
+                title: "Windows App",
+                desc: "The full CLARIX app in a native window, with a tray icon and global shortcut.",
+                href: "/download",
+                cta: "Download",
+              },
+              {
+                icon: Apple,
+                title: "macOS App",
+                desc: "Native desktop app for Intel and Apple Silicon Macs.",
+                href: "/download",
+                cta: "Download",
+              },
+            ].map((p, i) => (
+              <Reveal key={p.title} delay={i * 100}>
+                <Link
+                  href={p.href}
+                  className="group block h-full rounded-2xl border border-foreground/10 bg-foreground/[0.02] p-8 transition-colors hover:bg-foreground/[0.04]"
+                >
+                  <span className="grid place-items-center w-12 h-12 rounded-xl bg-accent/10 text-accent mb-6">
+                    <p.icon className="w-6 h-6" />
+                  </span>
+                  <h3 className="font-display text-xl tracking-tight mb-2">{p.title}</h3>
+                  <p className="text-muted-foreground leading-relaxed mb-5">{p.desc}</p>
+                  <span className="inline-flex items-center gap-1 text-sm text-accent">
+                    {p.cta}
+                    <ArrowRight className="w-3 h-3 transition-transform group-hover:translate-x-1" />
+                  </span>
+                </Link>
+              </Reveal>
+            ))}
+          </div>
+        </div>
       </section>
 
       <CtaBand
