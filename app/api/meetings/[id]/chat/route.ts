@@ -89,8 +89,19 @@ ${meeting.rawTranscript}
     const model = chatModelForPlan(plan);
     reply = await claudeChat({ system, messages, maxTokens: 1024, model });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Chat failed";
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error("meeting chat failed:", err);
+    // Never leak the raw SDK error (e.g. a 529 "overloaded_error" JSON blob) to
+    // the UI. Map transient upstream overload/rate-limit to a clear retry hint.
+    const status = (err as { status?: number })?.status;
+    const busy = status === 429 || status === 529 || (typeof status === "number" && status >= 500);
+    return NextResponse.json(
+      {
+        error: busy
+          ? "CLARIX is briefly overloaded. Give it a few seconds and try again."
+          : "CLARIX had trouble answering that. Please try again.",
+      },
+      { status: busy ? 503 : 500 },
+    );
   }
 
   await prisma.chatMessage.createMany({

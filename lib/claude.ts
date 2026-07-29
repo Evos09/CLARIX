@@ -21,7 +21,14 @@ export function getClaude(): Anthropic {
     throw new Error("ANTHROPIC_API_KEY is not set");
   }
   if (!client) {
-    client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+    client = new Anthropic({
+      apiKey: process.env.ANTHROPIC_API_KEY,
+      // Anthropic returns 429/500/529 during load spikes; the SDK retries these
+      // with exponential backoff. Bump from the default 2 so a transient
+      // "overloaded" blip self-heals instead of surfacing to the user.
+      maxRetries: 5,
+      timeout: 60_000,
+    });
   }
   return client;
 }
