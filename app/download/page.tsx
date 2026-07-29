@@ -52,6 +52,24 @@ export default function DownloadPage() {
       />
 
       <section className="max-w-[1100px] mx-auto px-6 lg:px-12 py-16 lg:py-24">
+        {/* Beta notice */}
+        <Reveal>
+          <div className="mb-10 rounded-2xl border border-accent/25 bg-accent/[0.06] p-5 lg:p-6 text-sm leading-relaxed">
+            <p className="text-foreground font-medium mb-1">
+              The desktop apps are in beta.
+            </p>
+            <p className="text-muted-foreground">
+              The Windows and macOS apps are new and still being polished — you may hit rough
+              edges. Your meetings and data are safe (they live in your CLARIX account, same as the
+              web). Run into any problems?{" "}
+              <Link href="/contact" className="text-accent underline underline-offset-2">
+                Contact support
+              </Link>{" "}
+              and we&apos;ll help.
+            </p>
+          </div>
+        </Reveal>
+
         <div className="grid sm:grid-cols-2 gap-6 lg:gap-8">
           {platforms.map((p, i) => (
             <Reveal key={p.os} delay={i * 100}>
@@ -59,7 +77,12 @@ export default function DownloadPage() {
                 <span className="grid place-items-center w-12 h-12 rounded-xl bg-accent/10 text-accent mb-6">
                   <p.icon className="w-6 h-6" />
                 </span>
-                <h2 className="font-display text-2xl tracking-tight mb-1">{p.os}</h2>
+                <div className="flex items-center gap-2 mb-1">
+                  <h2 className="font-display text-2xl tracking-tight">{p.os}</h2>
+                  <span className="inline-flex items-center rounded-full border border-accent/30 bg-accent/10 px-2 py-0.5 text-[11px] font-mono uppercase tracking-wider text-accent">
+                    Beta
+                  </span>
+                </div>
                 <p className="text-sm text-muted-foreground mb-6">{p.note}</p>
 
                 <div className="mt-auto">
