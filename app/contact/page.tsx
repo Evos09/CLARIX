@@ -6,8 +6,26 @@ export const metadata: Metadata = {
   description: "Get in touch with the CLARIX team — support and billing questions.",
 };
 
-// Set NEXT_PUBLIC_SUPPORT_EMAIL in your environment to use a branded address.
-const SUPPORT_EMAIL = process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "eliptical09@gmail.com";
+const CONTACTS = [
+  {
+    title: "Support & general",
+    desc: "Help with your account, uploads, billing, or anything else.",
+    email: "support@clarixmeetings.com",
+    subject: "CLARIX support",
+  },
+  {
+    title: "Help & how-to",
+    desc: "Questions about setting up or using a feature.",
+    email: "help@clarixmeetings.com",
+    subject: "CLARIX help",
+  },
+  {
+    title: "Feedback & ideas",
+    desc: "Bugs, feature requests, or anything you'd like to see.",
+    email: "feedback@clarixmeetings.com",
+    subject: "CLARIX feedback",
+  },
+];
 
 export default function ContactPage() {
   return (
@@ -26,14 +44,17 @@ export default function ContactPage() {
       </div>
 
       <div className="grid gap-4">
-        <a
-          href={`mailto:${SUPPORT_EMAIL}?subject=CLARIX%20support`}
-          className="rounded-xl border border-border bg-card p-5 transition hover:border-accent/40"
-        >
-          <h2 className="text-sm font-semibold text-foreground">Support &amp; general</h2>
-          <p className="mt-1 text-sm text-muted-foreground">Help with your account, uploads, or features.</p>
-          <p className="mt-3 text-sm font-medium text-accent">{SUPPORT_EMAIL}</p>
-        </a>
+        {CONTACTS.map((c) => (
+          <a
+            key={c.email}
+            href={`mailto:${c.email}?subject=${encodeURIComponent(c.subject)}`}
+            className="rounded-xl border border-border bg-card p-5 transition hover:border-accent/40"
+          >
+            <h2 className="text-sm font-semibold text-foreground">{c.title}</h2>
+            <p className="mt-1 text-sm text-muted-foreground">{c.desc}</p>
+            <p className="mt-3 text-sm font-medium text-accent">{c.email}</p>
+          </a>
+        ))}
       </div>
 
       <p className="text-xs text-muted-foreground">
