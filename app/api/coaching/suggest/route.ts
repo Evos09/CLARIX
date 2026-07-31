@@ -16,9 +16,11 @@ export async function POST(req: Request) {
   if (!ctx) return NextResponse.json({ error: "Database not configured" }, { status: 503 });
   if (!isClaudeConfigured()) return NextResponse.json({ suggestions: [] });
 
+  // Throttle to one suggestion pass per 20s per user. Kept just under the
+  // client's 25s poll cadence so normal polling never trips the limit.
   const now = Date.now();
   const prev = lastCall.get(ctx.userId) ?? 0;
-  if (now - prev < 60000) return NextResponse.json({ error: "Rate limited" }, { status: 429 });
+  if (now - prev < 20000) return NextResponse.json({ error: "Rate limited" }, { status: 429 });
   lastCall.set(ctx.userId, now);
 
   const parsed = Body.safeParse(await req.json().catch(() => null));

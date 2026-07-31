@@ -74,7 +74,9 @@ export function LiveAssistPanel({ meetingType = "GENERAL" }: { meetingType?: str
         }
       } catch { /* ignore */ }
     };
-    const id = setInterval(poll, 60000);
+    // Poll every 25s (server throttles at 20s) so nudges keep pace with the
+    // conversation instead of lagging a full minute behind.
+    const id = setInterval(poll, 25000);
     return () => clearInterval(id);
   }, [on, coachOn, meetingType]);
 
