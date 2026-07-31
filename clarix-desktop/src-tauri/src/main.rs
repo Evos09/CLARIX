@@ -7,12 +7,25 @@ use tauri::tray::TrayIconBuilder;
 use tauri::{Manager, WindowEvent};
 use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Modifiers, Shortcut, ShortcutState};
 
-/// Bring the main window to the front (used by the tray and the global shortcut).
+/// Bring the main window to the front (used by the tray "Open CLARIX" item).
 fn summon(app: &tauri::AppHandle) {
     if let Some(w) = app.get_webview_window("main") {
         let _ = w.show();
         let _ = w.unminimize();
         let _ = w.set_focus();
+    }
+}
+
+/// Toggle the always-on-top overlay spotlight (the global-shortcut target).
+/// Visible -> hide; hidden -> show and focus, so one keystroke flips it.
+fn toggle_overlay(app: &tauri::AppHandle) {
+    if let Some(w) = app.get_webview_window("overlay") {
+        if w.is_visible().unwrap_or(false) {
+            let _ = w.hide();
+        } else {
+            let _ = w.show();
+            let _ = w.set_focus();
+        }
     }
 }
 
@@ -22,19 +35,20 @@ fn main() {
         .plugin(
             tauri_plugin_global_shortcut::Builder::new()
                 // We register exactly one shortcut (below), so any fired shortcut
-                // is the summon shortcut.
+                // is the overlay toggle.
                 .with_handler(|app, _shortcut, event| {
                     if event.state == ShortcutState::Pressed {
-                        summon(app);
+                        toggle_overlay(app);
                     }
                 })
                 .build(),
         )
         .setup(|app| {
-            // Global shortcut: Ctrl/Cmd+Shift+R summons CLARIX from anywhere.
-            let summon_shortcut =
+            // Global shortcut: Ctrl/Cmd+Shift+R toggles the overlay spotlight
+            // from anywhere. The tray's "Open CLARIX" opens the main window.
+            let overlay_shortcut =
                 Shortcut::new(Some(Modifiers::CONTROL | Modifiers::SHIFT), Code::KeyR);
-            app.global_shortcut().register(summon_shortcut)?;
+            app.global_shortcut().register(overlay_shortcut)?;
 
             // System tray with a small menu.
             let open = MenuItem::with_id(app, "open", "Open CLARIX", true, None::<&str>)?;

@@ -5,14 +5,31 @@
   "identifier": "ai.clarix.app",
   "build": {},
   "app": {
+    "macOSPrivateApi": true,
     "windows": [
       {
+        "label": "main",
         "title": "CLARIX",
         "width": 1280,
         "height": 800,
         "minWidth": 900,
         "minHeight": 600,
         "url": "https://www.clarixmeetings.com"
+      },
+      {
+        "label": "overlay",
+        "title": "CLARIX Overlay",
+        "url": "https://www.clarixmeetings.com/overlay",
+        "width": 600,
+        "height": 480,
+        "transparent": true,
+        "decorations": false,
+        "alwaysOnTop": true,
+        "skipTaskbar": true,
+        "visible": false,
+        "center": true,
+        "resizable": true,
+        "shadow": false
       }
     ],
     "security": { "csp": null }

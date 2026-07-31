@@ -57,6 +57,17 @@ $("btn-signout").addEventListener("click", async () => {
   refresh();
 });
 
+// Open the memory overlay (the /overlay spotlight) as a small floating window,
+// so you can ask across past meetings without leaving the current tab.
+$("btn-ask").addEventListener("click", () => {
+  chrome.windows.create({
+    url: `${CLARIX_ORIGIN}/overlay`,
+    type: "popup",
+    width: 620,
+    height: 560,
+  });
+});
+
 // Live updates pushed from the service worker while the popup is open.
 chrome.runtime.onMessage.addListener((msg) => {
   if (msg.type === "STATE") renderState(msg.state);
