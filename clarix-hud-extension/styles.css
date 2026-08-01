@@ -1,0 +1,253 @@
+/*
+ * CLARIX HUD — injected overlay styles.
+ * Everything is scoped under #clarix-hud-overlay so it can never leak into the
+ * host page, and the root resets inherited properties so the host page's CSS
+ * can't leak IN either. Light frosted-glass card, brand purple (#7c4fe8) accents.
+ */
+
+#clarix-hud-overlay {
+  /* Positioning — sits above everything on the page. */
+  position: fixed;
+  right: 24px;
+  top: 80px;
+  z-index: 2147483647;
+  width: 360px;
+  max-width: calc(100vw - 32px);
+
+  /* Reset inherited page styles, then set our own baseline. */
+  all: initial;
+  box-sizing: border-box;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #1e1b2e;
+  text-align: left;
+
+  /* Frosted glass container. */
+  background: rgba(255, 255, 255, 0.45);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  backdrop-filter: blur(16px) saturate(1.4);
+  border: 1px solid rgba(124, 79, 232, 0.25);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
+  border-radius: 20px;
+  overflow: hidden;
+
+  /* Re-apply positioning after `all: initial` clobbered it. */
+  position: fixed;
+
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+/* Belt-and-braces reset for descendants. */
+#clarix-hud-overlay * {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: inherit;
+  line-height: inherit;
+}
+
+/* ── Visibility (screen-share privacy) ── */
+#clarix-hud-overlay.clarix-hidden {
+  opacity: 0;
+  transform: translateX(24px) scale(0.98);
+  pointer-events: none !important;
+  /* Fully removed from the compositor after the fade so it can't be captured. */
+  visibility: hidden;
+}
+
+/* ── Click-through mode ── */
+#clarix-hud-overlay.clarix-click-through {
+  pointer-events: none;
+  border-color: rgba(124, 79, 232, 0.45);
+  box-shadow: 0 20px 50px rgba(124, 79, 232, 0.18);
+}
+
+/* ── Header ── */
+#clarix-hud-overlay .clarix-hud-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  cursor: grab;
+  border-bottom: 1px solid rgba(124, 79, 232, 0.14);
+  background: rgba(255, 255, 255, 0.25);
+}
+#clarix-hud-overlay .clarix-hud-header:active { cursor: grabbing; }
+
+#clarix-hud-overlay .clarix-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: #1e1b2e;
+}
+#clarix-hud-overlay .clarix-brand .ix { color: #7c4fe8; }
+
+#clarix-hud-overlay .clarix-mark {
+  width: 18px;
+  height: 18px;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #a78bfa, #7c4fe8);
+  box-shadow: 0 0 0 3px rgba(124, 79, 232, 0.14);
+}
+
+/* Pulsing green "active" dot. */
+#clarix-hud-overlay .clarix-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #16a34a;
+}
+#clarix-hud-overlay .clarix-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.6);
+  animation: clarix-pulse 1.8s infinite;
+}
+@keyframes clarix-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.55); }
+  70%  { box-shadow: 0 0 0 7px rgba(34, 197, 94, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  #clarix-hud-overlay .clarix-dot { animation: none; }
+}
+
+#clarix-hud-overlay .clarix-spacer { flex: 1; }
+
+#clarix-hud-overlay .clarix-iconbtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: #4b475e;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+#clarix-hud-overlay .clarix-iconbtn:hover { background: rgba(124, 79, 232, 0.12); color: #7c4fe8; }
+
+/* ── Body ── */
+#clarix-hud-overlay .clarix-hud-body { padding: 12px 14px 14px; }
+
+#clarix-hud-overlay .clarix-ask {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(124, 79, 232, 0.2);
+}
+#clarix-hud-overlay .clarix-ask svg { width: 15px; height: 15px; stroke: #7c4fe8; flex-shrink: 0; }
+#clarix-hud-overlay .clarix-ask input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 14px;
+  color: #1e1b2e;
+}
+#clarix-hud-overlay .clarix-ask input::placeholder { color: #8b8798; }
+#clarix-hud-overlay .clarix-kbd {
+  font-size: 10px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color: #8b8798;
+  border: 1px solid rgba(124, 79, 232, 0.2);
+  border-radius: 5px;
+  padding: 2px 5px;
+}
+
+#clarix-hud-overlay .clarix-response {
+  margin-top: 10px;
+  max-height: 300px;
+  overflow-y: auto;
+  font-size: 13.5px;
+  color: #2a2637;
+}
+#clarix-hud-overlay .clarix-response .clarix-muted { color: #8b8798; }
+#clarix-hud-overlay .clarix-response .clarix-eyebrow {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  color: #7c4fe8;
+  margin-bottom: 6px;
+}
+#clarix-hud-overlay .clarix-answer { white-space: pre-wrap; }
+
+#clarix-hud-overlay .clarix-sources { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
+#clarix-hud-overlay .clarix-source {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 9px;
+  border-radius: 10px;
+  border: 1px solid rgba(124, 79, 232, 0.16);
+  background: rgba(255, 255, 255, 0.4);
+  text-decoration: none;
+  color: #2a2637;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+#clarix-hud-overlay .clarix-source:hover { background: rgba(124, 79, 232, 0.1); border-color: rgba(124, 79, 232, 0.4); }
+#clarix-hud-overlay .clarix-source .clarix-src-title { font-weight: 600; font-size: 12.5px; }
+#clarix-hud-overlay .clarix-source .clarix-src-meta { color: #8b8798; font-size: 11px; }
+#clarix-hud-overlay .clarix-source .clarix-jump {
+  margin-left: auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
+  color: #0d9488;
+  background: rgba(13, 148, 136, 0.1);
+  padding: 2px 7px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+#clarix-hud-overlay .clarix-spin {
+  width: 15px; height: 15px;
+  border: 2px solid rgba(124, 79, 232, 0.25);
+  border-top-color: #7c4fe8;
+  border-radius: 50%;
+  display: inline-block;
+  animation: clarix-spin 0.7s linear infinite;
+  vertical-align: middle;
+}
+@keyframes clarix-spin { to { transform: rotate(360deg); } }
+
+/* ── Footer ── */
+#clarix-hud-overlay .clarix-hud-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px;
+  border-top: 1px solid rgba(124, 79, 232, 0.14);
+  font-size: 10.5px;
+  color: #8b8798;
+}
+#clarix-hud-overlay .clarix-hud-footer .clarix-hint { display: flex; gap: 10px; }
+#clarix-hud-overlay .clarix-hud-footer kbd {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  border: 1px solid rgba(124, 79, 232, 0.2);
+  border-radius: 4px;
+  padding: 1px 4px;
+  font-size: 10px;
+}
+
+/* Dark host pages: nudge the glass a touch brighter so text stays crisp. */
+@media (prefers-color-scheme: dark) {
+  #clarix-hud-overlay {
+    background: rgba(244, 243, 250, 0.6);
+  }
+}
