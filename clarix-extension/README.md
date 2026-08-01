@@ -18,7 +18,8 @@ icon (or press `Ctrl/Cmd+Shift+H`) to toggle it, and drag it anywhere on screen.
   `chrome.tabs.sendMessage`.
 
 > **Meeting-memory search is not in this extension.** The ask-your-meetings
-> overlay is a **CLARIX desktop app** feature on **Pro and Business** plans.
+> overlay is a **CLARIX desktop app** feature, available on **all paid plans**
+> (Starter and up).
 - **offscreen.js** — captures tab audio (+ mic, best-effort), records to webm,
   and runs the same 4-call upload the web app uses (`/api/upload` → Supabase PUT
   → `/api/meetings` → `/api/meetings/[id]/transcribe`).

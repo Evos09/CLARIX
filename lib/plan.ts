@@ -64,12 +64,12 @@ export function chatModelForPlan(plan: PlanConfig): string {
 }
 
 /**
- * The meeting-memory overlay is a desktop-app perk on the paid upper tiers:
- * Pro, Business, and Enterprise only. Starter and Free are excluded even though
- * Starter has Clarix Chat messages — the overlay is deliberately a step up.
+ * The meeting-memory overlay is a desktop-app perk on every paid plan
+ * (Starter and up); Free is excluded. Usage is still metered by
+ * globalChatLimit, so Starter's 25 messages/month cap applies here too.
  */
 export function overlayAllowed(plan: PlanConfig): boolean {
-  return plan.id === "PRO" || plan.id === "BUSINESS" || plan.id === "ENTERPRISE";
+  return plan.id !== "FREE";
 }
 
 /** Per-file upload ceiling in bytes (override with NEXT_PUBLIC_MAX_UPLOAD_MB). */

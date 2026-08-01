@@ -77,7 +77,7 @@
     // Memory search is a desktop-app perk — point there instead of shipping a
     // second, weaker copy of it here.
     el("div", { class: "clarix-muted clarix-note" },
-      "Ask across past meetings in the CLARIX desktop app (Pro & Business)."),
+      "Ask across past meetings in the CLARIX desktop app (paid plans)."),
   );
 
   /* ─────────────── Footer ─────────────── */

@@ -75,11 +75,10 @@ export async function POST(req: Request) {
   });
   const plan = await getOrgPlan(ctx.orgId);
 
-  // The overlay is a Pro/Business perk — a step above Clarix Chat, which
-  // Starter also gets. Free and Starter are refused outright.
+  // The overlay is a paid-plan perk (Starter and up); Free is refused outright.
   if (!overlayAllowed(plan)) {
     return NextResponse.json(
-      { error: "The CLARIX overlay is available on Pro and Business plans. Upgrade to ask across your meetings.", locked: true },
+      { error: "The CLARIX overlay is available on paid plans. Upgrade to ask across your meetings.", locked: true },
       { status: 403 },
     );
   }

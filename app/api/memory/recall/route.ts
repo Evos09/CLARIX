@@ -44,7 +44,7 @@ export async function POST(req: Request) {
   const parsed = Body.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "Invalid input" }, { status: 400 });
 
-  // Same Pro/Business gate as the overlay's ask endpoint.
+  // Same paid-plan gate as the overlay's ask endpoint.
   const plan = await getOrgPlan(ctx.orgId);
   if (!overlayAllowed(plan)) return NextResponse.json({ snippets: [], locked: true });
 
