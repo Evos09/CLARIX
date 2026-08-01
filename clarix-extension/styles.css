@@ -138,8 +138,55 @@
 }
 #clarix-hud-overlay .clarix-iconbtn:hover { background: rgba(124, 79, 232, 0.12); color: #7c4fe8; }
 
+/* Recording state turns the header dot red. */
+#clarix-hud-overlay.clarix-recording .clarix-dot { background: #ef4444; }
+#clarix-hud-overlay.clarix-recording .clarix-status { color: #dc2626; }
+
+/* No transition while dragging, so the card tracks the cursor exactly. */
+#clarix-hud-overlay.clarix-dragging { transition: none; user-select: none; }
+
 /* ── Body ── */
-#clarix-hud-overlay .clarix-hud-body { padding: 12px 14px 14px; }
+#clarix-hud-overlay .clarix-hud-body { padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 10px; }
+
+/* Account row */
+#clarix-hud-overlay .clarix-row { display: flex; align-items: center; gap: 6px; font-size: 12px; }
+#clarix-hud-overlay .clarix-who-text {
+  color: #2a2637; font-weight: 600; max-width: 170px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+#clarix-hud-overlay .clarix-badge {
+  background: rgba(124, 79, 232, 0.14); color: #7c4fe8;
+  border-radius: 999px; padding: 1px 8px; font-size: 10px; font-weight: 700;
+}
+
+/* Buttons */
+#clarix-hud-overlay .clarix-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  border: none; border-radius: 11px; padding: 9px 12px;
+  font-size: 13px; font-weight: 600; cursor: pointer;
+  transition: filter 0.15s ease, background 0.15s ease;
+}
+#clarix-hud-overlay .clarix-btn:hover:not(:disabled) { filter: brightness(1.05); }
+#clarix-hud-overlay .clarix-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+#clarix-hud-overlay .clarix-btn-primary { background: #7c4fe8; color: #fff; }
+#clarix-hud-overlay .clarix-btn-danger { background: #e5484d; color: #fff; }
+#clarix-hud-overlay .clarix-btn-ghost {
+  background: rgba(124, 79, 232, 0.1); color: #7c4fe8;
+  border: 1px solid rgba(124, 79, 232, 0.28); padding: 5px 10px; font-size: 12px;
+}
+#clarix-hud-overlay .clarix-rec-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: #fff; box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.25);
+}
+
+/* Record block */
+#clarix-hud-overlay .clarix-record { display: flex; flex-direction: column; gap: 6px; }
+#clarix-hud-overlay .clarix-note { font-size: 11.5px; }
+#clarix-hud-overlay .clarix-link {
+  background: none; border: none; padding: 0; cursor: pointer;
+  color: #7c4fe8; font-size: 11.5px; font-weight: 600; text-align: left;
+}
+#clarix-hud-overlay .clarix-link:hover { text-decoration: underline; }
 
 #clarix-hud-overlay .clarix-ask {
   display: flex;
@@ -193,11 +240,15 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  width: 100%;
   padding: 7px 9px;
   border-radius: 10px;
   border: 1px solid rgba(124, 79, 232, 0.16);
   background: rgba(255, 255, 255, 0.4);
   text-decoration: none;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
   color: #2a2637;
   transition: background 0.15s ease, border-color 0.15s ease;
 }

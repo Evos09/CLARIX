@@ -11,9 +11,26 @@ const CONNECT_URL = `${CLARIX_ORIGIN}/extension/connect`;
 let state = { recording: false, status: "idle", tabId: null, meetingId: null, error: null };
 const pendingConnect = []; // resolvers waiting for a token from the connect tab
 
+/** Open a URL in a small borderless popup WINDOW (never a tab). Used for the
+ *  sign-in page and for opening a meeting from the overlay. A popup window is
+ *  also a separate surface, so it stays hidden when sharing a single tab. */
+async function openPopupWindow(url, width = 420, height = 620) {
+  try {
+    return await chrome.windows.create({ url, type: "popup", width, height, focused: true });
+  } catch {
+    return null;
+  }
+}
+
 function setState(patch) {
   state = { ...state, ...patch };
-  chrome.runtime.sendMessage({ type: "STATE", state }).catch(() => {});
+  // The overlay lives in content scripts, which runtime.sendMessage does NOT
+  // reach — push state to every tab that has one.
+  chrome.tabs.query({}, (tabs) => {
+    for (const t of tabs) {
+      if (t.id != null) chrome.tabs.sendMessage(t.id, { type: "STATE", state }).catch(() => {});
+    }
+  });
 }
 
 // ---- token helpers ----
@@ -37,7 +54,8 @@ async function ensureToken() {
   if (existing && !jwtExpiring(existing)) return existing;
   return new Promise((resolve, reject) => {
     pendingConnect.push({ resolve, reject });
-    chrome.tabs.create({ url: CONNECT_URL, active: true });
+    // Popup WINDOW, never a tab — the overlay is the only in-page surface.
+    openPopupWindow(CONNECT_URL, 480, 680);
     setTimeout(() => {
       const i = pendingConnect.findIndex((p) => p.reject === reject);
       if (i >= 0) {
@@ -157,13 +175,17 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         // Spawn the overlay in a separate borderless popup window — a different
         // surface, so it stays hidden when the user shares a single tab.
         case "POPOUT":
-          await chrome.windows.create({
-            url: `${CLARIX_ORIGIN}/overlay?solid=1`,
-            type: "popup",
-            width: 360,
-            height: 500,
-            focused: true,
-          }).catch(() => {});
+          await openPopupWindow(`${CLARIX_ORIGIN}/overlay?solid=1`, 360, 500);
+          sendResponse({ ok: true });
+          break;
+        // Every link in the overlay (meetings, connect, dashboard) routes here
+        // so we open a popup window instead of a tab.
+        case "OPEN_URL":
+          await openPopupWindow(
+            msg.url?.startsWith("http") ? msg.url : `${CLARIX_ORIGIN}${msg.url || "/"}`,
+            msg.width || 900,
+            msg.height || 720,
+          );
           sendResponse({ ok: true });
           break;
 
@@ -202,11 +224,23 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   return true; // async response
 });
 
-// ---- global shortcuts → the injected overlay (content.js) ----
+// ---- toolbar icon + global shortcuts → the injected overlay (content.js) ----
+// There is no default_popup: the overlay IS the UI, so clicking the icon just
+// toggles it inside the current page.
 async function messageActiveTab(message) {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   if (tab?.id) chrome.tabs.sendMessage(tab.id, message).catch(() => {});
 }
+
+chrome.action.onClicked.addListener((tab) => {
+  if (!tab?.id) return;
+  chrome.tabs.sendMessage(tab.id, { type: "TOGGLE_VISIBILITY" }).catch(() => {
+    // Restricted page (chrome://, Web Store, PDF viewer) — no content script to
+    // inject into, so fall back to the standalone overlay window.
+    openPopupWindow(`${CLARIX_ORIGIN}/overlay?solid=1`, 360, 500);
+  });
+});
+
 chrome.commands.onCommand.addListener((command) => {
   if (command === "toggle-overlay-visibility") messageActiveTab({ type: "TOGGLE_VISIBILITY" });
   else if (command === "toggle-click-through") messageActiveTab({ type: "TOGGLE_CLICK_THROUGH" });
