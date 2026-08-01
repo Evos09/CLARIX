@@ -1,9 +1,18 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Captions, Sparkles, X, Loader2 } from "lucide-react";
+import Link from "next/link";
+import { Captions, Sparkles, X, Loader2, History, ArrowUpRight } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { RealtimeTranscriptionClient } from "@/lib/realtimeTranscription";
+
+interface RecallSnippet {
+  meetingId: string;
+  title: string;
+  type: string;
+  date: string;
+  text: string;
+}
 
 export function LiveAssistPanel({ meetingType = "GENERAL" }: { meetingType?: string }) {
   const [on, setOn] = useState(false);
@@ -13,11 +22,15 @@ export function LiveAssistPanel({ meetingType = "GENERAL" }: { meetingType?: str
   const [partial, setPartial] = useState("");
   const [finals, setFinals] = useState<string[]>([]);
   const [tips, setTips] = useState<string[]>([]);
+  const [recall, setRecall] = useState<RecallSnippet[]>([]);
 
   const clientRef = useRef<RealtimeTranscriptionClient | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const transcriptRef = useRef("");
   const shownRef = useRef<string[]>([]);
+  // Meetings we've already surfaced this session, so recall doesn't re-show the
+  // same past meeting every poll as the conversation lingers on a topic.
+  const recalledRef = useRef<Set<string>>(new Set());
 
   function disable() {
     clientRef.current?.stop();
@@ -26,6 +39,8 @@ export function LiveAssistPanel({ meetingType = "GENERAL" }: { meetingType?: str
     streamRef.current = null;
     setOn(false);
     setPartial("");
+    setRecall([]);
+    recalledRef.current = new Set();
   }
 
   async function enable() {
@@ -80,6 +95,37 @@ export function LiveAssistPanel({ meetingType = "GENERAL" }: { meetingType?: str
     return () => clearInterval(id);
   }, [on, coachOn, meetingType]);
 
+  // Live surfacing: while recording, quietly pull relevant context from PAST
+  // meetings based on what's being said now. Best-effort — the endpoint returns
+  // nothing (no error) when the semantic index isn't live or the plan is Free,
+  // so this simply stays empty in those cases.
+  useEffect(() => {
+    if (!on) return;
+    const poll = async () => {
+      if (transcriptRef.current.trim().length < 40) return;
+      try {
+        const r = await fetch("/api/memory/recall", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ transcript: transcriptRef.current }),
+        });
+        if (!r.ok) return;
+        const d = await r.json();
+        const fresh: RecallSnippet[] = (d.snippets ?? []).filter(
+          (s: RecallSnippet) => !recalledRef.current.has(s.meetingId),
+        );
+        if (fresh.length) {
+          fresh.forEach((s) => recalledRef.current.add(s.meetingId));
+          setRecall((prev) => [...fresh, ...prev].slice(0, 4));
+        }
+      } catch { /* ignore — recall is optional */ }
+    };
+    // Every 30s: slightly slower than coaching, since past-meeting context
+    // shifts less often than the moment-to-moment coaching nudges.
+    const id = setInterval(poll, 30000);
+    return () => clearInterval(id);
+  }, [on]);
+
   useEffect(() => () => disable(), []);
 
   return (
@@ -110,6 +156,35 @@ export function LiveAssistPanel({ meetingType = "GENERAL" }: { meetingType?: str
                   <div key={i} className="flex items-start justify-between gap-2 rounded-md border-l-2 border-teal bg-navy px-3 py-2 text-white">
                     <span className="text-sm"><span className="mr-1 text-[10px] uppercase text-teal">CLARIX</span>{t}</span>
                     <button onClick={() => setTips((x) => x.filter((_, j) => j !== i))}><X className="size-3.5 opacity-70" /></button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {recall.length > 0 && (
+              <div className="space-y-2">
+                <span className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                  <History className="size-3" /> From your past meetings
+                </span>
+                {recall.map((s) => (
+                  <div key={s.meetingId} className="rounded-md border border-teal/30 bg-teal/5 px-3 py-2">
+                    <div className="flex items-start justify-between gap-2">
+                      <Link
+                        href={`/meetings/${s.meetingId}`}
+                        target="_blank"
+                        className="flex items-center gap-1 text-xs font-medium text-teal-700 hover:underline"
+                      >
+                        {s.title}
+                        <ArrowUpRight className="size-3" />
+                      </Link>
+                      <button onClick={() => setRecall((x) => x.filter((r) => r.meetingId !== s.meetingId))}>
+                        <X className="size-3.5 opacity-60" />
+                      </button>
+                    </div>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {s.type} · {new Date(s.date).toLocaleDateString()}
+                    </p>
+                    <p className="mt-1 line-clamp-3 text-xs text-foreground/80">&ldquo;{s.text}&rdquo;</p>
                   </div>
                 ))}
               </div>
