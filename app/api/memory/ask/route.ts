@@ -11,14 +11,43 @@ import {
   getChatUsage,
   getChatBonus,
   bumpChatUsage,
+  type Excerpt,
 } from "@/lib/globalChat";
+import { parseDateFilter, resolvePreset, type ResolvedRange } from "@/lib/dateFilters";
 
 export const dynamic = "force-dynamic";
 
 const Body = z.object({
   query: z.string().min(1).max(2000),
   mode: z.enum(["focused", "research", "writer"]).default("focused"),
+  // Explicit UI filter chip; when omitted we still try to parse a range out of
+  // the question itself (e.g. "the Q3 meetings").
+  range: z.enum(["week", "month", "quarter", "year"]).optional(),
 });
+
+/**
+ * A short, distinctive phrase from an excerpt, used to deep-link the citation
+ * straight to the cited moment: /meetings/[id]?tab=transcript&hl=<phrase>. The
+ * transcript viewer filters to the segment(s) containing it (and gracefully
+ * clears if it isn't an exact match), so each segment's timestamp becomes a
+ * one-click jump into the audio.
+ */
+function hlPhrase(text: string): string {
+  const longest =
+    text
+      .split(/\n+/)
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .sort((a, b) => b.length - a.length)[0] ?? text;
+  return longest
+    .replace(/\s+/g, " ")
+    .trim()
+    .split(" ")
+    .slice(0, 8)
+    .join(" ")
+    .replace(/[^\p{L}\p{N} ]+$/u, "")
+    .trim();
+}
 
 /**
  * Stateless "ask your meeting memory" endpoint powering the overlay surfaces
@@ -61,13 +90,20 @@ export async function POST(req: Request) {
     }
   }
 
+  // Resolve the date window: an explicit UI chip wins; otherwise parse one out
+  // of the question ("the Q3 meetings"). null → unscoped topic search.
+  const now = new Date();
+  const range: ResolvedRange | null = parsed.data.range
+    ? resolvePreset(parsed.data.range, now)
+    : parseDateFilter(parsed.data.query, now);
+
   try {
-    const { meetings, excerpts } = await retrieveContext(ctx.orgId, parsed.data.query);
+    const { meetings, excerpts } = await retrieveContext(ctx.orgId, parsed.data.query, range ?? undefined);
 
     const answer = await answerGlobalChat({
       orgId: ctx.orgId,
       orgName: org?.name ?? "your workspace",
-      message: parsed.data.query,
+      message: range ? `${parsed.data.query}\n\n(Scope: ${range.label}.)` : parsed.data.query,
       history: [],
       meetings,
       excerpts,
@@ -75,17 +111,25 @@ export async function POST(req: Request) {
       model: chatModelForPlan(plan),
     });
 
-    // Structured citations for the overlay UI (clickable → the source meeting).
+    // First excerpt per meeting → a deep-link phrase for timestamp-precise jump.
+    const phraseByMeeting = new Map<string, string>();
+    for (const e of excerpts as Excerpt[]) {
+      if (!phraseByMeeting.has(e.meetingId)) phraseByMeeting.set(e.meetingId, hlPhrase(e.text));
+    }
+
+    // Structured citations for the overlay UI. `hl` (when present) deep-links to
+    // the exact moment; otherwise the link opens the meeting.
     const citations = meetings.map((m) => ({
       id: m.id,
       title: m.title,
       type: getMeetingType(m.meetingType).label,
       date: m.createdAt.toISOString(),
+      hl: phraseByMeeting.get(m.id) || undefined,
     }));
 
     await bumpChatUsage(ctx.userId);
 
-    return NextResponse.json({ answer, citations });
+    return NextResponse.json({ answer, citations, range: range?.label ?? null });
   } catch (err) {
     console.error("memory ask failed:", err);
     const status = (err as { status?: number })?.status;

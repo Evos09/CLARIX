@@ -12,10 +12,11 @@
  */
 import { useState } from "react";
 import Link from "next/link";
-import { Search, Loader2, CornerDownLeft, FileText } from "lucide-react";
+import { Search, Loader2, CornerDownLeft, FileText, Clock } from "lucide-react";
 import { MarkdownView } from "@/components/chat/MarkdownView";
 
-type Citation = { id: string; title: string; type: string; date: string };
+type Citation = { id: string; title: string; type: string; date: string; hl?: string };
+type RangePreset = "week" | "month" | "quarter" | "year";
 
 const EXAMPLES = [
   "What happened in the Q3 meetings?",
@@ -23,25 +24,44 @@ const EXAMPLES = [
   "Open action items for the launch",
 ];
 
+const RANGES: { key: RangePreset; label: string }[] = [
+  { key: "week", label: "This week" },
+  { key: "month", label: "This month" },
+  { key: "quarter", label: "This quarter" },
+  { key: "year", label: "This year" },
+];
+
+// Build the citation link. When we have a distinctive phrase, deep-link into the
+// transcript pre-filtered to that moment (each segment there is click-to-play);
+// otherwise just open the meeting.
+function citationHref(c: Citation): string {
+  return c.hl
+    ? `/meetings/${c.id}?tab=transcript&hl=${encodeURIComponent(c.hl)}`
+    : `/meetings/${c.id}`;
+}
+
 export default function OverlayPage() {
   const [query, setQuery] = useState("");
+  const [range, setRange] = useState<RangePreset | null>(null);
   const [loading, setLoading] = useState(false);
   const [answer, setAnswer] = useState<string | null>(null);
   const [citations, setCitations] = useState<Citation[]>([]);
+  const [activeRange, setActiveRange] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  async function ask(q: string) {
+  async function ask(q: string, r: RangePreset | null = range) {
     const question = q.trim();
     if (!question || loading) return;
     setLoading(true);
     setError(null);
     setAnswer(null);
     setCitations([]);
+    setActiveRange(null);
     try {
       const res = await fetch("/api/memory/ask", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query: question }),
+        body: JSON.stringify({ query: question, ...(r ? { range: r } : {}) }),
       });
       const data = await res.json().catch(() => null);
       if (!res.ok) {
@@ -50,6 +70,7 @@ export default function OverlayPage() {
       }
       setAnswer(data.answer ?? "");
       setCitations(Array.isArray(data.citations) ? data.citations : []);
+      setActiveRange(typeof data.range === "string" ? data.range : null);
     } catch {
       setError("Couldn't reach CLARIX. Check your connection.");
     } finally {
@@ -94,6 +115,32 @@ export default function OverlayPage() {
             )}
           </form>
 
+          {/* Date-range filter chips — the structured half of search. Toggling
+              one re-asks the current question scoped to that window. */}
+          <div className="flex flex-wrap items-center gap-1.5 border-b border-border px-4 py-2">
+            <Clock className="size-3 text-muted-foreground" />
+            {RANGES.map((r) => {
+              const on = range === r.key;
+              return (
+                <button
+                  key={r.key}
+                  onClick={() => {
+                    const next = on ? null : r.key;
+                    setRange(next);
+                    if (query.trim()) void ask(query, next);
+                  }}
+                  className={`rounded-full border px-2.5 py-1 text-[11px] transition ${
+                    on
+                      ? "border-accent bg-accent/10 text-accent"
+                      : "border-border text-muted-foreground hover:border-accent/40 hover:text-foreground"
+                  }`}
+                >
+                  {r.label}
+                </button>
+              );
+            })}
+          </div>
+
           {/* Body */}
           <div className="max-h-[60vh] overflow-y-auto px-4 py-4">
             {!answer && !error && !loading && (
@@ -132,12 +179,19 @@ export default function OverlayPage() {
 
                 {citations.length > 0 && (
                   <div className="space-y-2 border-t border-border pt-3">
-                    <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Sources</p>
+                    <p className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+                      Sources
+                      {activeRange && (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-accent/10 px-2 py-0.5 text-[10px] normal-case tracking-normal text-accent">
+                          <Clock className="size-2.5" /> {activeRange}
+                        </span>
+                      )}
+                    </p>
                     <ul className="space-y-1.5">
                       {citations.map((c) => (
                         <li key={c.id}>
                           <Link
-                            href={`/meetings/${c.id}`}
+                            href={citationHref(c)}
                             target="_blank"
                             className="group flex items-start gap-2 rounded-md px-2 py-1.5 text-sm transition hover:bg-accent/5"
                           >
@@ -147,6 +201,9 @@ export default function OverlayPage() {
                               <span className="ml-2 text-xs text-muted-foreground">
                                 {c.type} · {fmtDate(c.date)}
                               </span>
+                              {c.hl && (
+                                <span className="mt-0.5 block text-[11px] text-accent/80">↳ jump to the cited moment</span>
+                              )}
                             </span>
                           </Link>
                         </li>

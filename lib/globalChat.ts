@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getClaude, CLAUDE_MODEL } from "@/lib/claude";
 import { getMeetingType } from "@/lib/meetingTypes";
 import type { BaseOutput } from "@/lib/outputTypes";
-import { searchChunks } from "@/lib/memory/search";
+import { searchChunks, type ChunkFilter } from "@/lib/memory/search";
 import { isEmbeddingsConfigured } from "@/lib/embeddings";
 import { isResendConfigured, sendHtml } from "@/lib/email";
 
@@ -66,15 +66,22 @@ export interface RelevantMeeting {
 }
 
 /** Finds up to 5 meetings relevant to the query (title/transcript keyword match, recency fallback). */
-export async function findRelevantMeetings(orgId: string, query: string): Promise<RelevantMeeting[]> {
+export async function findRelevantMeetings(orgId: string, query: string, filter?: ChunkFilter): Promise<RelevantMeeting[]> {
   const words = query.toLowerCase().split(/\W+/).filter((w) => w.length > 3).slice(0, 8);
   const select = { id: true, title: true, meetingType: true, createdAt: true, structuredOutput: true };
+  // Same date window the semantic path uses, so "Q3 meetings" stays scoped even
+  // on the keyword fallback.
+  const createdAt =
+    filter?.after || filter?.before
+      ? { ...(filter.after ? { gte: filter.after } : {}), ...(filter.before ? { lt: filter.before } : {}) }
+      : undefined;
 
   if (words.length) {
     const matched = await prisma.meeting.findMany({
       where: {
         orgId,
         status: "COMPLETE",
+        ...(createdAt ? { createdAt } : {}),
         OR: words.flatMap((w) => [
           { title: { contains: w, mode: Prisma.QueryMode.insensitive } },
           { rawTranscript: { contains: w, mode: Prisma.QueryMode.insensitive } },
@@ -87,7 +94,7 @@ export async function findRelevantMeetings(orgId: string, query: string): Promis
     if (matched.length) return matched;
   }
   return prisma.meeting.findMany({
-    where: { orgId, status: "COMPLETE" },
+    where: { orgId, status: "COMPLETE", ...(createdAt ? { createdAt } : {}) },
     orderBy: { createdAt: "desc" },
     take: 5,
     select,
@@ -95,6 +102,7 @@ export async function findRelevantMeetings(orgId: string, query: string): Promis
 }
 
 export interface Excerpt {
+  meetingId: string;
   title: string;
   date: Date;
   text: string;
@@ -110,14 +118,15 @@ export interface Excerpt {
 export async function retrieveContext(
   orgId: string,
   query: string,
+  filter?: ChunkFilter,
 ): Promise<{ meetings: RelevantMeeting[]; excerpts: Excerpt[] }> {
   if (isEmbeddingsConfigured()) {
     try {
-      const hits = await searchChunks(orgId, query, 12);
+      const hits = await searchChunks(orgId, query, 12, filter);
       if (hits.length) {
         const excerpts: Excerpt[] = hits
           .slice(0, 6)
-          .map((h) => ({ title: h.title, date: h.createdAt, text: h.content }));
+          .map((h) => ({ meetingId: h.meetingId, title: h.title, date: h.createdAt, text: h.content }));
 
         // Unique source meetings, in relevance order, capped at 5.
         const meetingIds: string[] = [];
@@ -149,7 +158,7 @@ export async function retrieveContext(
   }
 
   // Fallback: keyword search (embeddings unconfigured, no hits, or an error above).
-  return { meetings: await findRelevantMeetings(orgId, query), excerpts: [] };
+  return { meetings: await findRelevantMeetings(orgId, query, filter), excerpts: [] };
 }
 
 export interface ChatTurn {
