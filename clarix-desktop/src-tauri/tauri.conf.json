@@ -8,25 +8,16 @@
     "macOSPrivateApi": true,
     "windows": [
       {
-        "label": "main",
-        "title": "CLARIX",
-        "width": 1280,
-        "height": 800,
-        "minWidth": 900,
-        "minHeight": 600,
-        "url": "https://www.clarixmeetings.com"
-      },
-      {
         "label": "overlay",
         "title": "CLARIX Overlay",
         "url": "https://www.clarixmeetings.com/overlay",
-        "width": 600,
-        "height": 480,
+        "width": 800,
+        "height": 600,
         "transparent": true,
         "decorations": false,
         "alwaysOnTop": true,
         "skipTaskbar": true,
-        "visible": false,
+        "visible": true,
         "center": true,
         "resizable": true,
         "shadow": false

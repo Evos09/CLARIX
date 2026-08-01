@@ -1,5 +1,6 @@
-// CLARIX desktop (Tauri v2): wraps the web app in a native window and adds a
-// system tray, a global "summon" shortcut, close-to-tray, and notifications.
+// CLARIX desktop (Tauri v2): a floating, transparent, borderless always-on-top
+// overlay — the app's only window. Adds a system tray, a global toggle
+// shortcut, close-to-tray, and notifications.
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use tauri::menu::{Menu, MenuItem};
@@ -7,9 +8,10 @@ use tauri::tray::TrayIconBuilder;
 use tauri::{Manager, WindowEvent};
 use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Modifiers, Shortcut, ShortcutState};
 
-/// Bring the main window to the front (used by the tray "Open CLARIX" item).
+/// Bring the overlay to the front (used by the tray "Open CLARIX" item).
+/// The overlay is the app's only window — there is no decorated main window.
 fn summon(app: &tauri::AppHandle) {
-    if let Some(w) = app.get_webview_window("main") {
+    if let Some(w) = app.get_webview_window("overlay") {
         let _ = w.show();
         let _ = w.unminimize();
         let _ = w.set_focus();
@@ -44,8 +46,8 @@ fn main() {
                 .build(),
         )
         .setup(|app| {
-            // Global shortcut: Ctrl/Cmd+Shift+R toggles the overlay spotlight
-            // from anywhere. The tray's "Open CLARIX" opens the main window.
+            // Global shortcut: Ctrl/Cmd+Shift+R toggles the overlay from
+            // anywhere. The tray's "Open CLARIX" re-summons it if it's hidden.
             let overlay_shortcut =
                 Shortcut::new(Some(Modifiers::CONTROL | Modifiers::SHIFT), Code::KeyR);
             app.global_shortcut().register(overlay_shortcut)?;
