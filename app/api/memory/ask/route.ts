@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getOrCreateContext } from "@/lib/auth";
 import { isClaudeConfigured } from "@/lib/claude";
 import { getMeetingType } from "@/lib/meetingTypes";
-import { getOrgPlan, globalChatLimit, chatModelForPlan } from "@/lib/plan";
+import { getOrgPlan, globalChatLimit, chatModelForPlan, overlayAllowed } from "@/lib/plan";
 import {
   retrieveContext,
   answerGlobalChat,
@@ -75,11 +75,17 @@ export async function POST(req: Request) {
   });
   const plan = await getOrgPlan(ctx.orgId);
 
-  // Same access ladder as Clarix Chat: Free is locked, paid tiers are capped.
-  const limit = globalChatLimit(plan);
-  if (limit === 0) {
-    return NextResponse.json({ error: "Memory search is a paid feature. Upgrade to use the overlay.", locked: true }, { status: 403 });
+  // The overlay is a Pro/Business perk — a step above Clarix Chat, which
+  // Starter also gets. Free and Starter are refused outright.
+  if (!overlayAllowed(plan)) {
+    return NextResponse.json(
+      { error: "The CLARIX overlay is available on Pro and Business plans. Upgrade to ask across your meetings.", locked: true },
+      { status: 403 },
+    );
   }
+
+  // Beyond the plan gate, Pro is still metered against the shared chat cap.
+  const limit = globalChatLimit(plan);
   if (limit !== null) {
     const [used, bonus] = await Promise.all([getChatUsage(ctx.userId), getChatBonus(ctx.userId)]);
     if (used >= limit + bonus) {

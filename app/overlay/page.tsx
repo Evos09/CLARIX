@@ -18,7 +18,10 @@ import Link from "next/link";
 import { Search, Loader2, CornerDownLeft, FileText, Clock, Eye, EyeOff, Play, X } from "lucide-react";
 import { MarkdownView } from "@/components/chat/MarkdownView";
 
-const SOLID_KEY = "clarix-overlay-solid";
+const MODE_KEY = "clarix-overlay-mode";
+
+/** Glass = frosted panels. Clear = words only: no panel, no border, no blur. */
+type Mode = "glass" | "clear";
 
 type Citation = { id: string; title: string; type: string; date: string; hl?: string; t?: number };
 type RangePreset = "week" | "month" | "quarter" | "year";
@@ -76,31 +79,32 @@ export default function OverlayPage() {
   const [citations, setCitations] = useState<Citation[]>([]);
   const [activeRange, setActiveRange] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  // Transparency: glass (default) lets the desktop/always-on-top overlay show
-  // through; solid gives an opaque background for readability over busy screens.
-  // A `?solid=1|0` param (set by the extension) wins on first load, else the
-  // last saved preference for this surface.
-  const [solid, setSolid] = useState(false);
+  // Look: "glass" (frosted panels, default) or "clear" (just the words floating
+  // over your screen — no panel, border, or blur). `?mode=` wins on first load,
+  // otherwise the last saved choice.
+  const [mode, setMode] = useState<Mode>("glass");
   // Detected after mount (never during render) so SSR and the first client
   // render agree — otherwise the close button would trip hydration.
   const [isDesktop, setIsDesktop] = useState(false);
 
   useEffect(() => {
     setIsDesktop(inTauri());
-    const param = new URLSearchParams(window.location.search).get("solid");
-    if (param === "1" || param === "0") {
-      const on = param === "1";
-      setSolid(on);
-      try { localStorage.setItem(SOLID_KEY, on ? "1" : "0"); } catch {}
+    const param = new URLSearchParams(window.location.search).get("mode");
+    if (param === "glass" || param === "clear") {
+      setMode(param);
+      try { localStorage.setItem(MODE_KEY, param); } catch {}
     } else {
-      try { setSolid(localStorage.getItem(SOLID_KEY) === "1"); } catch {}
+      try {
+        const saved = localStorage.getItem(MODE_KEY);
+        if (saved === "glass" || saved === "clear") setMode(saved);
+      } catch {}
     }
   }, []);
 
-  function toggleSolid() {
-    setSolid((prev) => {
-      const next = !prev;
-      try { localStorage.setItem(SOLID_KEY, next ? "1" : "0"); } catch {}
+  function toggleMode() {
+    setMode((prev) => {
+      const next: Mode = prev === "glass" ? "clear" : "glass";
+      try { localStorage.setItem(MODE_KEY, next); } catch {}
       return next;
     });
   }
@@ -142,11 +146,16 @@ export default function OverlayPage() {
     }
   }
 
-  // Glass vs. solid background, shared by the bar and the card.
-  const surface = solid ? "bg-background" : "bg-background/80 backdrop-blur-xl";
+  const glass = mode === "glass";
+  // Glass draws a frosted panel; clear draws nothing at all, so only the words
+  // float over whatever is behind — with a shadow so they stay readable.
+  const surface = glass
+    ? "rounded-2xl border border-white/10 bg-background/80 shadow-2xl backdrop-blur-xl"
+    : "";
+  const legible = glass ? "" : "[text-shadow:0_1px_4px_rgba(0,0,0,0.95)]";
 
   return (
-    <main className={`dark flex min-h-screen justify-center p-4 sm:pt-8 ${solid ? "bg-background" : "bg-transparent"}`}>
+    <main className={`dark flex h-screen justify-center bg-transparent p-3 ${legible}`}>
       {/* The app shell paints a solid page background; the native overlay window
           is transparent, so clear it here or the "glass" look is lost. */}
       <style>{`
@@ -155,11 +164,13 @@ export default function OverlayPage() {
           background-color: transparent !important;
         }
       `}</style>
-      <div className="flex w-full max-w-2xl flex-col items-center gap-3 text-foreground">
+      {/* No max width and full height: the overlay fills whatever size you drag
+          the window to, so you can make it as small or as large as you like. */}
+      <div className="flex h-full w-full flex-col gap-2 text-foreground">
         {/* ── Command bar — drag the window by it (desktop overlay) ── */}
         <div
           data-tauri-drag-region
-          className={`flex w-full items-stretch overflow-hidden rounded-2xl border border-white/10 shadow-2xl ${surface}`}
+          className={`flex w-full flex-none items-stretch overflow-hidden ${surface}`}
         >
           <div data-tauri-drag-region className="flex cursor-grab items-center gap-2 px-3.5 active:cursor-grabbing">
             <span data-tauri-drag-region className="size-4 rounded-[5px] bg-gradient-to-br from-[#a78bfa] to-[#7c4fe8] shadow-[0_0_0_3px_rgba(167,139,250,0.18)]" />
@@ -188,13 +199,13 @@ export default function OverlayPage() {
           </form>
 
           <button
-            onClick={toggleSolid}
-            title={solid ? "Solid — tap for transparent" : "Transparent — tap for solid"}
-            aria-pressed={solid}
-            className="flex items-center gap-1.5 border-l border-white/10 px-3.5 text-[11px] text-muted-foreground transition hover:text-foreground"
+            onClick={toggleMode}
+            title={glass ? "Glass — tap for clear (words only)" : "Clear — tap for glass"}
+            aria-pressed={!glass}
+            className={`flex items-center gap-1.5 px-3.5 text-[11px] text-muted-foreground transition hover:text-foreground ${glass ? "border-l border-white/10" : ""}`}
           >
-            {solid ? <EyeOff className="size-3.5" /> : <Eye className="size-3.5" />}
-            <span className="hidden sm:inline">{solid ? "Solid" : "Glass"}</span>
+            {glass ? <Eye className="size-3.5" /> : <EyeOff className="size-3.5" />}
+            <span className="hidden sm:inline">{glass ? "Glass" : "Clear"}</span>
           </button>
 
           {/* Desktop only: hide the overlay window (reopen it from the dashboard). */}
@@ -203,7 +214,7 @@ export default function OverlayPage() {
               onClick={hideDesktopOverlay}
               title="Close the overlay"
               aria-label="Close the overlay"
-              className="flex items-center border-l border-white/10 px-3 text-muted-foreground transition hover:text-foreground"
+              className={`flex items-center px-3 text-muted-foreground transition hover:text-foreground ${glass ? "border-l border-white/10" : ""}`}
             >
               <X className="size-4" />
             </button>
@@ -223,10 +234,10 @@ export default function OverlayPage() {
                   setRange(next);
                   if (query.trim()) void ask(query, next);
                 }}
-                className={`rounded-full border px-2.5 py-1 text-[11px] transition ${
+                className={`rounded-full px-2.5 py-1 text-[11px] transition ${
                   on
-                    ? "border-accent bg-accent/15 text-accent"
-                    : "border-white/10 text-muted-foreground hover:border-accent/40 hover:text-foreground"
+                    ? "border border-accent bg-accent/15 text-accent"
+                    : `text-muted-foreground hover:text-foreground ${glass ? "border border-white/10 hover:border-accent/40" : ""}`
                 }`}
               >
                 {r.label}
@@ -235,9 +246,9 @@ export default function OverlayPage() {
           })}
         </div>
 
-        {/* ── Answer card ── */}
-        <div className={`w-full overflow-hidden rounded-2xl border border-white/10 shadow-2xl ${surface}`}>
-          <div className="flex items-center justify-between border-b border-white/10 px-4 py-2.5">
+        {/* ── Answer card — grows to fill the window ── */}
+        <div className={`flex min-h-0 w-full flex-1 flex-col overflow-hidden ${surface}`}>
+          <div className={`flex flex-none items-center justify-between px-4 py-2.5 ${glass ? "border-b border-white/10" : ""}`}>
             <span className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
               <span className="size-1.5 rounded-full bg-accent" /> CLARIX · from your meetings
             </span>
@@ -248,7 +259,7 @@ export default function OverlayPage() {
             )}
           </div>
 
-          <div className="max-h-[56vh] overflow-y-auto px-4 py-4">
+          <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4">
             {!answer && !error && !loading && (
               <div className="space-y-3">
                 <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Try asking</p>
@@ -257,7 +268,7 @@ export default function OverlayPage() {
                     <button
                       key={ex}
                       onClick={() => { setQuery(ex); void ask(ex); }}
-                      className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-left text-xs transition hover:border-accent/40 hover:bg-accent/10"
+                      className={`rounded-full px-3 py-1.5 text-left text-xs transition hover:bg-accent/10 ${glass ? "border border-white/10 bg-white/[0.03] hover:border-accent/40" : ""}`}
                     >
                       {ex}
                     </button>
@@ -290,7 +301,7 @@ export default function OverlayPage() {
                         key={c.id}
                         href={citationHref(c)}
                         target="_blank"
-                        className="group flex items-center gap-2.5 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 transition hover:border-accent/40 hover:bg-accent/10"
+                        className={`group flex items-center gap-2.5 rounded-lg px-3 py-2 transition hover:bg-accent/10 ${glass ? "border border-white/10 bg-white/[0.03] hover:border-accent/40" : ""}`}
                       >
                         <FileText className="size-4 shrink-0 text-accent" />
                         <span className="min-w-0 flex-1 truncate">
@@ -312,7 +323,7 @@ export default function OverlayPage() {
             )}
           </div>
 
-          <div className="flex items-center justify-between border-t border-white/10 px-4 py-2 text-[10px] text-muted-foreground">
+          <div className={`flex flex-none items-center justify-between px-4 py-2 text-[10px] text-muted-foreground ${glass ? "border-t border-white/10" : ""}`}>
             <span className="flex items-center gap-1"><CornerDownLeft className="size-2.5" /> to ask</span>
             <span>answers from your workspace only</span>
           </div>

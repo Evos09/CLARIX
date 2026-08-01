@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getOrCreateContext } from "@/lib/auth";
 import { getMeetingType } from "@/lib/meetingTypes";
-import { getOrgPlan, globalChatLimit } from "@/lib/plan";
+import { getOrgPlan, overlayAllowed } from "@/lib/plan";
 import { searchChunks } from "@/lib/memory/search";
 import { isEmbeddingsConfigured } from "@/lib/embeddings";
 
@@ -44,9 +44,9 @@ export async function POST(req: Request) {
   const parsed = Body.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "Invalid input" }, { status: 400 });
 
-  // Paid feature, mirroring memory ask — Free plans don't get live recall.
+  // Same Pro/Business gate as the overlay's ask endpoint.
   const plan = await getOrgPlan(ctx.orgId);
-  if (globalChatLimit(plan) === 0) return NextResponse.json({ snippets: [], locked: true });
+  if (!overlayAllowed(plan)) return NextResponse.json({ snippets: [], locked: true });
 
   // Use the tail of the transcript as the query — that's what's being discussed
   // "now". Older context already had its chance to surface on earlier polls.

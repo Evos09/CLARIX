@@ -151,35 +151,8 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
           sendResponse({ ok: true });
           break;
 
-        // ---- HUD overlay (content.js) ----
-        // Ask the meeting-memory API. Uses the stored Bearer token but never
-        // force-opens the connect tab for a passive ask — if there's no valid
-        // token we just tell the overlay to connect.
-        case "ASK": {
-          const token = await getStoredToken();
-          if (!token || jwtExpiring(token)) {
-            sendResponse({ ok: false, status: 401, error: "Connect your CLARIX account to ask." });
-            break;
-          }
-          const res = await apiFetch("/api/memory/ask", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ query: msg.query, ...(msg.range ? { range: msg.range } : {}) }),
-          }, token).catch(() => null);
-          if (!res) { sendResponse({ ok: false, error: "Couldn't reach CLARIX." }); break; }
-          const data = await res.json().catch(() => null);
-          if (!res.ok) { sendResponse({ ok: false, status: res.status, error: data?.error || "Something went wrong." }); break; }
-          sendResponse({ ok: true, data });
-          break;
-        }
-        // Spawn the overlay in a separate borderless popup window — a different
-        // surface, so it stays hidden when the user shares a single tab.
-        case "POPOUT":
-          await openPopupWindow(`${CLARIX_ORIGIN}/overlay?solid=1`, 360, 500);
-          sendResponse({ ok: true });
-          break;
-        // Every link in the overlay (meetings, connect, dashboard) routes here
-        // so we open a popup window instead of a tab.
+        // Every link in the card (meetings, connect, dashboard) routes here so we
+        // open a popup window instead of a tab.
         case "OPEN_URL":
           await openPopupWindow(
             msg.url?.startsWith("http") ? msg.url : `${CLARIX_ORIGIN}${msg.url || "/"}`,
@@ -236,8 +209,8 @@ chrome.action.onClicked.addListener((tab) => {
   if (!tab?.id) return;
   chrome.tabs.sendMessage(tab.id, { type: "TOGGLE_VISIBILITY" }).catch(() => {
     // Restricted page (chrome://, Web Store, PDF viewer) — no content script to
-    // inject into, so fall back to the standalone overlay window.
-    openPopupWindow(`${CLARIX_ORIGIN}/overlay?solid=1`, 360, 500);
+    // inject into, so open the dashboard instead.
+    openPopupWindow(`${CLARIX_ORIGIN}/dashboard`, 1100, 800);
   });
 });
 

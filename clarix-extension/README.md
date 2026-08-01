@@ -10,13 +10,15 @@ icon (or press `Ctrl/Cmd+Shift+H`) to toggle it, and drag it anywhere on screen.
 
 ## How it works
 - **content.js + styles.css** — injects `#clarix-hud-overlay`, a draggable
-  frosted-glass card holding **everything**: connect/sign-out, Record this tab /
-  Stop & save, live status, the meeting-memory ask box with cited answers, and
-  links (dashboard, finished meeting, jump-to-moment).
+  frosted-glass card holding connect/sign-out, Record this tab / Stop & save,
+  live status, and links (dashboard, finished meeting).
 - **background.js** (service worker) — auth (Clerk token via the hosted connect
-  page), offscreen lifecycle, tab-capture handoff, `/api/memory/ask`, and the
-  toolbar-icon / shortcut toggles. Broadcasts recording state to the overlay via
+  page), offscreen lifecycle, tab-capture handoff, and the toolbar-icon /
+  shortcut toggles. Broadcasts recording state to the card via
   `chrome.tabs.sendMessage`.
+
+> **Meeting-memory search is not in this extension.** The ask-your-meetings
+> overlay is a **CLARIX desktop app** feature on **Pro and Business** plans.
 - **offscreen.js** — captures tab audio (+ mic, best-effort), records to webm,
   and runs the same 4-call upload the web app uses (`/api/upload` → Supabase PUT
   → `/api/meetings` → `/api/meetings/[id]/transcribe`).

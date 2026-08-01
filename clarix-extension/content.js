@@ -1,13 +1,15 @@
-// CLARIX — the whole extension UI, injected into the page.
+// CLARIX — the extension's UI, injected into the page.
 //
-// There is no popup and no options page: this floating overlay is the only
-// surface. It holds account/connect, tab recording, the meeting-memory ask box,
-// and every link — and nothing here ever opens a tab (links go to the service
-// worker, which opens a popup WINDOW instead).
+// There is no popup and no options page: this floating card is the only
+// surface. It holds account/connect, tab recording, and links — and nothing
+// here ever opens a tab (links go to the service worker, which opens a popup
+// WINDOW instead).
+//
+// Meeting-memory search (the ask overlay) deliberately lives ONLY in the CLARIX
+// desktop app on Pro/Business plans; it is not part of this extension.
 
 (() => {
   const OVERLAY_ID = "clarix-hud-overlay";
-  const CLARIX_ORIGIN = "https://www.clarixmeetings.com";
   const VIS_KEY = "clarixHudVisible";
 
   if (document.getElementById(OVERLAY_ID) || window.__clarixHudInjected) return;
@@ -22,7 +24,6 @@
     const n = document.createElement(tag);
     for (const [k, v] of Object.entries(props)) {
       if (k === "class") n.className = v;
-      else if (k === "html") n.innerHTML = v; // trusted inline SVG only
       else if (k.startsWith("on") && typeof v === "function") n.addEventListener(k.slice(2), v);
       else if (v != null) n.setAttribute(k, v);
     }
@@ -30,23 +31,9 @@
     return n;
   };
 
-  const SEARCH_SVG =
-    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>';
-
   const send = (msg) => chrome.runtime.sendMessage(msg).catch(() => null);
   /** Never open a tab — the worker opens a popup window instead. */
   const openUrl = (url, width, height) => send({ type: "OPEN_URL", url, width, height });
-
-  const fmtTime = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
-  const fmtDate = (iso) => {
-    try { return new Date(iso).toLocaleDateString(undefined, { month: "short", day: "numeric" }); }
-    catch { return ""; }
-  };
-  function citationPath(c) {
-    if (typeof c.t === "number") return `/meetings/${c.id}?tab=transcript&t=${c.t}`;
-    if (c.hl) return `/meetings/${c.id}?tab=transcript&hl=${encodeURIComponent(c.hl)}`;
-    return `/meetings/${c.id}`;
-  }
 
   /* ─────────────── Header ─────────────── */
   const dot = el("span", { class: "clarix-dot" });
@@ -62,7 +49,6 @@
     el("span", { class: "clarix-brand" }, "CLAR", el("span", { class: "ix" }, "IX")),
     el("span", { class: "clarix-status" }, dot, statusLabel),
     el("span", { class: "clarix-spacer" }),
-    el("button", { class: "clarix-iconbtn", title: "Open in a separate window", onclick: () => send({ type: "POPOUT" }) }, "⇱"),
     btnClickThrough,
     el("button", { class: "clarix-iconbtn", title: "Hide (Ctrl/Cmd+Shift+H)", onclick: () => setVisible(false) }, "✕"),
   );
@@ -85,23 +71,13 @@
 
   const recordRow = el("div", { class: "clarix-record" }, btnRecord, btnStop, recordNote, btnOpenMeeting);
 
-  /* ─────────────── Ask ─────────────── */
-  const input = el("input", {
-    type: "text", placeholder: "Ask your meetings…", "aria-label": "Ask your meetings",
-    onkeydown: (e) => { if (e.key === "Enter") void ask(); },
-  });
-  const response = el("div", { class: "clarix-response" },
-    el("span", { class: "clarix-muted" }, "Ask across every meeting — answers cite the source and jump to the moment."));
-
   const body = el("div", { class: "clarix-hud-body" },
     accountRow,
     recordRow,
-    el("div", { class: "clarix-ask" },
-      el("span", { class: "clarix-searchicon", html: SEARCH_SVG }),
-      input,
-      el("span", { class: "clarix-kbd" }, "↵"),
-    ),
-    response,
+    // Memory search is a desktop-app perk — point there instead of shipping a
+    // second, weaker copy of it here.
+    el("div", { class: "clarix-muted clarix-note" },
+      "Ask across past meetings in the CLARIX desktop app (Pro & Business)."),
   );
 
   /* ─────────────── Footer ─────────────── */
@@ -159,50 +135,12 @@
     btnOpenMeeting.style.display = s.status === "done" && meetingId ? "" : "none";
   }
 
-  /* ─────────────── Ask flow ─────────────── */
-  async function ask() {
-    const query = input.value.trim();
-    if (!query) return;
-    response.replaceChildren(el("span", { class: "clarix-muted" }, el("span", { class: "clarix-spin" }), " Searching your meetings…"));
-    const r = await send({ type: "ASK", query });
-    if (!r?.ok) return renderError(r?.error || "Something went wrong.", r?.status);
-    renderAnswer(r.data);
-  }
-  function renderError(message, status) {
-    const kids = [el("div", { class: "clarix-muted" }, message)];
-    if (status === 401 || status === 403) {
-      kids.push(el("button", { class: "clarix-link", onclick: connect }, "Connect your CLARIX account →"));
-    }
-    response.replaceChildren(...kids);
-  }
-  function renderAnswer(data) {
-    const kids = [
-      el("div", { class: "clarix-eyebrow" }, data?.range ? `From your meetings · ${data.range}` : "From your meetings"),
-      el("div", { class: "clarix-answer" }, data?.answer || "No answer."),
-    ];
-    const cites = Array.isArray(data?.citations) ? data.citations : [];
-    if (cites.length) {
-      const sources = el("div", { class: "clarix-sources" });
-      for (const c of cites) {
-        const jump = typeof c.t === "number" ? el("span", { class: "clarix-jump" }, `▶ ${fmtTime(c.t)}`)
-          : c.hl ? el("span", { class: "clarix-jump" }, "↳ jump") : null;
-        sources.append(el("button", { class: "clarix-source", onclick: () => openUrl(citationPath(c)) },
-          el("span", { class: "clarix-src-title" }, c.title || "Meeting"),
-          el("span", { class: "clarix-src-meta" }, [c.type, fmtDate(c.date)].filter(Boolean).join(" · ")),
-          jump,
-        ));
-      }
-      kids.push(sources);
-    }
-    response.replaceChildren(...kids);
-  }
-
   /* ─────────────── Visibility / click-through ─────────────── */
   function setVisible(v) {
     ui.visible = v;
     overlay.classList.toggle("clarix-hidden", !v);
     chrome.storage?.local?.set({ [VIS_KEY]: v });
-    if (v) { refreshAuth(); send({ type: "GET_STATE" }).then((r) => renderState(r?.state)); input.focus(); }
+    if (v) { refreshAuth(); send({ type: "GET_STATE" }).then((r) => renderState(r?.state)); }
   }
   function setClickThrough(v) {
     ui.clickThrough = v;
@@ -236,8 +174,6 @@
     };
     const onMove = (e) => {
       if (!dragging) return;
-      // Free movement anywhere on screen; only keep a sliver on-screen so the
-      // card can always be grabbed again.
       const margin = 40;
       const nx = Math.max(margin - overlay.offsetWidth, Math.min(window.innerWidth - margin, ox + e.clientX - sx));
       const ny = Math.max(0, Math.min(window.innerHeight - margin, oy + e.clientY - sy));
