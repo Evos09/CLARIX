@@ -1,18 +1,21 @@
 "use client";
 
 /**
- * Overlay surface — a chromeless, transparent-friendly spotlight for asking your
- * meeting memory. Loaded standalone by the desktop overlay window (Tauri,
- * always-on-top) and the browser companion; also reachable at /overlay in a tab.
+ * Overlay surface — a floating, always-on-top command bar + answer card for
+ * asking your meeting memory. Loaded standalone by the desktop overlay window
+ * (Tauri, always-on-top) and the browser companion; also reachable at /overlay.
  *
  * It is a thin surface over the existing memory brain: it POSTs to
  * /api/memory/ask (semantic retrieval + grounded, cited answer) and renders the
  * answer plus clickable citations that deep-link back to each source meeting.
  * No new search/auth/storage — it reuses Clarix's.
+ *
+ * The surface commits to a dark look (wrapped in `dark` so theme tokens resolve
+ * to their dark values regardless of the viewer's app theme).
  */
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Search, Loader2, CornerDownLeft, FileText, Clock, Eye, EyeOff } from "lucide-react";
+import { Search, Loader2, CornerDownLeft, FileText, Clock, Eye, EyeOff, Play } from "lucide-react";
 import { MarkdownView } from "@/components/chat/MarkdownView";
 
 const SOLID_KEY = "clarix-overlay-solid";
@@ -40,6 +43,12 @@ function citationHref(c: Citation): string {
   if (typeof c.t === "number") return `/meetings/${c.id}?tab=transcript&t=${c.t}`;
   if (c.hl) return `/meetings/${c.id}?tab=transcript&hl=${encodeURIComponent(c.hl)}`;
   return `/meetings/${c.id}`;
+}
+
+function fmtTime(s: number): string {
+  const m = Math.floor(s / 60);
+  const sec = Math.floor(s % 60);
+  return `${m}:${String(sec).padStart(2, "0")}`;
 }
 
 export default function OverlayPage() {
@@ -112,36 +121,30 @@ export default function OverlayPage() {
     }
   }
 
+  // Glass vs. solid background, shared by the bar and the card.
+  const surface = solid ? "bg-background" : "bg-background/80 backdrop-blur-xl";
+
   return (
-    <main className={`flex min-h-screen justify-center p-4 sm:pt-10 ${solid ? "bg-background" : "bg-transparent"}`}>
-      <div className="w-full max-w-xl">
-        <div className="mb-2 flex items-center justify-end">
-          <button
-            onClick={toggleSolid}
-            title={solid ? "Overlay is solid — tap for transparent" : "Overlay is transparent — tap for solid"}
-            aria-pressed={solid}
-            className="flex items-center gap-1.5 rounded-full border border-border bg-background/70 px-2.5 py-1 text-[11px] text-muted-foreground backdrop-blur transition hover:text-foreground"
-          >
-            {solid ? <EyeOff className="size-3" /> : <Eye className="size-3" />}
-            {solid ? "Solid" : "Transparent"}
-          </button>
-        </div>
-        <div className={`overflow-hidden rounded-2xl border border-border shadow-2xl ${solid ? "bg-background" : "bg-background/85 backdrop-blur-xl"}`}>
-          {/* Ask bar */}
+    <main className={`dark flex min-h-screen justify-center p-4 sm:pt-8 ${solid ? "bg-background" : "bg-transparent"}`}>
+      <div className="flex w-full max-w-2xl flex-col items-center gap-3 text-foreground">
+        {/* ── Command bar ── */}
+        <div className={`flex w-full items-stretch overflow-hidden rounded-2xl border border-white/10 shadow-2xl ${surface}`}>
+          <div className="flex items-center gap-2 px-3.5">
+            <span className="size-4 rounded-[5px] bg-gradient-to-br from-[#a78bfa] to-[#7c4fe8] shadow-[0_0_0_3px_rgba(167,139,250,0.18)]" />
+            <span className="text-sm font-bold tracking-tight">CLARIX</span>
+          </div>
+
           <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              void ask(query);
-            }}
-            className="flex items-center gap-2 border-b border-border px-4 py-3"
+            onSubmit={(e) => { e.preventDefault(); void ask(query); }}
+            className="flex flex-1 items-center gap-2 border-l border-white/10 px-3.5 py-2.5"
           >
             <Search className="size-4 shrink-0 text-muted-foreground" />
             <input
               autoFocus
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Ask your meetings anything…"
-              className="min-w-0 flex-1 bg-transparent text-[15px] outline-none placeholder:text-muted-foreground"
+              placeholder="Ask your meetings…"
+              className="min-w-0 flex-1 bg-transparent text-[14px] outline-none placeholder:text-muted-foreground"
             />
             {loading ? (
               <Loader2 className="size-4 shrink-0 animate-spin text-accent" />
@@ -152,46 +155,65 @@ export default function OverlayPage() {
             )}
           </form>
 
-          {/* Date-range filter chips — the structured half of search. Toggling
-              one re-asks the current question scoped to that window. */}
-          <div className="flex flex-wrap items-center gap-1.5 border-b border-border px-4 py-2">
-            <Clock className="size-3 text-muted-foreground" />
-            {RANGES.map((r) => {
-              const on = range === r.key;
-              return (
-                <button
-                  key={r.key}
-                  onClick={() => {
-                    const next = on ? null : r.key;
-                    setRange(next);
-                    if (query.trim()) void ask(query, next);
-                  }}
-                  className={`rounded-full border px-2.5 py-1 text-[11px] transition ${
-                    on
-                      ? "border-accent bg-accent/10 text-accent"
-                      : "border-border text-muted-foreground hover:border-accent/40 hover:text-foreground"
-                  }`}
-                >
-                  {r.label}
-                </button>
-              );
-            })}
+          <button
+            onClick={toggleSolid}
+            title={solid ? "Solid — tap for transparent" : "Transparent — tap for solid"}
+            aria-pressed={solid}
+            className="flex items-center gap-1.5 border-l border-white/10 px-3.5 text-[11px] text-muted-foreground transition hover:text-foreground"
+          >
+            {solid ? <EyeOff className="size-3.5" /> : <Eye className="size-3.5" />}
+            <span className="hidden sm:inline">{solid ? "Solid" : "Glass"}</span>
+          </button>
+        </div>
+
+        {/* ── Date-range chips (structured half of search) ── */}
+        <div className="flex flex-wrap items-center justify-center gap-1.5">
+          <Clock className="size-3 text-muted-foreground" />
+          {RANGES.map((r) => {
+            const on = range === r.key;
+            return (
+              <button
+                key={r.key}
+                onClick={() => {
+                  const next = on ? null : r.key;
+                  setRange(next);
+                  if (query.trim()) void ask(query, next);
+                }}
+                className={`rounded-full border px-2.5 py-1 text-[11px] transition ${
+                  on
+                    ? "border-accent bg-accent/15 text-accent"
+                    : "border-white/10 text-muted-foreground hover:border-accent/40 hover:text-foreground"
+                }`}
+              >
+                {r.label}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* ── Answer card ── */}
+        <div className={`w-full overflow-hidden rounded-2xl border border-white/10 shadow-2xl ${surface}`}>
+          <div className="flex items-center justify-between border-b border-white/10 px-4 py-2.5">
+            <span className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+              <span className="size-1.5 rounded-full bg-accent" /> CLARIX · from your meetings
+            </span>
+            {activeRange && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-white/[0.06] px-2 py-0.5 text-[10px] text-muted-foreground">
+                <Clock className="size-2.5" /> {activeRange}
+              </span>
+            )}
           </div>
 
-          {/* Body */}
-          <div className="max-h-[60vh] overflow-y-auto px-4 py-4">
+          <div className="max-h-[56vh] overflow-y-auto px-4 py-4">
             {!answer && !error && !loading && (
               <div className="space-y-3">
-                <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Try asking</p>
+                <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Try asking</p>
                 <div className="flex flex-wrap gap-2">
                   {EXAMPLES.map((ex) => (
                     <button
                       key={ex}
-                      onClick={() => {
-                        setQuery(ex);
-                        void ask(ex);
-                      }}
-                      className="rounded-full border border-border bg-muted/40 px-3 py-1.5 text-left text-xs transition hover:border-accent/40 hover:bg-accent/5"
+                      onClick={() => { setQuery(ex); void ask(ex); }}
+                      className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-left text-xs transition hover:border-accent/40 hover:bg-accent/10"
                     >
                       {ex}
                     </button>
@@ -210,52 +232,47 @@ export default function OverlayPage() {
 
             {answer && (
               <div className="space-y-4">
-                <div className="text-sm leading-relaxed">
+                <div className="text-[15px] leading-relaxed">
                   <MarkdownView content={answer} />
                 </div>
 
                 {citations.length > 0 && (
-                  <div className="space-y-2 border-t border-border pt-3">
-                    <p className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-                      Sources
-                      {activeRange && (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-accent/10 px-2 py-0.5 text-[10px] normal-case tracking-normal text-accent">
-                          <Clock className="size-2.5" /> {activeRange}
-                        </span>
-                      )}
+                  <div className="space-y-1.5 border-t border-white/10 pt-3">
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                      Sources · jump to the moment
                     </p>
-                    <ul className="space-y-1.5">
-                      {citations.map((c) => (
-                        <li key={c.id}>
-                          <Link
-                            href={citationHref(c)}
-                            target="_blank"
-                            className="group flex items-start gap-2 rounded-md px-2 py-1.5 text-sm transition hover:bg-accent/5"
-                          >
-                            <FileText className="mt-0.5 size-4 shrink-0 text-accent" />
-                            <span className="min-w-0">
-                              <span className="font-medium underline-offset-2 group-hover:underline">{c.title}</span>
-                              <span className="ml-2 text-xs text-muted-foreground">
-                                {c.type} · {fmtDate(c.date)}
-                              </span>
-                              {(typeof c.t === "number" || c.hl) && (
-                                <span className="mt-0.5 block text-[11px] text-accent/80">↳ jump to the cited moment</span>
-                              )}
-                            </span>
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
+                    {citations.map((c) => (
+                      <Link
+                        key={c.id}
+                        href={citationHref(c)}
+                        target="_blank"
+                        className="group flex items-center gap-2.5 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 transition hover:border-accent/40 hover:bg-accent/10"
+                      >
+                        <FileText className="size-4 shrink-0 text-accent" />
+                        <span className="min-w-0 flex-1 truncate">
+                          <span className="text-[13.5px] font-medium">{c.title}</span>
+                          <span className="ml-1.5 text-xs text-muted-foreground">· {c.type} · {fmtDate(c.date)}</span>
+                        </span>
+                        {typeof c.t === "number" ? (
+                          <span className="flex shrink-0 items-center gap-1 rounded-md bg-teal-400/10 px-2 py-1 font-mono text-[11px] text-teal-300">
+                            <Play className="size-2.5 fill-current" /> {fmtTime(c.t)}
+                          </span>
+                        ) : c.hl ? (
+                          <span className="shrink-0 rounded-md bg-teal-400/10 px-2 py-1 font-mono text-[11px] text-teal-300">↳ jump</span>
+                        ) : null}
+                      </Link>
+                    ))}
                   </div>
                 )}
               </div>
             )}
           </div>
-        </div>
 
-        <p className="mt-2 text-center text-[10px] text-muted-foreground">
-          CLARIX overlay · answers come from your workspace&apos;s meetings only
-        </p>
+          <div className="flex items-center justify-between border-t border-white/10 px-4 py-2 text-[10px] text-muted-foreground">
+            <span className="flex items-center gap-1"><CornerDownLeft className="size-2.5" /> to ask</span>
+            <span>answers from your workspace only</span>
+          </div>
+        </div>
       </div>
     </main>
   );
