@@ -49,7 +49,11 @@ export function MeetingTabs({
   // Chat citations deep-link here with ?tab=transcript&hl=<phrase> — open the
   // transcript pre-filtered to the cited moment.
   const params = useSearchParams();
-  const wantsTranscript = params.get("tab")?.toLowerCase() === "transcript";
+  // ?t=<seconds> deep-links to a second-precise moment; ?hl=<phrase> is the
+  // legacy phrase fallback. Either one opens the transcript at that spot.
+  const seekParam = params.get("t");
+  const seekSec = seekParam !== null && seekParam !== "" && Number.isFinite(Number(seekParam)) ? Number(seekParam) : null;
+  const wantsTranscript = params.get("tab")?.toLowerCase() === "transcript" || seekSec !== null;
   const highlight = params.get("hl") ?? "";
   const [tab, setTab] = useState<string>(
     wantsTranscript ? "Transcript" : structuredOutput ? "Summary" : "Transcript",
@@ -116,6 +120,7 @@ export function MeetingTabs({
               keyPoints={keyPoints}
               speakerMap={speakerMap}
               initialQuery={wantsTranscript ? highlight : ""}
+              initialSeekSec={seekSec}
               canEdit={canEdit}
             />
           </CardContent>

@@ -111,21 +111,27 @@ export async function POST(req: Request) {
       model: chatModelForPlan(plan),
     });
 
-    // First excerpt per meeting → a deep-link phrase for timestamp-precise jump.
-    const phraseByMeeting = new Map<string, string>();
+    // First excerpt per meeting → its jump-to-source second (preferred) and a
+    // phrase fallback for legacy chunks that predate timed indexing.
+    const jumpByMeeting = new Map<string, { t: number | null; hl: string }>();
     for (const e of excerpts as Excerpt[]) {
-      if (!phraseByMeeting.has(e.meetingId)) phraseByMeeting.set(e.meetingId, hlPhrase(e.text));
+      if (!jumpByMeeting.has(e.meetingId)) jumpByMeeting.set(e.meetingId, { t: e.startSec, hl: hlPhrase(e.text) });
     }
 
-    // Structured citations for the overlay UI. `hl` (when present) deep-links to
-    // the exact moment; otherwise the link opens the meeting.
-    const citations = meetings.map((m) => ({
-      id: m.id,
-      title: m.title,
-      type: getMeetingType(m.meetingType).label,
-      date: m.createdAt.toISOString(),
-      hl: phraseByMeeting.get(m.id) || undefined,
-    }));
+    // Structured citations for the overlay UI. `t` (seconds) deep-links to the
+    // exact moment in the audio; `hl` is the phrase fallback; absent both, the
+    // link just opens the meeting.
+    const citations = meetings.map((m) => {
+      const j = jumpByMeeting.get(m.id);
+      return {
+        id: m.id,
+        title: m.title,
+        type: getMeetingType(m.meetingType).label,
+        date: m.createdAt.toISOString(),
+        t: j?.t ?? undefined,
+        hl: j?.hl || undefined,
+      };
+    });
 
     await bumpChatUsage(ctx.userId);
 

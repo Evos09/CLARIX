@@ -143,6 +143,10 @@ model MeetingChunk {
   orgId     String
   content   String                       @db.Text
   ordinal   Int
+  // Start time (whole seconds) of this chunk in the recording, for second-precise
+  // jump-to-source. Null for legacy/text-only meetings with no timed segments;
+  // callers fall back to phrase deep-links when it's absent.
+  startSec  Int?
   embedding Unsupported("vector(1536)")?
   createdAt DateTime                     @default(now())
 

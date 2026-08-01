@@ -1,7 +1,7 @@
 import { randomUUID } from "crypto";
 import { prisma } from "@/lib/prisma";
 import { isEmbeddingsConfigured, embedTexts, toVectorLiteral } from "@/lib/embeddings";
-import { chunkTranscript } from "./chunk";
+import { chunkTranscript, chunkSegments, type TimedChunk, type TimedSegment } from "./chunk";
 
 /**
  * Embeds a meeting's transcript and (re)writes its MeetingChunk rows.
@@ -17,11 +17,16 @@ export async function ingestMeeting(meetingId: string): Promise<number> {
 
   const meeting = await prisma.meeting.findUnique({
     where: { id: meetingId },
-    select: { id: true, orgId: true, rawTranscript: true },
+    select: { id: true, orgId: true, rawTranscript: true, transcriptSegments: true },
   });
   if (!meeting?.rawTranscript) return 0;
 
-  const chunks = chunkTranscript(meeting.rawTranscript);
+  // Prefer timed segments so each chunk carries a jump-to-source second. Fall
+  // back to plain-text chunking (startSec = null) for legacy/text-only meetings.
+  const segments = (meeting.transcriptSegments as unknown as TimedSegment[] | null) ?? [];
+  const chunks: TimedChunk[] = segments.length
+    ? chunkSegments(segments)
+    : chunkTranscript(meeting.rawTranscript).map((c) => ({ ...c, startSec: null }));
   if (!chunks.length) return 0;
 
   const vectors = await embedTexts(chunks.map((c) => c.content));
@@ -32,8 +37,8 @@ export async function ingestMeeting(meetingId: string): Promise<number> {
   for (let i = 0; i < chunks.length; i++) {
     const literal = toVectorLiteral(vectors[i]);
     await prisma.$executeRaw`
-      INSERT INTO "MeetingChunk" (id, "meetingId", "orgId", content, ordinal, embedding, "createdAt")
-      VALUES (${randomUUID()}, ${meeting.id}, ${meeting.orgId}, ${chunks[i].content}, ${chunks[i].ordinal}, ${literal}::vector, now())
+      INSERT INTO "MeetingChunk" (id, "meetingId", "orgId", content, ordinal, "startSec", embedding, "createdAt")
+      VALUES (${randomUUID()}, ${meeting.id}, ${meeting.orgId}, ${chunks[i].content}, ${chunks[i].ordinal}, ${chunks[i].startSec}, ${literal}::vector, now())
     `;
   }
 

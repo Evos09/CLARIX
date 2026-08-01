@@ -12,6 +12,7 @@ interface RecallSnippet {
   type: string;
   date: string;
   text: string;
+  t?: number; // second-precise jump target, when the source chunk has a timestamp
 }
 
 export function LiveAssistPanel({ meetingType = "GENERAL" }: { meetingType?: string }) {
@@ -170,7 +171,7 @@ export function LiveAssistPanel({ meetingType = "GENERAL" }: { meetingType?: str
                   <div key={s.meetingId} className="rounded-md border border-teal/30 bg-teal/5 px-3 py-2">
                     <div className="flex items-start justify-between gap-2">
                       <Link
-                        href={`/meetings/${s.meetingId}`}
+                        href={typeof s.t === "number" ? `/meetings/${s.meetingId}?tab=transcript&t=${s.t}` : `/meetings/${s.meetingId}`}
                         target="_blank"
                         className="flex items-center gap-1 text-xs font-medium text-teal-700 hover:underline"
                       >

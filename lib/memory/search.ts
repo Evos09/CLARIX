@@ -6,6 +6,7 @@ export interface ChunkHit {
   meetingId: string;
   content: string;
   ordinal: number;
+  startSec: number | null; // jump-to-source offset (seconds); null for legacy chunks
   distance: number; // cosine distance (lower = closer)
   title: string;
   createdAt: Date;
@@ -45,7 +46,7 @@ export async function searchChunks(
   const where = Prisma.join(conditions, " AND ");
 
   const rows = await prisma.$queryRaw<ChunkHit[]>(Prisma.sql`
-    SELECT c."meetingId", c.content, c.ordinal,
+    SELECT c."meetingId", c.content, c.ordinal, c."startSec",
            (c.embedding <=> ${vec}::vector) AS distance,
            m.title, m."createdAt", m."meetingType"
     FROM "MeetingChunk" c
@@ -56,5 +57,9 @@ export async function searchChunks(
   `);
 
   // Prisma returns the computed distance as a string/Decimal in some drivers.
-  return rows.map((r) => ({ ...r, distance: Number(r.distance) }));
+  return rows.map((r) => ({
+    ...r,
+    distance: Number(r.distance),
+    startSec: r.startSec == null ? null : Number(r.startSec),
+  }));
 }

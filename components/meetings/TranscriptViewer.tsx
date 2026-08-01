@@ -42,6 +42,7 @@ export function TranscriptViewer({
   keyPoints = [],
   speakerMap = {},
   initialQuery = "",
+  initialSeekSec = null,
   canEdit = true,
 }: {
   meetingId: string;
@@ -52,6 +53,8 @@ export function TranscriptViewer({
   speakerMap?: Record<string, string>;
   /** Pre-filled search (chat citation deep-links) — cleared if nothing matches. */
   initialQuery?: string;
+  /** Second-precise deep-link (?t=): seek the audio here and flash the segment. */
+  initialSeekSec?: number | null;
   /** VIEWER collaborators get a read-only transcript (no speaker rename). */
   canEdit?: boolean;
 }) {
@@ -76,6 +79,10 @@ export function TranscriptViewer({
   const [names, setNames] = useState<Record<string, string>>(speakerMap);
   const [editing, setEditing] = useState<string | null>(null);
   const [editVal, setEditVal] = useState("");
+  // Second-precise deep-link: which segment to flash, and refs to scroll to it.
+  const [flashIdx, setFlashIdx] = useState<number | null>(null);
+  const seekedRef = useRef(false);
+  const rowRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   const speakerName = (s: string) => names[s] ?? `Speaker ${s}`;
 
@@ -106,6 +113,15 @@ export function TranscriptViewer({
       ws.on("play", () => setPlaying(true));
       ws.on("pause", () => setPlaying(false));
       ws.on("finish", () => setPlaying(false));
+      // Second-precise deep-link (?t=): once the waveform is ready, jump the
+      // audio to the cited moment and start playing. Guarded so it fires once.
+      ws.on("ready", () => {
+        if (initialSeekSec != null && !seekedRef.current) {
+          seekedRef.current = true;
+          ws.setTime(initialSeekSec);
+          ws.play();
+        }
+      });
       wsRef.current = ws;
       inst = ws;
     });
@@ -115,6 +131,22 @@ export function TranscriptViewer({
   function seek(seconds: number) {
     if (wsRef.current) { wsRef.current.setTime(seconds); wsRef.current.play(); }
   }
+
+  // On a ?t= deep-link, scroll the containing segment into view and flash it, so
+  // the cited moment is obvious even before (or without) audio playback.
+  useEffect(() => {
+    if (initialSeekSec == null || segments.length === 0) return;
+    let idx = segments.findIndex((s) => initialSeekSec >= s.start && initialSeekSec < s.end);
+    if (idx === -1) {
+      idx = 0; // nearest preceding segment when the exact second falls in a gap
+      for (let i = 0; i < segments.length; i++) if (segments[i].start <= initialSeekSec) idx = i;
+    }
+    rowRefs.current[idx]?.scrollIntoView({ block: "center", behavior: "smooth" });
+    setFlashIdx(idx);
+    const to = setTimeout(() => setFlashIdx(null), 2600);
+    return () => clearTimeout(to);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function saveSpeaker(s: string) {
     const next = { ...names, [s]: editVal.trim() || `Speaker ${s}` };
@@ -203,7 +235,15 @@ export function TranscriptViewer({
           const active = currentTime >= s.start && currentTime < s.end;
           const segComments = comments.filter((c) => c.timestamp !== null && c.timestamp >= s.start && c.timestamp < s.end);
           return (
-            <div key={i} className={cn("group -mx-2 rounded-md p-2", active && "bg-teal/10")}>
+            <div
+              key={i}
+              ref={(el) => { rowRefs.current[i] = el; }}
+              className={cn(
+                "group -mx-2 rounded-md p-2 transition-colors",
+                active && "bg-teal/10",
+                flashIdx === i && "bg-teal/15 ring-1 ring-teal",
+              )}
+            >
               <div className="flex items-baseline gap-2">
                 <button onClick={() => seek(s.start)} className="shrink-0 font-sans text-xs text-muted-foreground hover:text-teal-600" title="Jump to this moment">
                   {formatDuration(s.start)}

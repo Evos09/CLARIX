@@ -106,6 +106,7 @@ export interface Excerpt {
   title: string;
   date: Date;
   text: string;
+  startSec: number | null; // jump-to-source offset (seconds); null for legacy chunks
 }
 
 /**
@@ -126,7 +127,7 @@ export async function retrieveContext(
       if (hits.length) {
         const excerpts: Excerpt[] = hits
           .slice(0, 6)
-          .map((h) => ({ meetingId: h.meetingId, title: h.title, date: h.createdAt, text: h.content }));
+          .map((h) => ({ meetingId: h.meetingId, title: h.title, date: h.createdAt, text: h.content, startSec: h.startSec }));
 
         // Unique source meetings, in relevance order, capped at 5.
         const meetingIds: string[] = [];

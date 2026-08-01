@@ -15,7 +15,7 @@ import Link from "next/link";
 import { Search, Loader2, CornerDownLeft, FileText, Clock } from "lucide-react";
 import { MarkdownView } from "@/components/chat/MarkdownView";
 
-type Citation = { id: string; title: string; type: string; date: string; hl?: string };
+type Citation = { id: string; title: string; type: string; date: string; hl?: string; t?: number };
 type RangePreset = "week" | "month" | "quarter" | "year";
 
 const EXAMPLES = [
@@ -31,13 +31,13 @@ const RANGES: { key: RangePreset; label: string }[] = [
   { key: "year", label: "This year" },
 ];
 
-// Build the citation link. When we have a distinctive phrase, deep-link into the
-// transcript pre-filtered to that moment (each segment there is click-to-play);
-// otherwise just open the meeting.
+// Build the citation link. Prefer a second-precise jump (?t=) that seeks the
+// audio to the cited moment; fall back to a phrase deep-link for legacy chunks
+// with no timestamp; otherwise just open the meeting.
 function citationHref(c: Citation): string {
-  return c.hl
-    ? `/meetings/${c.id}?tab=transcript&hl=${encodeURIComponent(c.hl)}`
-    : `/meetings/${c.id}`;
+  if (typeof c.t === "number") return `/meetings/${c.id}?tab=transcript&t=${c.t}`;
+  if (c.hl) return `/meetings/${c.id}?tab=transcript&hl=${encodeURIComponent(c.hl)}`;
+  return `/meetings/${c.id}`;
 }
 
 export default function OverlayPage() {
@@ -201,7 +201,7 @@ export default function OverlayPage() {
                               <span className="ml-2 text-xs text-muted-foreground">
                                 {c.type} · {fmtDate(c.date)}
                               </span>
-                              {c.hl && (
+                              {(typeof c.t === "number" || c.hl) && (
                                 <span className="mt-0.5 block text-[11px] text-accent/80">↳ jump to the cited moment</span>
                               )}
                             </span>

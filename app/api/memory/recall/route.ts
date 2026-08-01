@@ -70,6 +70,7 @@ export async function POST(req: Request) {
         type: getMeetingType(h.meetingType).label,
         date: h.createdAt.toISOString(),
         text: h.content.slice(0, 320),
+        t: h.startSec ?? undefined, // second-precise jump when available
       }));
 
     return NextResponse.json({ snippets });
