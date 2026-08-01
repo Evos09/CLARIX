@@ -8,6 +8,7 @@ import { EmptyState } from "@/components/dashboard/EmptyState";
 import { MeetingTypeBreakdown } from "@/components/dashboard/MeetingTypeBreakdown";
 import { MeetingCard } from "@/components/meetings/MeetingCard";
 import { OnboardingChecklist, type OnboardingStep } from "@/components/dashboard/OnboardingChecklist";
+import { GlassModeButton } from "@/components/desktop/GlassModeButton";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { prisma } from "@/lib/prisma";
 import { getOrCreateContext, hasDb } from "@/lib/auth";
@@ -96,12 +97,16 @@ export default async function DashboardPage() {
               {fmtDate(new Date(), "EEEE, MMMM d")} — everything from this month in one place.
             </p>
           </div>
-          <Link
-            href="/meetings/new"
-            className="inline-flex shrink-0 items-center gap-2 self-start rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-teal-600 hover:shadow-md sm:self-auto"
-          >
-            <Plus className="size-4" /> Upload meeting
-          </Link>
+          <div className="flex shrink-0 items-center gap-2 self-start sm:self-auto">
+            {/* Desktop app only — renders nothing in a browser. */}
+            <GlassModeButton />
+            <Link
+              href="/meetings/new"
+              className="inline-flex shrink-0 items-center gap-2 rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-teal-600 hover:shadow-md"
+            >
+              <Plus className="size-4" /> Upload meeting
+            </Link>
+          </div>
         </header>
 
         {onboarding.length > 0 && onboarding.some((s) => !s.done) && (

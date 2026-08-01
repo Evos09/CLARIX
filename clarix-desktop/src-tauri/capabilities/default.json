@@ -2,7 +2,13 @@
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
   "description": "Core CLARIX desktop permissions: window control, tray, global shortcut, notifications.",
-  "windows": ["overlay"],
+  "windows": ["main", "overlay"],
+  "remote": {
+    "urls": [
+      "https://www.clarixmeetings.com/*",
+      "http://localhost:3000/*"
+    ]
+  },
   "permissions": [
     "core:default",
     "core:window:allow-show",
@@ -10,6 +16,7 @@
     "core:window:allow-unminimize",
     "core:window:allow-set-focus",
     "core:window:allow-is-visible",
+    "core:window:allow-start-dragging",
     "core:app:allow-default-window-icon",
     "notification:default",
     "global-shortcut:allow-register",

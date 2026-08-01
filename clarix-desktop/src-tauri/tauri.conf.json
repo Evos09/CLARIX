@@ -6,19 +6,31 @@
   "build": {},
   "app": {
     "macOSPrivateApi": true,
+    "withGlobalTauri": true,
     "windows": [
+      {
+        "label": "main",
+        "title": "CLARIX",
+        "url": "https://www.clarixmeetings.com",
+        "width": 1280,
+        "height": 800,
+        "minWidth": 900,
+        "minHeight": 600,
+        "visible": true,
+        "decorations": true
+      },
       {
         "label": "overlay",
         "title": "CLARIX Overlay",
         "url": "https://www.clarixmeetings.com/overlay",
         "width": 800,
         "height": 600,
+        "y": 40,
         "transparent": true,
         "decorations": false,
         "alwaysOnTop": true,
         "skipTaskbar": true,
-        "visible": true,
-        "center": true,
+        "visible": false,
         "resizable": true,
         "shadow": false
       }

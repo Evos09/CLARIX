@@ -15,7 +15,7 @@
  */
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Search, Loader2, CornerDownLeft, FileText, Clock, Eye, EyeOff, Play } from "lucide-react";
+import { Search, Loader2, CornerDownLeft, FileText, Clock, Eye, EyeOff, Play, X } from "lucide-react";
 import { MarkdownView } from "@/components/chat/MarkdownView";
 
 const SOLID_KEY = "clarix-overlay-solid";
@@ -51,6 +51,23 @@ function fmtTime(s: number): string {
   return `${m}:${String(sec).padStart(2, "0")}`;
 }
 
+/** True when this page is running inside the Tauri desktop shell. */
+function inTauri(): boolean {
+  return typeof window !== "undefined" && Boolean((window as { __TAURI__?: unknown }).__TAURI__);
+}
+
+/**
+ * Hide the native overlay window (desktop only). The window is only hidden, not
+ * closed, so the dashboard's "Enter Glass Mode" button can show it again.
+ * Imported lazily so browser visitors never fetch the Tauri bundle.
+ */
+function hideDesktopOverlay() {
+  if (!inTauri()) return;
+  void import("@tauri-apps/api/window")
+    .then(({ getCurrentWindow }) => getCurrentWindow().hide())
+    .catch(() => {});
+}
+
 export default function OverlayPage() {
   const [query, setQuery] = useState("");
   const [range, setRange] = useState<RangePreset | null>(null);
@@ -64,8 +81,12 @@ export default function OverlayPage() {
   // A `?solid=1|0` param (set by the extension) wins on first load, else the
   // last saved preference for this surface.
   const [solid, setSolid] = useState(false);
+  // Detected after mount (never during render) so SSR and the first client
+  // render agree — otherwise the close button would trip hydration.
+  const [isDesktop, setIsDesktop] = useState(false);
 
   useEffect(() => {
+    setIsDesktop(inTauri());
     const param = new URLSearchParams(window.location.search).get("solid");
     if (param === "1" || param === "0") {
       const on = param === "1";
@@ -126,12 +147,23 @@ export default function OverlayPage() {
 
   return (
     <main className={`dark flex min-h-screen justify-center p-4 sm:pt-8 ${solid ? "bg-background" : "bg-transparent"}`}>
+      {/* The app shell paints a solid page background; the native overlay window
+          is transparent, so clear it here or the "glass" look is lost. */}
+      <style>{`
+        html, body {
+          background: transparent !important;
+          background-color: transparent !important;
+        }
+      `}</style>
       <div className="flex w-full max-w-2xl flex-col items-center gap-3 text-foreground">
-        {/* ── Command bar ── */}
-        <div className={`flex w-full items-stretch overflow-hidden rounded-2xl border border-white/10 shadow-2xl ${surface}`}>
-          <div className="flex items-center gap-2 px-3.5">
-            <span className="size-4 rounded-[5px] bg-gradient-to-br from-[#a78bfa] to-[#7c4fe8] shadow-[0_0_0_3px_rgba(167,139,250,0.18)]" />
-            <span className="text-sm font-bold tracking-tight">CLARIX</span>
+        {/* ── Command bar — drag the window by it (desktop overlay) ── */}
+        <div
+          data-tauri-drag-region
+          className={`flex w-full items-stretch overflow-hidden rounded-2xl border border-white/10 shadow-2xl ${surface}`}
+        >
+          <div data-tauri-drag-region className="flex cursor-grab items-center gap-2 px-3.5 active:cursor-grabbing">
+            <span data-tauri-drag-region className="size-4 rounded-[5px] bg-gradient-to-br from-[#a78bfa] to-[#7c4fe8] shadow-[0_0_0_3px_rgba(167,139,250,0.18)]" />
+            <span data-tauri-drag-region className="text-sm font-bold tracking-tight">CLARIX</span>
           </div>
 
           <form
@@ -164,6 +196,18 @@ export default function OverlayPage() {
             {solid ? <EyeOff className="size-3.5" /> : <Eye className="size-3.5" />}
             <span className="hidden sm:inline">{solid ? "Solid" : "Glass"}</span>
           </button>
+
+          {/* Desktop only: hide the overlay window (reopen it from the dashboard). */}
+          {isDesktop && (
+            <button
+              onClick={hideDesktopOverlay}
+              title="Close the overlay"
+              aria-label="Close the overlay"
+              className="flex items-center border-l border-white/10 px-3 text-muted-foreground transition hover:text-foreground"
+            >
+              <X className="size-4" />
+            </button>
+          )}
         </div>
 
         {/* ── Date-range chips (structured half of search) ── */}

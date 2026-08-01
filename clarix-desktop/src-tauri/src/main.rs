@@ -1,6 +1,6 @@
-// CLARIX desktop (Tauri v2): a floating, transparent, borderless always-on-top
-// overlay — the app's only window. Adds a system tray, a global toggle
-// shortcut, close-to-tray, and notifications.
+// CLARIX desktop (Tauri v2): a decorated dashboard window plus a separate
+// floating, transparent, always-on-top overlay window (shown from the dashboard
+// or the global shortcut). Adds a system tray, close-to-tray, and notifications.
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use tauri::menu::{Menu, MenuItem};
@@ -8,10 +8,10 @@ use tauri::tray::TrayIconBuilder;
 use tauri::{Manager, WindowEvent};
 use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Modifiers, Shortcut, ShortcutState};
 
-/// Bring the overlay to the front (used by the tray "Open CLARIX" item).
-/// The overlay is the app's only window — there is no decorated main window.
+/// Bring the dashboard window to the front (tray "Open CLARIX"). The overlay is
+/// a separate always-on-top window, toggled by the global shortcut instead.
 fn summon(app: &tauri::AppHandle) {
-    if let Some(w) = app.get_webview_window("overlay") {
+    if let Some(w) = app.get_webview_window("main") {
         let _ = w.show();
         let _ = w.unminimize();
         let _ = w.set_focus();
