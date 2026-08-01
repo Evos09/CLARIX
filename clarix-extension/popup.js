@@ -57,11 +57,23 @@ $("btn-signout").addEventListener("click", async () => {
   refresh();
 });
 
+// Transparency preference for the overlay window. Persisted in chrome.storage
+// (survives popup close) and passed to /overlay as ?solid=0|1 so the page opens
+// in the chosen look. Defaults to transparent.
+const chkTransparent = $("chk-transparent");
+chrome.storage.local.get({ overlayTransparent: true }).then(({ overlayTransparent }) => {
+  chkTransparent.checked = overlayTransparent;
+});
+chkTransparent.addEventListener("change", () => {
+  chrome.storage.local.set({ overlayTransparent: chkTransparent.checked });
+});
+
 // Open the memory overlay (the /overlay spotlight) as a small floating window,
 // so you can ask across past meetings without leaving the current tab.
 $("btn-ask").addEventListener("click", () => {
+  const solid = chkTransparent.checked ? "0" : "1";
   chrome.windows.create({
-    url: `${CLARIX_ORIGIN}/overlay`,
+    url: `${CLARIX_ORIGIN}/overlay?solid=${solid}`,
     type: "popup",
     width: 620,
     height: 560,

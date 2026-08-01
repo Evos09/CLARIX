@@ -37,6 +37,20 @@ button {
 button.primary { background: var(--violet); color: #fff; }
 button.danger { background: #e5484d; color: #fff; }
 button.link { background: none; color: var(--muted); font-weight: 500; font-size: 12px; text-decoration: underline; }
+.switch-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 8px 10px;
+  border: 1px solid #ecebe7;
+  border-radius: 10px;
+  font-size: 12px;
+  color: var(--muted);
+  cursor: pointer;
+}
+.switch-row input { width: auto; margin: 0; accent-color: var(--violet); cursor: pointer; }
 #status { margin: 12px 0 0; }
 #open-meeting { display: inline-block; margin-top: 10px; color: var(--violet); font-size: 13px; font-weight: 600; text-decoration: none; }
 .rec { color: #e5484d; font-weight: 600; }

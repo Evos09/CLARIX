@@ -10,10 +10,12 @@
  * answer plus clickable citations that deep-link back to each source meeting.
  * No new search/auth/storage — it reuses Clarix's.
  */
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Search, Loader2, CornerDownLeft, FileText, Clock } from "lucide-react";
+import { Search, Loader2, CornerDownLeft, FileText, Clock, Eye, EyeOff } from "lucide-react";
 import { MarkdownView } from "@/components/chat/MarkdownView";
+
+const SOLID_KEY = "clarix-overlay-solid";
 
 type Citation = { id: string; title: string; type: string; date: string; hl?: string; t?: number };
 type RangePreset = "week" | "month" | "quarter" | "year";
@@ -48,6 +50,30 @@ export default function OverlayPage() {
   const [citations, setCitations] = useState<Citation[]>([]);
   const [activeRange, setActiveRange] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  // Transparency: glass (default) lets the desktop/always-on-top overlay show
+  // through; solid gives an opaque background for readability over busy screens.
+  // A `?solid=1|0` param (set by the extension) wins on first load, else the
+  // last saved preference for this surface.
+  const [solid, setSolid] = useState(false);
+
+  useEffect(() => {
+    const param = new URLSearchParams(window.location.search).get("solid");
+    if (param === "1" || param === "0") {
+      const on = param === "1";
+      setSolid(on);
+      try { localStorage.setItem(SOLID_KEY, on ? "1" : "0"); } catch {}
+    } else {
+      try { setSolid(localStorage.getItem(SOLID_KEY) === "1"); } catch {}
+    }
+  }, []);
+
+  function toggleSolid() {
+    setSolid((prev) => {
+      const next = !prev;
+      try { localStorage.setItem(SOLID_KEY, next ? "1" : "0"); } catch {}
+      return next;
+    });
+  }
 
   async function ask(q: string, r: RangePreset | null = range) {
     const question = q.trim();
@@ -87,9 +113,20 @@ export default function OverlayPage() {
   }
 
   return (
-    <main className="flex min-h-screen justify-center bg-transparent p-4 sm:pt-10">
+    <main className={`flex min-h-screen justify-center p-4 sm:pt-10 ${solid ? "bg-background" : "bg-transparent"}`}>
       <div className="w-full max-w-xl">
-        <div className="overflow-hidden rounded-2xl border border-border bg-background/85 shadow-2xl backdrop-blur-xl">
+        <div className="mb-2 flex items-center justify-end">
+          <button
+            onClick={toggleSolid}
+            title={solid ? "Overlay is solid — tap for transparent" : "Overlay is transparent — tap for solid"}
+            aria-pressed={solid}
+            className="flex items-center gap-1.5 rounded-full border border-border bg-background/70 px-2.5 py-1 text-[11px] text-muted-foreground backdrop-blur transition hover:text-foreground"
+          >
+            {solid ? <EyeOff className="size-3" /> : <Eye className="size-3" />}
+            {solid ? "Solid" : "Transparent"}
+          </button>
+        </div>
+        <div className={`overflow-hidden rounded-2xl border border-border shadow-2xl ${solid ? "bg-background" : "bg-background/85 backdrop-blur-xl"}`}>
           {/* Ask bar */}
           <form
             onSubmit={(e) => {
