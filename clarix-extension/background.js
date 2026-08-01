@@ -133,6 +133,40 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
           sendResponse({ ok: true });
           break;
 
+        // ---- HUD overlay (content.js) ----
+        // Ask the meeting-memory API. Uses the stored Bearer token but never
+        // force-opens the connect tab for a passive ask — if there's no valid
+        // token we just tell the overlay to connect.
+        case "ASK": {
+          const token = await getStoredToken();
+          if (!token || jwtExpiring(token)) {
+            sendResponse({ ok: false, status: 401, error: "Connect your CLARIX account to ask." });
+            break;
+          }
+          const res = await apiFetch("/api/memory/ask", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ query: msg.query, ...(msg.range ? { range: msg.range } : {}) }),
+          }, token).catch(() => null);
+          if (!res) { sendResponse({ ok: false, error: "Couldn't reach CLARIX." }); break; }
+          const data = await res.json().catch(() => null);
+          if (!res.ok) { sendResponse({ ok: false, status: res.status, error: data?.error || "Something went wrong." }); break; }
+          sendResponse({ ok: true, data });
+          break;
+        }
+        // Spawn the overlay in a separate borderless popup window — a different
+        // surface, so it stays hidden when the user shares a single tab.
+        case "POPOUT":
+          await chrome.windows.create({
+            url: `${CLARIX_ORIGIN}/overlay?solid=1`,
+            type: "popup",
+            width: 360,
+            height: 500,
+            focused: true,
+          }).catch(() => {});
+          sendResponse({ ok: true });
+          break;
+
         // from content-connect.js (runs on the connect page)
         case "CLARIX_TOKEN":
           await onTokenReceived(msg.token, sender.tab?.id);
@@ -166,4 +200,14 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     }
   })();
   return true; // async response
+});
+
+// ---- global shortcuts → the injected overlay (content.js) ----
+async function messageActiveTab(message) {
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  if (tab?.id) chrome.tabs.sendMessage(tab.id, message).catch(() => {});
+}
+chrome.commands.onCommand.addListener((command) => {
+  if (command === "toggle-overlay-visibility") messageActiveTab({ type: "TOGGLE_VISIBILITY" });
+  else if (command === "toggle-click-through") messageActiveTab({ type: "TOGGLE_CLICK_THROUGH" });
 });

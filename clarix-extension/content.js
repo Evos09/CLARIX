@@ -115,10 +115,12 @@
   function renderError(message, status) {
     const kids = [el("div", { class: "clarix-muted" }, message)];
     if (status === 401 || status === 403) {
+      // This extension authenticates with a Bearer token issued by the connect
+      // page — send the user there (also reachable from the toolbar popup).
       kids.push(el("a", {
-        href: `${CLARIX_ORIGIN}/sign-in`, target: "_blank", rel: "noreferrer",
+        href: `${CLARIX_ORIGIN}/extension/connect`, target: "_blank", rel: "noreferrer",
         style: "color:#7c4fe8;font-weight:600;text-decoration:none;display:inline-block;margin-top:6px",
-      }, "Sign in to CLARIX →"));
+      }, "Connect your CLARIX account →"));
     }
     response.replaceChildren(...kids);
   }

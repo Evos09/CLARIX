@@ -29,6 +29,28 @@
       ],
       "js": ["content-connect.js"],
       "run_at": "document_idle"
+    },
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "css": ["styles.css"],
+      "run_at": "document_idle"
     }
-  ]
+  ],
+  "commands": {
+    "toggle-overlay-visibility": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+H",
+        "mac": "Command+Shift+H"
+      },
+      "description": "Show / hide the CLARIX overlay (hide it before sharing your screen)"
+    },
+    "toggle-click-through": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+Y",
+        "mac": "Command+Shift+Y"
+      },
+      "description": "Toggle click-through (let clicks pass through the overlay)"
+    }
+  }
 }
