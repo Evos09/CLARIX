@@ -72,6 +72,26 @@ function hideDesktopOverlay() {
     .catch(() => {});
 }
 
+/**
+ * Open a meeting from a citation. In the desktop app a plain target="_blank"
+ * link does nothing — WebView2 blocks new-window creation — so we spawn a real
+ * Tauri window instead. In a browser the normal link is left alone.
+ */
+function openMeetingWindow(e: React.MouseEvent, href: string) {
+  if (!inTauri()) return;
+  e.preventDefault();
+  void import("@tauri-apps/api/webviewWindow")
+    .then(({ WebviewWindow }) => {
+      new WebviewWindow(`meeting-${Date.now()}`, {
+        url: href,
+        width: 1100,
+        height: 800,
+        title: "CLARIX — Meeting",
+      });
+    })
+    .catch(() => {});
+}
+
 /** The eight edges/corners you can grab to resize the borderless window. */
 type ResizeDir = "North" | "South" | "East" | "West" | "NorthEast" | "NorthWest" | "SouthEast" | "SouthWest";
 
@@ -298,12 +318,13 @@ export default function OverlayPage() {
   }
 
   const glass = mode === "glass";
-  // Glass draws a frosted panel; clear draws nothing at all, so only the words
-  // float over whatever is behind — with a shadow so they stay readable.
+  // Glass draws a frosted panel. Clear drops the border, blur and shadow so only
+  // the words float — but keeps a faint dark scrim behind them, because white
+  // text with a shadow is unreadable over a light window underneath.
   const surface = glass
     ? "rounded-2xl border border-white/10 bg-background/80 shadow-2xl backdrop-blur-xl"
-    : "";
-  const legible = glass ? "" : "[text-shadow:0_1px_4px_rgba(0,0,0,0.95)]";
+    : "rounded-2xl bg-black/45";
+  const legible = glass ? "" : "[text-shadow:0_1px_3px_rgba(0,0,0,0.95)]";
 
   return (
     <main
@@ -559,6 +580,7 @@ export default function OverlayPage() {
                         key={c.id}
                         href={citationHref(c)}
                         target="_blank"
+                        onClick={(e) => openMeetingWindow(e, citationHref(c))}
                         className={`group flex items-center gap-2.5 rounded-lg px-3 py-2 transition hover:bg-accent/10 ${glass ? "border border-white/10 bg-white/[0.03] hover:border-accent/40" : ""}`}
                       >
                         <FileText className="size-4 shrink-0 text-accent" />
