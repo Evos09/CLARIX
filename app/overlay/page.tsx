@@ -13,9 +13,9 @@
  * The surface commits to a dark look (wrapped in `dark` so theme tokens resolve
  * to their dark values regardless of the viewer's app theme).
  */
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { Search, Loader2, CornerDownLeft, FileText, Clock, Eye, EyeOff, Play, X } from "lucide-react";
+import { Search, Loader2, CornerDownLeft, FileText, Clock, Eye, EyeOff, Play, X, Minus, Maximize2 } from "lucide-react";
 import { MarkdownView } from "@/components/chat/MarkdownView";
 
 const MODE_KEY = "clarix-overlay-mode";
@@ -71,6 +71,23 @@ function hideDesktopOverlay() {
     .catch(() => {});
 }
 
+/** The eight edges/corners you can grab to resize the borderless window. */
+type ResizeDir = "North" | "South" | "East" | "West" | "NorthEast" | "NorthWest" | "SouthEast" | "SouthWest";
+
+const RESIZE_HANDLES: { dir: ResizeDir; cls: string }[] = [
+  { dir: "North", cls: "inset-x-4 top-0 h-1.5 cursor-ns-resize" },
+  { dir: "South", cls: "inset-x-4 bottom-0 h-1.5 cursor-ns-resize" },
+  { dir: "West", cls: "inset-y-4 left-0 w-1.5 cursor-ew-resize" },
+  { dir: "East", cls: "inset-y-4 right-0 w-1.5 cursor-ew-resize" },
+  { dir: "NorthWest", cls: "left-0 top-0 size-4 cursor-nwse-resize" },
+  { dir: "NorthEast", cls: "right-0 top-0 size-4 cursor-nesw-resize" },
+  { dir: "SouthWest", cls: "bottom-0 left-0 size-4 cursor-nesw-resize" },
+  { dir: "SouthEast", cls: "bottom-0 right-0 size-4 cursor-nwse-resize" },
+];
+
+/** Height the window collapses to when minimized — just the command bar. */
+const BAR_HEIGHT = 58;
+
 export default function OverlayPage() {
   const [query, setQuery] = useState("");
   const [range, setRange] = useState<RangePreset | null>(null);
@@ -86,6 +103,9 @@ export default function OverlayPage() {
   // Detected after mount (never during render) so SSR and the first client
   // render agree — otherwise the close button would trip hydration.
   const [isDesktop, setIsDesktop] = useState(false);
+  // Minimized = only the command bar is left on screen.
+  const [collapsed, setCollapsed] = useState(false);
+  const expandedHeight = useRef(600);
 
   useEffect(() => {
     setIsDesktop(inTauri());
@@ -100,6 +120,48 @@ export default function OverlayPage() {
       } catch {}
     }
   }, []);
+
+  /**
+   * Drag the window from anywhere on the overlay — not just the command bar.
+   * Interactive elements and anything marked data-no-drag (the answer text, so
+   * it stays selectable) are excluded.
+   */
+  function startWindowDrag(e: React.MouseEvent) {
+    if (!isDesktop || e.button !== 0) return;
+    if ((e.target as HTMLElement).closest("button, a, input, textarea, select, [data-no-drag]")) return;
+    void import("@tauri-apps/api/window")
+      .then(({ getCurrentWindow }) => getCurrentWindow().startDragging())
+      .catch(() => {});
+  }
+
+  /** Grab an edge or corner to resize the borderless window freely. */
+  function startResize(e: React.MouseEvent, direction: ResizeDir) {
+    if (!isDesktop) return;
+    e.stopPropagation(); // don't also start a window drag
+    void import("@tauri-apps/api/window")
+      .then(({ getCurrentWindow }) => getCurrentWindow().startResizeDragging(direction))
+      .catch(() => {});
+  }
+
+  /** Minimize to just the command bar (and restore the previous height). */
+  async function toggleCollapse() {
+    const next = !collapsed;
+    setCollapsed(next);
+    if (!isDesktop) return;
+    try {
+      const { getCurrentWindow, LogicalSize } = await import("@tauri-apps/api/window");
+      const win = getCurrentWindow();
+      // innerWidth/innerHeight are CSS pixels, which are logical units.
+      if (next) {
+        expandedHeight.current = window.innerHeight;
+        await win.setSize(new LogicalSize(window.innerWidth, BAR_HEIGHT));
+      } else {
+        await win.setSize(new LogicalSize(window.innerWidth, expandedHeight.current || 600));
+      }
+    } catch {
+      // Not in the desktop shell — the UI still collapses on its own.
+    }
+  }
 
   function toggleMode() {
     setMode((prev) => {
@@ -155,7 +217,21 @@ export default function OverlayPage() {
   const legible = glass ? "" : "[text-shadow:0_1px_4px_rgba(0,0,0,0.95)]";
 
   return (
-    <main className={`dark flex h-screen justify-center bg-transparent p-3 ${legible}`}>
+    <main
+      onMouseDown={startWindowDrag}
+      className={`dark flex h-screen justify-center bg-transparent p-3 ${legible} ${isDesktop ? "cursor-grab active:cursor-grabbing" : ""}`}
+    >
+      {/* Grab any edge or corner to resize the borderless window. */}
+      {isDesktop &&
+        RESIZE_HANDLES.map((h) => (
+          <div
+            key={h.dir}
+            onMouseDown={(e) => startResize(e, h.dir)}
+            className={`fixed z-50 ${h.cls}`}
+            aria-hidden
+          />
+        ))}
+
       {/* The app shell paints a solid page background; the native overlay window
           is transparent, so clear it here or the "glass" look is lost. */}
       <style>{`
@@ -208,6 +284,18 @@ export default function OverlayPage() {
             <span className="hidden sm:inline">{glass ? "Glass" : "Clear"}</span>
           </button>
 
+          {/* Desktop only: minimize to just this bar, then restore. */}
+          {isDesktop && (
+            <button
+              onClick={toggleCollapse}
+              title={collapsed ? "Expand" : "Minimize to the bar"}
+              aria-label={collapsed ? "Expand the overlay" : "Minimize the overlay"}
+              className={`flex items-center px-3 text-muted-foreground transition hover:text-foreground ${glass ? "border-l border-white/10" : ""}`}
+            >
+              {collapsed ? <Maximize2 className="size-3.5" /> : <Minus className="size-4" />}
+            </button>
+          )}
+
           {/* Desktop only: hide the overlay window (reopen it from the dashboard). */}
           {isDesktop && (
             <button
@@ -222,7 +310,7 @@ export default function OverlayPage() {
         </div>
 
         {/* ── Date-range chips (structured half of search) ── */}
-        <div className="flex flex-wrap items-center justify-center gap-1.5">
+        <div className={`flex flex-wrap items-center justify-center gap-1.5 ${collapsed ? "hidden" : ""}`}>
           <Clock className="size-3 text-muted-foreground" />
           {RANGES.map((r) => {
             const on = range === r.key;
@@ -247,7 +335,7 @@ export default function OverlayPage() {
         </div>
 
         {/* ── Answer card — grows to fill the window ── */}
-        <div className={`flex min-h-0 w-full flex-1 flex-col overflow-hidden ${surface}`}>
+        <div className={`flex min-h-0 w-full flex-1 flex-col overflow-hidden ${surface} ${collapsed ? "hidden" : ""}`}>
           <div className={`flex flex-none items-center justify-between px-4 py-2.5 ${glass ? "border-b border-white/10" : ""}`}>
             <span className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
               <span className="size-1.5 rounded-full bg-accent" /> CLARIX · from your meetings
@@ -259,7 +347,8 @@ export default function OverlayPage() {
             )}
           </div>
 
-          <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4">
+          {/* data-no-drag: answers stay selectable instead of dragging the window. */}
+          <div data-no-drag className="min-h-0 flex-1 overflow-y-auto px-4 py-4">
             {!answer && !error && !loading && (
               <div className="space-y-3">
                 <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Try asking</p>
