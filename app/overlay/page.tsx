@@ -478,7 +478,12 @@ export default function OverlayPage() {
               <span className="flex flex-wrap items-center gap-2">
                 <span className="text-muted-foreground">Saved — your notes are processing.</span>
                 {recMeetingId && (
-                  <Link href={`/meetings/${recMeetingId}`} target="_blank" className="font-semibold text-accent hover:underline">
+                  <Link
+                    href={`/meetings/${recMeetingId}`}
+                    target="_blank"
+                    onClick={(e) => openMeetingWindow(e, `/meetings/${recMeetingId}`)}
+                    className="font-semibold text-accent hover:underline"
+                  >
                     Open meeting →
                   </Link>
                 )}
