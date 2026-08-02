@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Puzzle, Monitor, Apple, ArrowRight } from "lucide-react";
+import { Globe, Monitor, Apple, ArrowRight } from "lucide-react";
 import { SiteNav } from "@/components/site/site-nav";
 import { SiteFooter } from "@/components/site/site-footer";
 import { PageHero } from "@/components/site/page-hero";
@@ -97,7 +97,7 @@ export default function FeaturesPage() {
         ))}
       </section>
 
-      {/* Platforms — Chrome extension + desktop apps */}
+      {/* Platforms — desktop apps + web */}
       <section className="border-t border-foreground/10">
         <div className="max-w-[1400px] mx-auto px-6 lg:px-12 py-20 lg:py-28">
           <Reveal>
@@ -109,24 +109,17 @@ export default function FeaturesPage() {
               Use CLARIX wherever your meetings happen
             </h2>
             <p className="text-lg text-muted-foreground leading-relaxed max-w-2xl mb-14">
-              Beyond the web app: record straight from your browser with the Chrome extension,
-              or run CLARIX as a native desktop app on Windows and macOS.
+              Beyond the web app: run CLARIX as a native desktop app on Windows and macOS,
+              with a floating overlay that records and answers from your meeting history.
             </p>
           </Reveal>
 
           <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
             {[
               {
-                icon: Puzzle,
-                title: "Chrome Extension",
-                desc: "Record any meeting tab — Zoom, Meet, Teams. No bot joins the call.",
-                href: "/extension",
-                cta: "See the extension",
-              },
-              {
                 icon: Monitor,
                 title: "Windows App",
-                desc: "The full CLARIX app in a native window, with a tray icon and global shortcut.",
+                desc: "The full CLARIX app in a native window, with a tray icon, global shortcut, and the floating overlay.",
                 href: "/download",
                 cta: "Download",
               },
@@ -136,6 +129,13 @@ export default function FeaturesPage() {
                 desc: "Native desktop app for Intel and Apple Silicon Macs.",
                 href: "/download",
                 cta: "Download",
+              },
+              {
+                icon: Globe,
+                title: "Web App",
+                desc: "Upload or record in the browser — nothing to install, works on any machine.",
+                href: "/sign-up",
+                cta: "Open CLARIX",
               },
             ].map((p, i) => (
               <Reveal key={p.title} delay={i * 100}>

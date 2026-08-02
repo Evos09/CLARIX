@@ -1,8 +1,7 @@
 import Link from "next/link";
-import { Puzzle, Monitor, Apple, ArrowUpRight } from "lucide-react";
+import { Monitor, Apple, ArrowUpRight } from "lucide-react";
 
 const items = [
-  { icon: Puzzle, label: "Chrome", href: "/extension" },
   { icon: Monitor, label: "Windows", href: "/download" },
   { icon: Apple, label: "macOS", href: "/download" },
 ];

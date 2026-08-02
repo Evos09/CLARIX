@@ -15,8 +15,9 @@
  */
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { Search, Loader2, CornerDownLeft, FileText, Clock, Eye, EyeOff, Play, X, Minus, Maximize2 } from "lucide-react";
+import { Search, Loader2, CornerDownLeft, FileText, Clock, Eye, EyeOff, Play, X, Minus, Maximize2, Mic, Square, ShieldCheck } from "lucide-react";
 import { MarkdownView } from "@/components/chat/MarkdownView";
+import { createMeetingFromFile } from "@/lib/uploadClient";
 
 const MODE_KEY = "clarix-overlay-mode";
 
@@ -88,6 +89,14 @@ const RESIZE_HANDLES: { dir: ResizeDir; cls: string }[] = [
 /** Height the window collapses to when minimized — just the command bar. */
 const BAR_HEIGHT = 58;
 
+/** Recording lifecycle for the overlay's built-in recorder. */
+type RecState = "idle" | "consent" | "recording" | "saving" | "done" | "error";
+
+function fmtElapsed(sec: number): string {
+  const m = Math.floor(sec / 60);
+  return `${String(m).padStart(2, "0")}:${String(sec % 60).padStart(2, "0")}`;
+}
+
 export default function OverlayPage() {
   const [query, setQuery] = useState("");
   const [range, setRange] = useState<RangePreset | null>(null);
@@ -107,6 +116,16 @@ export default function OverlayPage() {
   const [collapsed, setCollapsed] = useState(false);
   const expandedHeight = useRef(600);
 
+  // ── Built-in recorder ──
+  const [rec, setRec] = useState<RecState>("idle");
+  const [elapsed, setElapsed] = useState(0);
+  const [recError, setRecError] = useState<string | null>(null);
+  const [recMeetingId, setRecMeetingId] = useState<string | null>(null);
+  const recorderRef = useRef<MediaRecorder | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
   useEffect(() => {
     setIsDesktop(inTauri());
     const param = new URLSearchParams(window.location.search).get("mode");
@@ -120,6 +139,76 @@ export default function OverlayPage() {
       } catch {}
     }
   }, []);
+
+  /* ─────────── Recording ───────────
+   * Captures the microphone and uploads through the same pipeline as the web
+   * recorder, so the meeting lands in the library and gets transcribed exactly
+   * like any other. Consent is confirmed before the mic ever opens.
+   */
+  function stopTracks() {
+    streamRef.current?.getTracks().forEach((t) => t.stop());
+    streamRef.current = null;
+    if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null; }
+  }
+
+  async function beginRecording() {
+    setRecError(null);
+    setRecMeetingId(null);
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = stream;
+      chunksRef.current = [];
+      const recorder = new MediaRecorder(stream);
+      recorder.ondataavailable = (e) => { if (e.data.size) chunksRef.current.push(e.data); };
+      recorder.onstop = () => void saveRecording();
+      recorder.start();
+      recorderRef.current = recorder;
+      setElapsed(0);
+      timerRef.current = setInterval(() => setElapsed((s) => s + 1), 1000);
+      setRec("recording");
+    } catch {
+      stopTracks();
+      setRec("error");
+      setRecError("Couldn't access the microphone. Check permissions and try again.");
+    }
+  }
+
+  function stopRecording() {
+    if (recorderRef.current?.state === "recording") {
+      setRec("saving");
+      recorderRef.current.stop(); // fires onstop → saveRecording()
+    }
+    stopTracks();
+  }
+
+  async function saveRecording() {
+    const type = chunksRef.current[0]?.type || "audio/webm";
+    const blob = new Blob(chunksRef.current, { type });
+    chunksRef.current = [];
+    if (!blob.size) { setRec("idle"); return; }
+    try {
+      const stamp = new Date();
+      const file = new File([blob], `overlay-recording-${stamp.getTime()}.webm`, { type });
+      const id = await createMeetingFromFile(
+        file,
+        {
+          title: `Meeting — ${stamp.toLocaleString()}`,
+          meetingType: "GENERAL",
+          autoDetect: true,
+          consentAcknowledged: true, // confirmed in the UI before recording started
+        },
+        () => {},
+      );
+      setRecMeetingId(id);
+      setRec("done");
+    } catch (e) {
+      setRec("error");
+      setRecError(e instanceof Error ? e.message : "Couldn't save the recording.");
+    }
+  }
+
+  // Never leave the mic open if the overlay unmounts.
+  useEffect(() => () => stopTracks(), []);
 
   /**
    * Drag the window from anywhere on the overlay — not just the command bar.
@@ -274,6 +363,27 @@ export default function OverlayPage() {
             )}
           </form>
 
+          {/* Record this meeting — mic capture, uploaded like any other meeting. */}
+          <button
+            onClick={() => (rec === "recording" ? stopRecording() : setRec("consent"))}
+            disabled={rec === "saving"}
+            title={rec === "recording" ? "Stop and save the recording" : "Record this meeting"}
+            className={`flex items-center gap-1.5 px-3 text-[11px] transition disabled:opacity-60 ${
+              rec === "recording" ? "text-red-400 hover:text-red-300" : "text-muted-foreground hover:text-foreground"
+            } ${glass ? "border-l border-white/10" : ""}`}
+          >
+            {rec === "saving" ? (
+              <Loader2 className="size-3.5 animate-spin" />
+            ) : rec === "recording" ? (
+              <Square className="size-3 fill-current" />
+            ) : (
+              <Mic className="size-3.5" />
+            )}
+            <span className="hidden font-mono sm:inline">
+              {rec === "recording" ? fmtElapsed(elapsed) : rec === "saving" ? "Saving" : "Record"}
+            </span>
+          </button>
+
           <button
             onClick={toggleMode}
             title={glass ? "Glass — tap for clear (words only)" : "Clear — tap for glass"}
@@ -308,6 +418,65 @@ export default function OverlayPage() {
             </button>
           )}
         </div>
+
+        {/* ── Recording strip: consent gate, then live status ── */}
+        {rec !== "idle" && !collapsed && (
+          <div className={`w-full px-4 py-2.5 text-xs ${surface}`}>
+            {rec === "consent" && (
+              <div className="flex flex-wrap items-center gap-2">
+                <ShieldCheck className="size-4 shrink-0 text-accent" />
+                <span className="min-w-0 flex-1 text-muted-foreground">
+                  Everyone in this meeting must know they&apos;re being recorded — laws in many places require it.
+                </span>
+                <button
+                  onClick={beginRecording}
+                  className="rounded-md bg-accent px-2.5 py-1 text-[11px] font-semibold text-white transition hover:opacity-90"
+                >
+                  They know — start
+                </button>
+                <button onClick={() => setRec("idle")} className="px-2 py-1 text-[11px] text-muted-foreground hover:text-foreground">
+                  Cancel
+                </button>
+              </div>
+            )}
+
+            {rec === "recording" && (
+              <span className="flex items-center gap-2 text-muted-foreground">
+                <span className="size-2 animate-pulse rounded-full bg-red-500" />
+                Recording · {fmtElapsed(elapsed)} — stop to transcribe and save it to your meetings.
+              </span>
+            )}
+
+            {rec === "saving" && (
+              <span className="flex items-center gap-2 text-muted-foreground">
+                <Loader2 className="size-3.5 animate-spin" /> Uploading and transcribing…
+              </span>
+            )}
+
+            {rec === "done" && (
+              <span className="flex flex-wrap items-center gap-2">
+                <span className="text-muted-foreground">Saved — your notes are processing.</span>
+                {recMeetingId && (
+                  <Link href={`/meetings/${recMeetingId}`} target="_blank" className="font-semibold text-accent hover:underline">
+                    Open meeting →
+                  </Link>
+                )}
+                <button onClick={() => setRec("idle")} className="ml-auto text-muted-foreground hover:text-foreground">
+                  Dismiss
+                </button>
+              </span>
+            )}
+
+            {rec === "error" && (
+              <span className="flex items-center gap-2">
+                <span className="text-destructive">{recError}</span>
+                <button onClick={() => setRec("idle")} className="ml-auto text-muted-foreground hover:text-foreground">
+                  Dismiss
+                </button>
+              </span>
+            )}
+          </div>
+        )}
 
         {/* ── Date-range chips (structured half of search) ── */}
         <div className={`flex flex-wrap items-center justify-center gap-1.5 ${collapsed ? "hidden" : ""}`}>
