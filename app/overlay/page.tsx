@@ -365,10 +365,15 @@ export default function OverlayPage() {
            mark, the record indicator, and the consent button, which has to stay
            obviously clickable. */
         .clarix-bare {
-          /* A dense inner halo plus a soft outer one. The inner is what carries
-             the 10px labels — spread that layer too wide and small glyphs go
-             washy against a light window. */
-          text-shadow: 0 1px 2px rgba(0,0,0,1), 0 0 8px rgba(0,0,0,0.95), 0 0 20px rgba(0,0,0,0.8);
+          /* An outline, not a glow. A soft halo works over mid and dark
+             backdrops but cannot save white text on a white page — thin glyphs
+             just dissolve. Four 1px offsets build a hard dark rim tight against
+             every letter, so text stays legible on any backdrop, and the wide
+             blur behind it keeps that rim from looking harsh on dark ones. */
+          text-shadow:
+            -1px -1px 0 rgba(0,0,0,0.92), 1px -1px 0 rgba(0,0,0,0.92),
+            -1px 1px 0 rgba(0,0,0,0.92), 1px 1px 0 rgba(0,0,0,0.92),
+            0 0 3px rgba(0,0,0,0.9), 0 0 14px rgba(0,0,0,0.7);
         }
         .clarix-bare *:not(.clarix-solid) {
           background-color: transparent !important;
@@ -378,7 +383,10 @@ export default function OverlayPage() {
           backdrop-filter: none !important;
         }
         .clarix-bare svg {
-          filter: drop-shadow(0 1px 2px rgba(0,0,0,0.95)) drop-shadow(0 0 6px rgba(0,0,0,0.8));
+          /* Icons are strokes, so text-shadow never reaches them. Same idea as
+             above: a tight rim first, then a soft one. */
+          filter: drop-shadow(0 0 1px rgba(0,0,0,0.95)) drop-shadow(0 0 2px rgba(0,0,0,0.9))
+                  drop-shadow(0 0 8px rgba(0,0,0,0.7));
         }
         .clarix-bare .text-muted-foreground { color: rgba(255,255,255,0.92) !important; }
         .clarix-bare ::placeholder { color: rgba(255,255,255,0.65) !important; }
