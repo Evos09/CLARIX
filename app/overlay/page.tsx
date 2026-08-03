@@ -365,7 +365,10 @@ export default function OverlayPage() {
            mark, the record indicator, and the consent button, which has to stay
            obviously clickable. */
         .clarix-bare {
-          text-shadow: 0 1px 2px rgba(0,0,0,0.95), 0 0 12px rgba(0,0,0,0.9), 0 2px 22px rgba(0,0,0,0.55);
+          /* A dense inner halo plus a soft outer one. The inner is what carries
+             the 10px labels — spread that layer too wide and small glyphs go
+             washy against a light window. */
+          text-shadow: 0 1px 2px rgba(0,0,0,1), 0 0 8px rgba(0,0,0,0.95), 0 0 20px rgba(0,0,0,0.8);
         }
         .clarix-bare *:not(.clarix-solid) {
           background-color: transparent !important;
@@ -379,6 +382,20 @@ export default function OverlayPage() {
         }
         .clarix-bare .text-muted-foreground { color: rgba(255,255,255,0.92) !important; }
         .clarix-bare ::placeholder { color: rgba(255,255,255,0.65) !important; }
+        /* The scrollbar is drawn by the browser, not by an element, so the rule
+           above never reaches it — `*` does not match pseudo-elements. Left
+           alone it renders as an opaque white bar hanging in mid-air with no
+           panel behind it, which is the most conspicuous thing on screen in
+           this mode. Slim, translucent, no arrows. */
+        .clarix-bare ::-webkit-scrollbar { width: 6px; height: 6px; }
+        .clarix-bare ::-webkit-scrollbar-track { background: transparent !important; }
+        .clarix-bare ::-webkit-scrollbar-thumb {
+          background: rgba(255,255,255,0.3) !important;
+          border-radius: 999px;
+        }
+        .clarix-bare ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.5) !important; }
+        .clarix-bare ::-webkit-scrollbar-button { display: none; }
+        .clarix-bare ::-webkit-scrollbar-corner { background: transparent !important; }
         /* Panels normally carry the hover feedback; with them gone, underline. */
         .clarix-bare a:hover, .clarix-bare button:hover { text-decoration: underline; }
       `}</style>
