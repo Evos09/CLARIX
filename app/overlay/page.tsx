@@ -383,7 +383,9 @@ export default function OverlayPage() {
         .clarix-bare .text-muted-foreground { color: rgba(255,255,255,0.92) !important; }
         .clarix-bare ::placeholder { color: rgba(255,255,255,0.65) !important; }
         /* The scrollbar is drawn by the browser, not by an element, so the rule
-           above never reaches it — `*` does not match pseudo-elements. Left
+           above never reaches it — the universal selector does not match
+           pseudo-elements. (No backticks in here: this whole block is a
+           template literal, and one would close it.) Left
            alone it renders as an opaque white bar hanging in mid-air with no
            panel behind it, which is the most conspicuous thing on screen in
            this mode. Slim, translucent, no arrows. */
