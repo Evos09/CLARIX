@@ -7,7 +7,7 @@ import { getOrgPlan } from "@/lib/plan";
  * Lightweight identity endpoint for non-web clients (Chrome extension, Tauri
  * desktop). A client sends its Clerk session token as `Authorization: Bearer`;
  * this validates it and returns who they are + their plan so the client can
- * show limits and gate features. CORS is handled centrally in middleware.
+ * show limits and gate features. CORS is handled centrally in proxy.ts.
  */
 export async function GET() {
   const ctx = await getOrCreateContext();

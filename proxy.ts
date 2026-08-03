@@ -17,7 +17,7 @@ const isProtectedRoute = createRouteMatcher([
 const hasClerk = Boolean(process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY);
 
 // Cross-origin clients (Chrome extension, Tauri desktop) call the JSON API with
-// a Bearer token. Clerk's middleware already authenticates that token on /api
+// a Bearer token. Clerk already authenticates that token on /api
 // (the matcher below covers it); here we only add the CORS layer those clients
 // need. Same-origin web requests are unaffected (CORS headers are inert there).
 const isApi = (req: NextRequest) => req.nextUrl.pathname.startsWith("/api");
@@ -34,7 +34,7 @@ export default hasClerk
 
       if (isApi(req)) return applyCors(NextResponse.next(), req);
     })
-  : function middleware(req: NextRequest) {
+  : function proxy(req: NextRequest) {
       if (isApi(req)) {
         if (req.method === "OPTIONS") return corsPreflight(req);
         return applyCors(NextResponse.next(), req);

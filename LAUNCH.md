@@ -85,7 +85,7 @@ Status legend: ⬜ not done · ✅ done
   Ask CLARIX message caps (403 when locked, 429 at limit) in `/api/chat/sessions/*`.
 - Upload **file-size + storage caps** enforced before issuing a signed URL (`/api/upload`), with clear
   errors; `audioSize`/`audioFilename` now persisted so storage usage is tracked accurately.
-- All authenticated routes protected in `middleware.ts` (incl. `/chat`, `/analytics`, `/action-items`, `/audio`).
+- All authenticated routes protected in `proxy.ts` (incl. `/chat`, `/analytics`, `/action-items`, `/audio`).
 - Pricing copy matches real entitlements; misinformation (fake logos/testimonials/stats, uncertified
   compliance badges) removed; `/privacy` + `/terms` pages exist and are linked.
 - Per-meeting page titles; desktop download buttons show "Coming soon" instead of 404.
