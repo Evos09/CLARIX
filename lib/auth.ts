@@ -128,6 +128,19 @@ export async function getOrCreateContext(): Promise<OrgUserContext | null> {
     return null;
   }
 
+  // Clerk is NOT configured. In development that's the normal demo path below.
+  // In production it means the Clerk env vars are missing or misnamed — and
+  // falling through would drop every visitor into one shared ENTERPRISE
+  // workspace, where they would all read and write each other's meetings.
+  // Fail closed: a visibly broken deploy beats a silent cross-tenant leak.
+  if (process.env.NODE_ENV === "production") {
+    console.error(
+      "[auth] NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY is not set in production — " +
+        "refusing to fall back to the shared demo workspace.",
+    );
+    return null;
+  }
+
   // Dev / demo mode
   const org = await prisma.organization.upsert({
     where: { clerkOrgId: DEMO_ORG },

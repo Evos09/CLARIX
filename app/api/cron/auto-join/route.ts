@@ -10,11 +10,13 @@ export const maxDuration = 60;
 function authorized(req: Request): boolean {
   const secret = process.env.CRON_SECRET;
   if (!secret) return false;
-  const url = new URL(req.url);
+  // Header only. A ?secret= query fallback used to be accepted, but query
+  // strings land in access logs, proxy logs, and Referer headers, so the
+  // secret leaks everywhere the URL is recorded. LAUNCH.md already documents
+  // the Authorization header, which is what the schedulers use.
   return (
     req.headers.get("authorization") === `Bearer ${secret}` ||
-    req.headers.get("x-cron-secret") === secret ||
-    url.searchParams.get("secret") === secret
+    req.headers.get("x-cron-secret") === secret
   );
 }
 
