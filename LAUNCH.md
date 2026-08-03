@@ -118,7 +118,11 @@ callback lands on the homepage and returns 200 — AssemblyAI marks it delivered
 and never retries, while the handler is never invoked. This silently stranded
 every recording whose meeting page nobody opened.
 
-⬜ Point a scheduler at this every ~15 min:
+✅ Scheduled via GitHub Actions (`.github/workflows/sweep-transcripts.yml`),
+every 15 minutes, plus a manual **Run workflow** button. It needs a repository
+secret named `CRON_SECRET` matching Railway's — *Settings → Secrets and
+variables → Actions*. A non-200 fails the run loudly rather than passing
+quietly. To call it by hand:
 ```
 POST https://<your-domain>/api/cron/sweep-transcripts
 Header: Authorization: Bearer <CRON_SECRET>

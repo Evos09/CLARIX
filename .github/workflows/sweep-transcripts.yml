@@ -1,0 +1,78 @@
+# Rescues meetings stranded in "Transcribing".
+#
+# AssemblyAI's callback is what finishes a meeting, and a lost callback used to
+# strand a recording forever with no error surfaced anywhere. This asks
+# AssemblyAI directly about anything still transcribing after 10 minutes.
+#
+# Setup (one time): add a repository secret named CRON_SECRET matching the
+# CRON_SECRET set in Railway.  Settings -> Secrets and variables -> Actions.
+# Optionally add a repository variable APP_URL to point at a different host.
+#
+# Note: GitHub disables scheduled workflows in a repo with no activity for 60
+# days, and re-enables them on the next push. The job below fails loudly rather
+# than silently, so a broken sweeper shows up as a red run instead of quiet rot.
+
+name: Sweep stranded transcripts
+
+on:
+  schedule:
+    # Every 15 minutes. GitHub's scheduler is best-effort and can run late
+    # under load; that is fine here, since the sweeper is a safety net rather
+    # than the primary path.
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+# A late run plus the next scheduled one could otherwise overlap. The endpoint
+# is safe to run concurrently, but there is no reason to.
+concurrency:
+  group: sweep-transcripts
+  cancel-in-progress: false
+
+jobs:
+  sweep:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Sweep
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          APP_URL: ${{ vars.APP_URL || 'https://www.clarixmeetings.com' }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${CRON_SECRET:-}" ]; then
+            echo "::error::CRON_SECRET repository secret is not set — add it under Settings > Secrets and variables > Actions."
+            exit 1
+          fi
+
+          # Keep the body and the status code separate so a non-200 fails the
+          # run instead of being mistaken for success — exactly the failure
+          # mode that stranded these meetings in the first place.
+          code=$(curl -sS -o /tmp/out.json -w '%{http_code}' \
+            --max-time 300 \
+            -X POST "${APP_URL}/api/cron/sweep-transcripts" \
+            -H "Authorization: Bearer ${CRON_SECRET}")
+
+          echo "HTTP ${code}"
+          cat /tmp/out.json; echo
+
+          if [ "$code" != "200" ]; then
+            echo "::error::Sweeper returned HTTP ${code}"
+            exit 1
+          fi
+
+          # Parsed with sed rather than jq: jq ships on ubuntu-latest today,
+          # but a runner image change should not be able to break the sweeper.
+          recovered=$(sed -n 's/.*"recovered":[[:space:]]*\([0-9]*\).*/\1/p' /tmp/out.json)
+          recovered=${recovered:-0}
+
+          echo "recovered=${recovered}" >> "$GITHUB_STEP_SUMMARY"
+
+          # An empty error list serialises as "errors":[] — anything else means
+          # at least one meeting failed to sync.
+          if ! grep -q '"errors":\[\]' /tmp/out.json; then
+            echo "::warning::Sweeper reported per-meeting error(s) — see the JSON above."
+          fi
+          if [ "$recovered" != "0" ]; then
+            echo "::notice::Recovered ${recovered} stranded meeting(s)."
+          fi
