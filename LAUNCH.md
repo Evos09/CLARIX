@@ -24,7 +24,8 @@ Status legend: ⬜ not done · ✅ done
 | `STRIPE_WEBHOOK_SECRET` | billing | ⬜ See §2. |
 | `STRIPE_STARTER_PRICE_ID` / `STRIPE_PRO_PRICE_ID` / `STRIPE_ENTERPRISE_PRICE_ID` | billing | ⬜ See §2. |
 | `NEXT_PUBLIC_MAX_UPLOAD_MB` | uploads | Optional. Default `2048`. Lower it if your storage plan is small. |
-| `CRON_SECRET` | background jobs | ⬜ Random string (`openssl rand -hex 32`). Guards the digest cron — see §8. |
+| `CRON_SECRET` | background jobs | ✅ Set in Railway. Guards the digest/auto-join crons and the memory reindex — see §8. Header only (`Authorization: Bearer`); the `?secret=` query form is no longer accepted. |
+| `OPENAI_API_KEY` | semantic memory search | ✅ Set. Powers cross-meeting recall (text-embedding-3-small). Without it the vector index is dormant and recall silently falls back to keyword matching. After setting it, run the backfill in §8. Check `/api/health` → `integrations.embeddings`. |
 | Integration keys (optional) | Slack/Notion/Linear/Google/CRM/MeetingBaas | ⬜ Only needed for the features you advertise. Each is dormant until its key is set. |
 | `NEXT_PUBLIC_META_PIXEL_ID` / `NEXT_PUBLIC_POSTHOG_KEY` | ad tracking & product analytics | ⬜ Needed before running paid ads. Fires PageView, CompleteRegistration, InitiateCheckout, Subscribe. See `ADS.md`. |
 
@@ -96,7 +97,7 @@ Status legend: ⬜ not done · ✅ done
 
 ### Action-item digest (built ✅ — needs a scheduler)
 The digest email is live. To turn it on:
-1. ⬜ Set `CRON_SECRET` (Railway) and `RESEND_API_KEY` (§3).
+1. ⬜ Set `RESEND_API_KEY` (§3). `CRON_SECRET` is ✅ already set.
 2. ⬜ Have users enable it in **Settings → Automation** (Daily or Weekly).
 3. ⬜ Point a scheduler at the endpoint (daily is fine; it self-throttles per user):
    ```
@@ -104,6 +105,24 @@ The digest email is live. To turn it on:
    Header: Authorization: Bearer <CRON_SECRET>
    ```
    Use Railway Cron, GitHub Actions, or cron-job.org. The endpoint returns `{ sent, skipped, evaluated }`.
+
+### Semantic memory index (live ✅)
+Cross-meeting recall ("what did we decide about pricing?") runs on pgvector +
+OpenAI embeddings. Every retrieval filters by `orgId`, so it can only ever reach
+the asking workspace's own meetings.
+
+Backfill after setting `OPENAI_API_KEY`, or any time meetings were created while
+it was unset:
+```
+POST https://<your-domain>/api/memory/reindex
+Header: Authorization: Bearer <CRON_SECRET>
+```
+Returns `{ meetings, indexed, chunks, empty, errors }`. It embeds every COMPLETE
+meeting with a transcript and writes each chunk's `startSec`, which is what puts
+the ▶ timestamps on overlay citations. Safe to re-run — it replaces a meeting's
+chunks rather than appending. The route caps at 300s and processes meetings one
+at a time, so a large backlog may need more than one call; `empty` counts
+meetings with no usable transcript and is not an error.
 
 ### Calendar auto-join (built ✅ — needs MeetingBaas + a scheduler)
 "Connect calendar → CLARIX auto-joins your meetings" — the highest-impact capture feature. The code,
