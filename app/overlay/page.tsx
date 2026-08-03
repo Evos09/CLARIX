@@ -320,21 +320,18 @@ export default function OverlayPage() {
   }
 
   const glass = mode === "glass";
-  // Glass draws a frosted panel. Transparent drops the panel entirely — no
-  // background, border, blur or shadow — so only the words float over whatever
-  // is underneath. Legibility there comes from a doubled text-shadow instead of
-  // a scrim, which is what keeps light backgrounds readable.
+  // Glass draws a frosted panel. Transparent removes every surface so only the
+  // words are left floating over whatever is on screen — see the `clarix-bare`
+  // rules below, which strip fills and borders app-wide rather than leaving it
+  // to each element to remember.
   const surface = glass
     ? "rounded-2xl border border-white/10 bg-background/80 shadow-2xl backdrop-blur-xl"
     : "";
-  const legible = glass
-    ? ""
-    : "[text-shadow:0_1px_2px_rgba(0,0,0,0.95),0_0_10px_rgba(0,0,0,0.85)]";
 
   return (
     <main
       onMouseDown={startWindowDrag}
-      className={`dark flex h-screen justify-center bg-transparent p-3 ${legible} ${isDesktop ? "cursor-grab active:cursor-grabbing" : ""}`}
+      className={`dark flex h-screen justify-center bg-transparent p-3 ${glass ? "" : "clarix-bare"} ${isDesktop ? "cursor-grab active:cursor-grabbing" : ""}`}
     >
       {/* Grab any edge or corner to resize the borderless window. */}
       {isDesktop &&
@@ -354,6 +351,36 @@ export default function OverlayPage() {
           background: transparent !important;
           background-color: transparent !important;
         }
+
+        /* ── Transparent mode ──
+           Strip every surface in one place instead of asking each element to
+           remember: no fills, no borders, no shadows. Borders keep their width
+           and only lose their colour, so flipping modes never reflows.
+
+           What's left has to survive on its own over an unknown background, so
+           the text is lifted toward white and given a tight shadow plus a wide
+           halo — the halo is what keeps it readable over a bright window. Icons
+           are strokes, not text, so they need drop-shadow to get the same
+           treatment. Anything marked .clarix-solid keeps its fill: the brand
+           mark, the record indicator, and the consent button, which has to stay
+           obviously clickable. */
+        .clarix-bare {
+          text-shadow: 0 1px 2px rgba(0,0,0,0.95), 0 0 12px rgba(0,0,0,0.9), 0 2px 22px rgba(0,0,0,0.55);
+        }
+        .clarix-bare *:not(.clarix-solid) {
+          background-color: transparent !important;
+          background-image: none !important;
+          border-color: transparent !important;
+          box-shadow: none !important;
+          backdrop-filter: none !important;
+        }
+        .clarix-bare svg {
+          filter: drop-shadow(0 1px 2px rgba(0,0,0,0.95)) drop-shadow(0 0 6px rgba(0,0,0,0.8));
+        }
+        .clarix-bare .text-muted-foreground { color: rgba(255,255,255,0.92) !important; }
+        .clarix-bare ::placeholder { color: rgba(255,255,255,0.65) !important; }
+        /* Panels normally carry the hover feedback; with them gone, underline. */
+        .clarix-bare a:hover, .clarix-bare button:hover { text-decoration: underline; }
       `}</style>
       {/* No max width and full height: the overlay fills whatever size you drag
           the window to, so you can make it as small or as large as you like. */}
@@ -364,13 +391,13 @@ export default function OverlayPage() {
           className={`flex w-full flex-none items-stretch overflow-hidden ${surface}`}
         >
           <div data-tauri-drag-region className="flex cursor-grab items-center gap-2 px-3.5 active:cursor-grabbing">
-            <span data-tauri-drag-region className="size-4 rounded-[5px] bg-gradient-to-br from-[#a78bfa] to-[#7c4fe8] shadow-[0_0_0_3px_rgba(167,139,250,0.18)]" />
+            <span data-tauri-drag-region className="clarix-solid size-4 rounded-[5px] bg-gradient-to-br from-[#a78bfa] to-[#7c4fe8] shadow-[0_0_0_3px_rgba(167,139,250,0.18)]" />
             <span data-tauri-drag-region className="text-sm font-bold tracking-tight">CLARIX</span>
           </div>
 
           <form
             onSubmit={(e) => { e.preventDefault(); void ask(query); }}
-            className="flex flex-1 items-center gap-2 border-l border-white/10 px-3.5 py-2.5"
+            className={`flex flex-1 items-center gap-2 px-3.5 py-2.5 ${glass ? "border-l border-white/10" : ""}`}
           >
             <Search className="size-4 shrink-0 text-muted-foreground" />
             <input
@@ -456,7 +483,7 @@ export default function OverlayPage() {
                 </span>
                 <button
                   onClick={beginRecording}
-                  className="rounded-md bg-accent px-2.5 py-1 text-[11px] font-semibold text-white transition hover:opacity-90"
+                  className="clarix-solid rounded-md bg-accent px-2.5 py-1 text-[11px] font-semibold text-white transition hover:opacity-90"
                 >
                   They know — start
                 </button>
@@ -468,7 +495,7 @@ export default function OverlayPage() {
 
             {rec === "recording" && (
               <span className="flex items-center gap-2 text-muted-foreground">
-                <span className="size-2 animate-pulse rounded-full bg-red-500" />
+                <span className="clarix-solid size-2 animate-pulse rounded-full bg-red-500" />
                 Recording · {fmtElapsed(elapsed)} — stop to transcribe and save it to your meetings.
               </span>
             )}
@@ -538,7 +565,7 @@ export default function OverlayPage() {
         <div className={`flex min-h-0 w-full flex-1 flex-col overflow-hidden ${surface} ${collapsed ? "hidden" : ""}`}>
           <div className={`flex flex-none items-center justify-between px-4 py-2.5 ${glass ? "border-b border-white/10" : ""}`}>
             <span className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-              <span className="size-1.5 rounded-full bg-accent" /> CLARIX · from your meetings
+              <span className="clarix-solid size-1.5 rounded-full bg-accent" /> CLARIX · from your meetings
             </span>
             {activeRange && (
               <span className="inline-flex items-center gap-1 rounded-full bg-white/[0.06] px-2 py-0.5 text-[10px] text-muted-foreground">
@@ -581,7 +608,7 @@ export default function OverlayPage() {
                 </div>
 
                 {citations.length > 0 && (
-                  <div className="space-y-1.5 border-t border-white/10 pt-3">
+                  <div className={`space-y-1.5 pt-3 ${glass ? "border-t border-white/10" : ""}`}>
                     <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                       Sources · jump to the moment
                     </p>
