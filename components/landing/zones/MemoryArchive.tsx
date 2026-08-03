@@ -2,6 +2,7 @@
 
 import React from "react";
 import { HardDrive } from "lucide-react";
+import Link from "next/link";
 
 const MEETING_TYPES = [
   { emoji: "📊", name: "Team Standup", desc: "Yesterday/today/blockers summary" },
@@ -44,9 +45,9 @@ export default function MemoryArchive() {
           <p className="text-sm text-gray-500 leading-relaxed">
             12 shown here — 20+ types in total.
           </p>
-          <a href="/meeting-types" className="inline-flex items-center gap-2 text-violet-600 hover:text-violet-700 font-semibold text-sm transition-colors mt-6">
+          <Link href="/meeting-types" className="inline-flex items-center gap-2 text-violet-600 hover:text-violet-700 font-semibold text-sm transition-colors mt-6">
             Explore all meeting types →
-          </a>
+          </Link>
         </div>
 
         {/* Right Side: 3D receding cabinet bound strictly to column */}

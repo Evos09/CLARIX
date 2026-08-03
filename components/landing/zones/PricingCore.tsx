@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { Sparkles, Check, ArrowRight } from "lucide-react";
+import Link from "next/link";
 
 // Prices and features mirror lib/stripe.ts (PLANS) — keep in sync.
 const PLANS = [
@@ -94,9 +95,9 @@ export default function PricingCore() {
           </h2>
           <p className="text-gray-600 text-lg leading-relaxed">
             Start free. Upgrade when you need more meetings, more exports, or more Clarix Chat.{" "}
-            <a href="/pricing" className="text-violet-600 hover:text-violet-700 font-semibold whitespace-nowrap">
+            <Link href="/pricing" className="text-violet-600 hover:text-violet-700 font-semibold whitespace-nowrap">
               Compare full pricing →
-            </a>
+            </Link>
           </p>
 
           {/* Billing Switcher Toggle */}
@@ -168,7 +169,7 @@ export default function PricingCore() {
                   </ul>
                 </div>
 
-                <a
+                <Link
                   href={plan.href}
                   className={`block w-full py-2.5 mt-4 rounded-xl text-center text-xs font-semibold shadow-sm transition-all cursor-pointer select-none ${
                     plan.accent
@@ -177,7 +178,7 @@ export default function PricingCore() {
                   }`}
                 >
                   {plan.cta}
-                </a>
+                </Link>
               </div>
             );
           })}
@@ -191,13 +192,13 @@ export default function PricingCore() {
               Custom, sales-led. Pro vertical types (healthcare, legal, financial), EHR/HL7 export, SSO/SAML, SLA &amp; dedicated support.
             </p>
           </div>
-          <a
+          <Link
             href="/contact"
             className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-violet-50 hover:bg-violet-100 border border-violet-200 px-5 py-2.5 text-xs font-semibold text-violet-700 transition-all"
           >
             Talk to Sales
             <ArrowRight className="w-3.5 h-3.5" />
-          </a>
+          </Link>
         </div>
       </div>
     </section>

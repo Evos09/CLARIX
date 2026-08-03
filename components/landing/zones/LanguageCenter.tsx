@@ -2,6 +2,7 @@
 
 import React from "react";
 import { MessageSquare, Copy, Send } from "lucide-react";
+import Link from "next/link";
 
 export default function LanguageCenter() {
   return (
@@ -26,9 +27,9 @@ export default function LanguageCenter() {
           <p className="text-gray-600 text-lg leading-relaxed max-w-md">
             A chat interface for any past meeting. Ask a question and get an answer pulled straight from the transcript.
           </p>
-          <a href="/features" className="inline-flex items-center gap-2 text-violet-600 hover:text-violet-700 font-semibold text-sm transition-colors mt-6">
+          <Link href="/features" className="inline-flex items-center gap-2 text-violet-600 hover:text-violet-700 font-semibold text-sm transition-colors mt-6">
             Explore all features →
-          </a>
+          </Link>
         </div>
 
         {/* Right Side: Chat Panel Interface */}

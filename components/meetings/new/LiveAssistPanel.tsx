@@ -22,6 +22,7 @@ export function LiveAssistPanel({ meetingType = "GENERAL" }: { meetingType?: str
   const [error, setError] = useState<string | null>(null);
   const [partial, setPartial] = useState("");
   const [finals, setFinals] = useState<string[]>([]);
+  const [wordCount, setWordCount] = useState(0);
   const [tips, setTips] = useState<string[]>([]);
   const [recall, setRecall] = useState<RecallSnippet[]>([]);
 
@@ -54,6 +55,10 @@ export function LiveAssistPanel({ meetingType = "GENERAL" }: { meetingType?: str
         if (isFinal) {
           setFinals((f) => [...f, text].slice(-40));
           transcriptRef.current += " " + text;
+          // Mirror the running word count into state. `finals` only keeps the
+          // last 40 lines so it can't be counted directly, and reading the ref
+          // during render doesn't reliably re-render.
+          setWordCount(transcriptRef.current.split(/\s+/).filter(Boolean).length);
           setPartial("");
         } else {
           setPartial(text);
@@ -196,7 +201,7 @@ export function LiveAssistPanel({ meetingType = "GENERAL" }: { meetingType?: str
               {finals.map((f, i) => <p key={i}>{f}</p>)}
               {partial && <p className="italic text-muted-foreground">{partial}</p>}
             </div>
-            <p className="text-right text-[10px] text-muted-foreground">{transcriptRef.current.split(/\s+/).filter(Boolean).length} words · display only</p>
+            <p className="text-right text-[10px] text-muted-foreground">{wordCount} words · display only</p>
           </>
         )}
 

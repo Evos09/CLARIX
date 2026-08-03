@@ -1,19 +1,52 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Monitor, Apple, Download } from "lucide-react";
+import { Monitor, Apple, Download, Layers, Mic, Search, Move } from "lucide-react";
 import { SiteNav } from "@/components/site/site-nav";
 import { SiteFooter } from "@/components/site/site-footer";
 import { PageHero } from "@/components/site/page-hero";
 import { CtaBand } from "@/components/site/cta-band";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/motion/Reveal";
-import { WINDOWS_DOWNLOAD_URL, MAC_DOWNLOAD_URL, WINDOWS_LIVE, MAC_LIVE } from "@/lib/downloads";
+import {
+  WINDOWS_DOWNLOAD_URL,
+  MAC_DOWNLOAD_URL,
+  WINDOWS_LIVE,
+  MAC_LIVE,
+  WINDOWS_VERSION,
+  MAC_VERSION,
+  WINDOWS_HAS_OVERLAY,
+  MAC_HAS_OVERLAY,
+} from "@/lib/downloads";
 
 export const metadata: Metadata = {
   title: "Download — CLARIX Desktop",
   description:
-    "Get the CLARIX desktop app for Windows and macOS. The full CLARIX app in a native window, with a tray icon and a global shortcut.",
+    "Get the CLARIX desktop app for Windows and macOS. Includes the floating overlay: record a meeting and ask your past meetings anything, without leaving the call.",
 };
+
+/** The overlay is desktop-only, and the reason most people install the app. */
+const overlayFeatures = [
+  {
+    icon: Search,
+    title: "Ask mid-meeting",
+    desc: "“What did we promise them last quarter?” — answered from your own past meetings, with links straight to the moment it was said.",
+  },
+  {
+    icon: Mic,
+    title: "Record from the overlay",
+    desc: "One click starts recording the call. It transcribes and lands in your meetings like any other recording.",
+  },
+  {
+    icon: Layers,
+    title: "Glass or transparent",
+    desc: "Keep the frosted panel, or switch to transparent so only the words float over your screen — no panel, no borders.",
+  },
+  {
+    icon: Move,
+    title: "Yours to place",
+    desc: "Drag it anywhere, resize from any edge, or collapse it to just the bar. It stays on top of whatever you're in.",
+  },
+];
 
 type Platform = {
   os: "Windows" | "macOS";
@@ -21,6 +54,8 @@ type Platform = {
   live: boolean;
   url: string;
   note: string;
+  version: string;
+  hasOverlay: boolean;
 };
 
 const platforms: Platform[] = [
@@ -30,6 +65,8 @@ const platforms: Platform[] = [
     live: WINDOWS_LIVE,
     url: WINDOWS_DOWNLOAD_URL,
     note: "Windows 10 or 11 (64-bit).",
+    version: WINDOWS_VERSION,
+    hasOverlay: WINDOWS_HAS_OVERLAY,
   },
   {
     os: "macOS",
@@ -37,6 +74,8 @@ const platforms: Platform[] = [
     live: MAC_LIVE,
     url: MAC_DOWNLOAD_URL,
     note: "macOS 12+ (Intel & Apple Silicon).",
+    version: MAC_VERSION,
+    hasOverlay: MAC_HAS_OVERLAY,
   },
 ];
 
@@ -48,7 +87,7 @@ export default function DownloadPage() {
       <PageHero
         eyebrow="Desktop App"
         title="CLARIX on your desktop"
-        description="The full CLARIX app in its own native window — sign in and use everything, with a tray icon and a global shortcut to summon it from anywhere."
+        description="The full CLARIX app in its own native window — plus the floating overlay: record the call and ask your past meetings anything, without ever leaving the meeting."
       />
 
       <section className="max-w-[1100px] mx-auto px-6 lg:px-12 py-16 lg:py-24">
@@ -83,7 +122,15 @@ export default function DownloadPage() {
                     Beta
                   </span>
                 </div>
-                <p className="text-sm text-muted-foreground mb-6">{p.note}</p>
+                <p className="text-sm text-muted-foreground mb-2">{p.note}</p>
+                <p className="text-xs font-mono text-muted-foreground mb-6">
+                  Version {p.version}
+                  {p.hasOverlay ? (
+                    <span className="text-accent"> · includes the overlay</span>
+                  ) : (
+                    <span> · overlay not in this build yet</span>
+                  )}
+                </p>
 
                 <div className="mt-auto">
                   {p.live ? (
@@ -108,6 +155,47 @@ export default function DownloadPage() {
           ))}
         </div>
 
+        {/* The overlay — the reason to install rather than use the web app */}
+        <Reveal delay={150}>
+          <div className="mt-16 rounded-2xl border border-foreground/10 bg-foreground/[0.02] p-8 lg:p-10">
+            <span className="inline-flex items-center gap-3 text-sm font-mono text-muted-foreground mb-5">
+              <span className="w-8 h-px bg-foreground/30" />
+              Desktop only
+            </span>
+            <h2 className="font-display text-3xl md:text-4xl tracking-tight text-balance max-w-2xl mb-4">
+              The overlay floats over your meeting
+            </h2>
+            <p className="text-muted-foreground leading-relaxed max-w-2xl mb-10">
+              A small always-on-top window that sits above Zoom, Meet, Teams — anything. Ask it a
+              question and it answers from your own meeting history, and it can record the call
+              you&apos;re on. It never captures your screen, and it only ever reads meetings in your
+              own workspace.
+            </p>
+
+            <div className="grid sm:grid-cols-2 gap-6 lg:gap-8">
+              {overlayFeatures.map((f) => (
+                <div key={f.title} className="flex gap-4">
+                  <span className="grid place-items-center shrink-0 w-10 h-10 rounded-xl bg-accent/10 text-accent">
+                    <f.icon className="w-5 h-5" />
+                  </span>
+                  <div>
+                    <h3 className="font-medium mb-1">{f.title}</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <p className="mt-10 text-sm text-muted-foreground">
+              The overlay is included on every paid plan —{" "}
+              <Link href="/pricing" className="text-accent underline underline-offset-2">
+                see plans
+              </Link>
+              . The desktop app itself is free to download and use with any account.
+            </p>
+          </div>
+        </Reveal>
+
         {/* Honest install notes */}
         <Reveal delay={200}>
           <div className="mt-12 rounded-2xl border border-foreground/10 p-6 lg:p-8 text-sm text-muted-foreground leading-relaxed">
@@ -115,7 +203,12 @@ export default function DownloadPage() {
             <ul className="space-y-2 list-disc pl-5">
               <li>
                 The app is a native window around clarixmeetings.com — sign in with your normal CLARIX
-                account and every feature works just like the web.
+                account and every feature works just like the web. The overlay is the one thing the
+                web app can&apos;t do, since only a desktop app can float above other windows.
+              </li>
+              <li>
+                Recording from the overlay uses your microphone. Everyone in the meeting must know
+                they&apos;re being recorded — in many places that&apos;s the law, not a courtesy.
               </li>
               <li>
                 <span className="text-foreground">Windows:</span> the installer isn&apos;t code-signed

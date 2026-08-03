@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Video, Loader2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import Link from "next/link";
 
 export function AutoJoinCard() {
   const [autoJoin, setAutoJoin] = useState(false);
@@ -72,7 +73,7 @@ export function AutoJoinCard() {
           Auto-join meetings from my connected calendar
         </label>
         {!available ? (
-          <p className="text-xs text-amber-600">Auto-join is available on Starter and above. <a href="/settings/billing" className="font-semibold underline">Upgrade →</a></p>
+          <p className="text-xs text-amber-600">Auto-join is available on Starter and above. <Link href="/settings/billing" className="font-semibold underline">Upgrade →</Link></p>
         ) : !calendarConnected ? (
           <p className="text-xs text-amber-600">Connect a calendar above to enable this.</p>
         ) : null}

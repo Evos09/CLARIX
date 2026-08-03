@@ -2,6 +2,7 @@
 
 import React from "react";
 import { Brain, CheckCircle, ListChecks } from "lucide-react";
+import Link from "next/link";
 
 export default function ReasoningCenter() {
   return (
@@ -27,9 +28,9 @@ export default function ReasoningCenter() {
             <p className="text-gray-600 text-lg leading-relaxed max-w-md">
               Action items, decisions, and summaries — shaped to fit the exact kind of meeting it was.
             </p>
-            <a href="/features" className="inline-flex items-center gap-2 text-violet-600 hover:text-violet-700 font-semibold text-sm transition-colors mt-6">
+            <Link href="/features" className="inline-flex items-center gap-2 text-violet-600 hover:text-violet-700 font-semibold text-sm transition-colors mt-6">
               Explore all features →
-            </a>
+            </Link>
           </div>
 
           <div className="w-full flex flex-col gap-5 max-w-lg">

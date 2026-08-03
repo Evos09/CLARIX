@@ -12,7 +12,7 @@ export function PlatformStrip() {
     <section className="max-w-[1200px] mx-auto px-6 lg:px-12 py-12">
       <div className="flex flex-wrap items-center gap-x-7 gap-y-4 rounded-2xl border border-foreground/10 bg-foreground/[0.02] px-6 py-5">
         <span className="font-mono text-xs uppercase tracking-wider text-muted-foreground">
-          Also on
+          Desktop app · floating overlay
         </span>
 
         {items.map((it) => (
@@ -33,7 +33,7 @@ export function PlatformStrip() {
           href="/download"
           className="inline-flex items-center gap-1.5 text-sm font-medium text-accent whitespace-nowrap"
         >
-          Get the apps
+          Get the desktop app
           <ArrowUpRight className="w-4 h-4" />
         </Link>
       </div>

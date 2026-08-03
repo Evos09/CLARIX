@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Share2, Loader2, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 interface Conn { connected: boolean }
 interface Status { slack: Conn | null; notion: Conn | null; linear: Conn | null }
@@ -67,7 +68,7 @@ export function PushToIntegrationButton({ meetingId }: { meetingId: string }) {
           {connected.slack && <button onClick={() => openPicker("slack")} className="block w-full rounded px-3 py-2 text-left text-sm hover:bg-muted">Send to Slack</button>}
           {connected.notion && <button onClick={() => push("notion", {})} className="block w-full rounded px-3 py-2 text-left text-sm hover:bg-muted">Save to Notion</button>}
           {connected.linear && <button onClick={() => openPicker("linear")} className="block w-full rounded px-3 py-2 text-left text-sm hover:bg-muted">Create Linear issues</button>}
-          {!any && <a href="/settings" className="block rounded px-3 py-2 text-left text-sm text-teal-600 hover:bg-muted">Connect in Settings →</a>}
+          {!any && <Link href="/settings" className="block rounded px-3 py-2 text-left text-sm text-teal-600 hover:bg-muted">Connect in Settings →</Link>}
         </div>
       )}
 

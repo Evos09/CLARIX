@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import { ArrowRight, Sparkles } from "lucide-react";
 
 export default function FinalCta() {
@@ -23,13 +24,13 @@ export default function FinalCta() {
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 w-full justify-center">
-          <a
+          <Link
             href="/sign-up"
             className="inline-flex items-center justify-center gap-2 bg-violet-600 hover:bg-violet-700 text-paper text-sm font-semibold px-8 h-12 rounded-full shadow-md transition-all group"
           >
             Start Free Today
             <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-          </a>
+          </Link>
         </div>
       </div>
 

@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import { ArrowRight, Sparkles, Check } from "lucide-react";
 
 export default function HeroZone() {
@@ -8,23 +9,23 @@ export default function HeroZone() {
     <section className="relative w-full min-h-screen flex flex-col justify-between px-6 lg:px-12 py-6 overflow-hidden">
       {/* Top Navigation Bar */}
       <header className="w-full max-w-7xl mx-auto flex items-center justify-between z-30">
-        <a href="#" className="flex items-center gap-2.5 group">
+        <Link href="/" className="flex items-center gap-2.5 group">
           <div className="w-8 h-8 rounded-lg bg-violet-600 flex items-center justify-center shadow-lg">
             <span className="text-white font-bold text-sm">C</span>
           </div>
           <span className="font-display text-2xl tracking-tight font-semibold text-ink">CLARIX</span>
-        </a>
+        </Link>
         <nav className="hidden md:flex items-center gap-8">
-          <a href="/features" className="text-sm text-gray-500 hover:text-ink transition-colors">Features</a>
-          <a href="/meeting-types" className="text-sm text-gray-500 hover:text-ink transition-colors">Meeting Types</a>
-          <a href="/pricing" className="text-sm text-gray-500 hover:text-ink transition-colors">Pricing</a>
-          <a href="/integrations" className="text-sm text-gray-500 hover:text-ink transition-colors">Integrations</a>
+          <Link href="/features" className="text-sm text-gray-500 hover:text-ink transition-colors">Features</Link>
+          <Link href="/meeting-types" className="text-sm text-gray-500 hover:text-ink transition-colors">Meeting Types</Link>
+          <Link href="/pricing" className="text-sm text-gray-500 hover:text-ink transition-colors">Pricing</Link>
+          <Link href="/integrations" className="text-sm text-gray-500 hover:text-ink transition-colors">Integrations</Link>
         </nav>
         <div className="flex items-center gap-4">
-          <a href="/sign-in" className="text-sm text-gray-500 hover:text-ink transition-colors px-3 py-1.5">Sign In</a>
-          <a href="/sign-up" className="bg-violet-600 hover:bg-violet-700 text-white text-xs font-semibold px-4 py-2 rounded-full shadow-sm transition-all">
+          <Link href="/sign-in" className="text-sm text-gray-500 hover:text-ink transition-colors px-3 py-1.5">Sign In</Link>
+          <Link href="/sign-up" className="bg-violet-600 hover:bg-violet-700 text-white text-xs font-semibold px-4 py-2 rounded-full shadow-sm transition-all">
             Get Started Free
-          </a>
+          </Link>
         </div>
       </header>
 
@@ -38,10 +39,10 @@ export default function HeroZone() {
             CLARIX joins your calls, listens, and turns every conversation into a clean brief — action items, decisions, summaries — ready moments after the call ends. Then you can <span className="italic">talk to it</span> about what was decided.
           </p>
           <div className="mt-8 flex flex-wrap gap-4">
-            <a href="/sign-up" className="inline-flex items-center gap-2 bg-ink hover:bg-ink-2 text-paper text-sm font-semibold px-6 h-12 rounded-full shadow-md transition-all group">
+            <Link href="/sign-up" className="inline-flex items-center gap-2 bg-ink hover:bg-ink-2 text-paper text-sm font-semibold px-6 h-12 rounded-full shadow-md transition-all group">
               Start Free
               <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-            </a>
+            </Link>
           </div>
           <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-gray-100 pt-6 w-full max-w-xl text-xs text-gray-500">
             <span className="inline-flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-violet-600" /> 10 free meetings every month — no credit card</span>

@@ -2,6 +2,7 @@
 
 import React from "react";
 import { Mic } from "lucide-react";
+import Link from "next/link";
 
 export default function AuditoryCortex() {
   return (
@@ -26,9 +27,9 @@ export default function AuditoryCortex() {
           <p className="text-gray-600 text-lg leading-relaxed max-w-md">
             Accurate transcription with automatic detection of the meeting type from the first few minutes. Zero setup.
           </p>
-          <a href="/features" className="inline-flex items-center gap-2 text-violet-600 hover:text-violet-700 font-semibold text-sm transition-colors mt-6">
+          <Link href="/features" className="inline-flex items-center gap-2 text-violet-600 hover:text-violet-700 font-semibold text-sm transition-colors mt-6">
             Explore all features →
-          </a>
+          </Link>
         </div>
 
         {/* Right Side: Materializing Transcript Lines */}

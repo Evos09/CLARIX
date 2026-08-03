@@ -2,6 +2,7 @@
 
 import React from "react";
 import { Link2, ArrowUpRight, AlertCircle } from "lucide-react";
+import Link from "next/link";
 
 const INTEGRATIONS = [
   { name: "Zoom", type: "Conferencing", status: "Active" },
@@ -38,13 +39,13 @@ export default function SensoryPorts() {
             Connects to Google Calendar, Gmail, Notion, Slack, and Linear. No new tabs to check.
           </p>
 
-          <a
+          <Link
             href="/integrations"
             className="inline-flex items-center gap-2 text-violet-600 hover:text-violet-700 font-semibold text-sm transition-colors mt-8 group"
           >
             See all integrations
             <ArrowUpRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-          </a>
+          </Link>
         </div>
 
         {/* Right Side: Integration Logos Grid */}

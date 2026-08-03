@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { Logo } from "@/components/layout/Logo";
+import Link from "next/link";
 
 /*
   AuthShell — branded split-screen wrapper for the Clerk sign-in / sign-up forms.
@@ -60,16 +61,16 @@ export function AuthShell({
               {isSignUp ? (
                 <>
                   Already have an account?{" "}
-                  <a href="/sign-in" className="font-semibold text-accent hover:text-accent/80">
+                  <Link href="/sign-in" className="font-semibold text-accent hover:text-accent/80">
                     Sign in
-                  </a>
+                  </Link>
                 </>
               ) : (
                 <>
                   New to CLARIX?{" "}
-                  <a href="/sign-up" className="font-semibold text-accent hover:text-accent/80">
+                  <Link href="/sign-up" className="font-semibold text-accent hover:text-accent/80">
                     Create an account
-                  </a>
+                  </Link>
                 </>
               )}
             </p>

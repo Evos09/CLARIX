@@ -12,6 +12,7 @@ const navLinks = [
   { name: "Meeting Types", href: "/meeting-types" },
   { name: "Pricing", href: "/pricing" },
   { name: "Integrations", href: "/integrations" },
+  { name: "Desktop", href: "/download" },
 ];
 
 export function SiteNav() {
