@@ -126,7 +126,7 @@ export default function FeaturesPage() {
               {
                 icon: Apple,
                 title: "macOS App",
-                desc: "Native desktop app for Intel and Apple Silicon Macs. The overlay lands in the next macOS build.",
+                desc: "Native desktop app for Intel and Apple Silicon Macs, with the floating overlay.",
                 href: "/download",
                 cta: "Download",
               },
