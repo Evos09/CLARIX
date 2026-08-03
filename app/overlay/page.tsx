@@ -21,8 +21,8 @@ import { createMeetingFromFile } from "@/lib/uploadClient";
 
 const MODE_KEY = "clarix-overlay-mode";
 
-/** Glass = frosted panels. Clear = words only: no panel, no border, no blur. */
-type Mode = "glass" | "clear";
+/** Glass = frosted panels. Transparent = words only: no panel, border, or blur. */
+type Mode = "glass" | "transparent";
 
 type Citation = { id: string; title: string; type: string; date: string; hl?: string; t?: number };
 type RangePreset = "week" | "month" | "quarter" | "year";
@@ -125,9 +125,9 @@ export default function OverlayPage() {
   const [citations, setCitations] = useState<Citation[]>([]);
   const [activeRange, setActiveRange] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  // Look: "glass" (frosted panels, default) or "clear" (just the words floating
-  // over your screen — no panel, border, or blur). `?mode=` wins on first load,
-  // otherwise the last saved choice.
+  // Look: "glass" (frosted panels, default) or "transparent" (just the words
+  // floating over your screen — no panel, border, or blur). `?mode=` wins on
+  // first load, otherwise the last saved choice.
   const [mode, setMode] = useState<Mode>("glass");
   // Detected after mount (never during render) so SSR and the first client
   // render agree — otherwise the close button would trip hydration.
@@ -149,13 +149,15 @@ export default function OverlayPage() {
   useEffect(() => {
     setIsDesktop(inTauri());
     const param = new URLSearchParams(window.location.search).get("mode");
-    if (param === "glass" || param === "clear") {
+    if (param === "glass" || param === "transparent") {
       setMode(param);
       try { localStorage.setItem(MODE_KEY, param); } catch {}
     } else {
       try {
         const saved = localStorage.getItem(MODE_KEY);
-        if (saved === "glass" || saved === "clear") setMode(saved);
+        if (saved === "glass" || saved === "transparent") setMode(saved);
+        // "clear" was the old middle mode; anyone still holding it gets glass.
+        else if (saved === "clear") localStorage.setItem(MODE_KEY, "glass");
       } catch {}
     }
   }, []);
@@ -274,7 +276,7 @@ export default function OverlayPage() {
 
   function toggleMode() {
     setMode((prev) => {
-      const next: Mode = prev === "glass" ? "clear" : "glass";
+      const next: Mode = prev === "glass" ? "transparent" : "glass";
       try { localStorage.setItem(MODE_KEY, next); } catch {}
       return next;
     });
@@ -318,13 +320,16 @@ export default function OverlayPage() {
   }
 
   const glass = mode === "glass";
-  // Glass draws a frosted panel. Clear drops the border, blur and shadow so only
-  // the words float — but keeps a faint dark scrim behind them, because white
-  // text with a shadow is unreadable over a light window underneath.
+  // Glass draws a frosted panel. Transparent drops the panel entirely — no
+  // background, border, blur or shadow — so only the words float over whatever
+  // is underneath. Legibility there comes from a doubled text-shadow instead of
+  // a scrim, which is what keeps light backgrounds readable.
   const surface = glass
     ? "rounded-2xl border border-white/10 bg-background/80 shadow-2xl backdrop-blur-xl"
-    : "rounded-2xl bg-black/45";
-  const legible = glass ? "" : "[text-shadow:0_1px_3px_rgba(0,0,0,0.95)]";
+    : "";
+  const legible = glass
+    ? ""
+    : "[text-shadow:0_1px_2px_rgba(0,0,0,0.95),0_0_10px_rgba(0,0,0,0.85)]";
 
   return (
     <main
@@ -407,12 +412,12 @@ export default function OverlayPage() {
 
           <button
             onClick={toggleMode}
-            title={glass ? "Glass — tap for clear (words only)" : "Clear — tap for glass"}
+            title={glass ? "Glass — tap for transparent (words only)" : "Transparent — tap for glass"}
             aria-pressed={!glass}
             className={`flex items-center gap-1.5 px-3.5 text-[11px] text-muted-foreground transition hover:text-foreground ${glass ? "border-l border-white/10" : ""}`}
           >
             {glass ? <Eye className="size-3.5" /> : <EyeOff className="size-3.5" />}
-            <span className="hidden sm:inline">{glass ? "Glass" : "Clear"}</span>
+            <span className="hidden sm:inline">{glass ? "Glass" : "Transparent"}</span>
           </button>
 
           {/* Desktop only: minimize to just this bar, then restore. */}
