@@ -75,6 +75,11 @@ model Meeting {
   consentAcknowledged   Boolean   @default(false)
   consentAcknowledgedAt DateTime?
   status             MeetingStatus @default(UPLOADING)
+  // Why a meeting ended in ERROR, in the provider's own words (e.g. "language
+  // detection cannot be performed on files with no spoken audio"). Without it
+  // a failed recording shows a red badge and nothing the user can act on.
+  // Cleared whenever a meeting completes successfully.
+  errorMessage       String?
   duration           Int?
   speakerCount       Int?
   language           String?

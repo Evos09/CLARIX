@@ -21,8 +21,11 @@ export async function POST(_req: Request, { params }: Params) {
     const jobId = await startTranscription(id);
     return NextResponse.json({ ok: true, transcriptJobId: jobId, status: "TRANSCRIBING" });
   } catch (err) {
-    await prisma.meeting.update({ where: { id }, data: { status: "ERROR" } });
     const message = err instanceof Error ? err.message : "Transcription failed to start";
+    await prisma.meeting.update({
+      where: { id },
+      data: { status: "ERROR", errorMessage: message },
+    });
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

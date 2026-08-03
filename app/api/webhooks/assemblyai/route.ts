@@ -25,8 +25,13 @@ export async function POST(req: Request) {
   try {
     const transcript = await getAssemblyAI().transcripts.get(transcriptId);
     await ingestTranscript(meeting.id, transcript);
-  } catch {
-    await prisma.meeting.update({ where: { id: meeting.id }, data: { status: "ERROR" } });
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    console.error("assemblyai webhook: ingest failed for meeting", meeting.id, e);
+    await prisma.meeting.update({
+      where: { id: meeting.id },
+      data: { status: "ERROR", errorMessage: `Could not read the transcript: ${msg}` },
+    });
   }
   return NextResponse.json({ ok: true });
 }

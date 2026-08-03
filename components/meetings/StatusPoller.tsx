@@ -13,7 +13,15 @@ const STEPS = [
   { key: "COMPLETE", label: "Done" },
 ];
 
-export function StatusPoller({ meetingId, status }: { meetingId: string; status: string }) {
+export function StatusPoller({
+  meetingId,
+  status,
+  errorMessage,
+}: {
+  meetingId: string;
+  status: string;
+  errorMessage?: string | null;
+}) {
   const router = useRouter();
   const [current, setCurrent] = useState(status);
 
@@ -42,7 +50,13 @@ export function StatusPoller({ meetingId, status }: { meetingId: string; status:
     return (
       <div className="rounded-lg border border-destructive/40 bg-destructive/5 p-6 text-center">
         <p className="font-medium text-destructive">Transcription failed</p>
-        <p className="mt-1 text-sm text-muted-foreground">
+        {/* The provider's own words, when we have them. A bare "it failed" tells
+            the user nothing they can act on — "no spoken audio" tells them to
+            check the microphone. */}
+        {errorMessage ? (
+          <p className="mx-auto mt-2 max-w-lg text-sm text-foreground">{errorMessage}</p>
+        ) : null}
+        <p className="mt-2 text-sm text-muted-foreground">
           Check that the audio is valid and your AssemblyAI key is configured, then try a new upload.
         </p>
       </div>

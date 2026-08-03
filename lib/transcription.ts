@@ -86,7 +86,13 @@ function toPlainText(t: Transcript, segments: TranscriptSegment[]): string {
  */
 export async function ingestTranscript(meetingId: string, t: Transcript): Promise<void> {
   if (t.status === "error") {
-    await prisma.meeting.update({ where: { id: meetingId }, data: { status: "ERROR" } });
+    // Keep the provider's wording. It is usually the only thing that tells the
+    // user what to do differently — "no spoken audio" means check the mic, and
+    // that is not something we could infer from a bare status.
+    await prisma.meeting.update({
+      where: { id: meetingId },
+      data: { status: "ERROR", errorMessage: t.error ?? "Transcription failed." },
+    });
     return;
   }
   const segments = toSegments(t);
@@ -102,6 +108,8 @@ export async function ingestTranscript(meetingId: string, t: Transcript): Promis
       speakerCount: speakers.size || undefined,
       language: t.language_code ?? undefined,
       status: "COMPLETE",
+      // A retry that succeeds must not leave the old failure on screen.
+      errorMessage: null,
     },
   });
 
