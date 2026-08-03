@@ -25,7 +25,7 @@ The app runs **without any keys** in dev (auth + integrations degrade gracefully
 `ANTHROPIC_API_KEY`, `DATABASE_URL`, `NEXT_PUBLIC_SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`.
 
 ## What's implemented (all 11 phases)
-1. **Foundation** — design system, Clerk auth + middleware, dashboard shell, onboarding, landing.
+1. **Foundation** — design system, Clerk auth + proxy, dashboard shell, onboarding, landing.
 2. **Upload & transcription** — presigned Supabase uploads, in-browser recorder, AssemblyAI (speaker labels, language detection, Healthcare vocab boost), webhook + localhost poll fallback.
 3. **Meeting types** — Claude auto-detect, detail tabs.
 4. **AI engine** — 22 prompt files + processing engine, structured-output renderer, regenerate.
