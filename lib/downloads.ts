@@ -11,7 +11,7 @@
 // /public/downloads. The page shows them, so a stale number is a visible lie.
 
 export const WINDOWS_DOWNLOAD_URL = "/downloads/CLARIX-Windows-Setup.exe";
-export const WINDOWS_VERSION = "1.0.1";
+export const WINDOWS_VERSION = "1.0.2";
 
 // macOS universal .dmg built by GitHub Actions (macos runner) and hosted here.
 export const MAC_DOWNLOAD_URL = "/downloads/CLARIX-macOS.dmg";
