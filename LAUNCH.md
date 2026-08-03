@@ -106,6 +106,26 @@ The digest email is live. To turn it on:
    ```
    Use Railway Cron, GitHub Actions, or cron-job.org. The endpoint returns `{ sent, skipped, evaluated }`.
 
+### Stranded-transcript sweeper (built ✅ — needs a scheduler)
+AssemblyAI's callback is what finishes a meeting. When it goes missing the
+meeting sits in `Transcribing` forever — no error, nothing in the UI. The only
+other recovery is the poll inside `GET /api/meetings/[id]`, which needs a human
+to open that exact meeting.
+
+⚠️ `NEXT_PUBLIC_APP_URL` **must be the `www` host.** Set to the apex
+(`https://clarixmeetings.com`) it 301s to www *and drops the path*, so every
+callback lands on the homepage and returns 200 — AssemblyAI marks it delivered
+and never retries, while the handler is never invoked. This silently stranded
+every recording whose meeting page nobody opened.
+
+⬜ Point a scheduler at this every ~15 min:
+```
+POST https://<your-domain>/api/cron/sweep-transcripts
+Header: Authorization: Bearer <CRON_SECRET>
+```
+Returns `{ checked, recovered, stillRunning, errors }`. It only considers
+meetings older than 10 minutes, so it never races a job that is still running.
+
 ### Semantic memory index (live ✅)
 Cross-meeting recall ("what did we decide about pricing?") runs on pgvector +
 OpenAI embeddings. Every retrieval filters by `orgId`, so it can only ever reach
