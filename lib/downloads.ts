@@ -15,7 +15,7 @@ export const WINDOWS_VERSION = "1.0.2";
 
 // macOS universal .dmg built by GitHub Actions (macos runner) and hosted here.
 export const MAC_DOWNLOAD_URL = "/downloads/CLARIX-macOS.dmg";
-export const MAC_VERSION = "1.0.1";
+export const MAC_VERSION = "1.0.2";
 
 export const WINDOWS_LIVE = WINDOWS_DOWNLOAD_URL.length > 0;
 export const MAC_LIVE = MAC_DOWNLOAD_URL.length > 0;
