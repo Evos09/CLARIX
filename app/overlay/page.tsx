@@ -76,20 +76,32 @@ function hideDesktopOverlay() {
  * Open a meeting from a citation. In the desktop app a plain target="_blank"
  * link does nothing — WebView2 blocks new-window creation — so we spawn a real
  * Tauri window instead. In a browser the normal link is left alone.
+ *
+ * The url MUST be absolute. Tauri resolves a relative one against the app's own
+ * asset origin (tauri://localhost), which serves nothing here — so the window
+ * opened onto an error page instead of the meeting.
  */
-function openMeetingWindow(e: React.MouseEvent, href: string) {
+function openMeetingWindow(e: React.MouseEvent, href: string, onError: (m: string) => void) {
   if (!inTauri()) return;
   e.preventDefault();
+  const url = new URL(href, window.location.origin).toString();
   void import("@tauri-apps/api/webviewWindow")
-    .then(({ WebviewWindow }) => {
-      new WebviewWindow(`meeting-${Date.now()}`, {
-        url: href,
+    .then(async ({ WebviewWindow }) => {
+      const w = new WebviewWindow(`meeting-${Date.now()}`, {
+        url,
         width: 1100,
         height: 800,
         title: "CLARIX — Meeting",
       });
+      // Creation is async on the Rust side, so a failure never reaches the
+      // promise above. Without this the click just looked dead.
+      await w.once("tauri://error", (ev) => {
+        onError(`Could not open the meeting window: ${String(ev.payload)}`);
+      });
     })
-    .catch(() => {});
+    .catch((err: unknown) => {
+      onError(`Could not open the meeting window: ${err instanceof Error ? err.message : String(err)}`);
+    });
 }
 
 /** The eight edges/corners you can grab to resize the borderless window. */
@@ -540,7 +552,7 @@ export default function OverlayPage() {
                   <Link
                     href={`/meetings/${recMeetingId}`}
                     target="_blank"
-                    onClick={(e) => openMeetingWindow(e, `/meetings/${recMeetingId}`)}
+                    onClick={(e) => openMeetingWindow(e, `/meetings/${recMeetingId}`, setError)}
                     className="font-semibold text-accent hover:underline"
                   >
                     Open meeting →
@@ -644,7 +656,7 @@ export default function OverlayPage() {
                         key={c.id}
                         href={citationHref(c)}
                         target="_blank"
-                        onClick={(e) => openMeetingWindow(e, citationHref(c))}
+                        onClick={(e) => openMeetingWindow(e, citationHref(c), setError)}
                         className={`group flex items-center gap-2.5 rounded-lg px-3 py-2 transition hover:bg-accent/10 ${glass ? "border border-white/10 bg-white/[0.03] hover:border-accent/40" : ""}`}
                       >
                         <FileText className="size-4 shrink-0 text-accent" />
