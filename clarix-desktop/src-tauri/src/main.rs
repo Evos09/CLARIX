@@ -75,6 +75,14 @@ fn toggle_overlay(app: &tauri::AppHandle) {
 
 fn main() {
     tauri::Builder::default()
+        // Must be registered first. Closing CLARIX only hides it to the tray,
+        // so a "closed" app is usually still running — and launching it again
+        // started a second process that raced the first for the global
+        // shortcut and died during setup, which looked like the app flashing
+        // and vanishing. Now a second launch just surfaces the first.
+        .plugin(tauri_plugin_single_instance::init(|app, _argv, _cwd| {
+            summon(app);
+        }))
         .plugin(tauri_plugin_notification::init())
         .plugin(
             tauri_plugin_global_shortcut::Builder::new()
@@ -92,7 +100,16 @@ fn main() {
             // anywhere. The tray's "Open CLARIX" re-summons it if it's hidden.
             let overlay_shortcut =
                 Shortcut::new(Some(Modifiers::CONTROL | Modifiers::SHIFT), Code::KeyR);
-            app.global_shortcut().register(overlay_shortcut)?;
+            // Never fatal. Any other app holding Ctrl+Shift+R makes this fail,
+            // and `?` here meant the whole app refused to start over a
+            // convenience binding. Losing the hotkey is survivable; losing the
+            // app is not — the tray and the dashboard button still work.
+            if let Err(e) = app.global_shortcut().register(overlay_shortcut) {
+                eprintln!(
+                    "CLARIX: could not register Ctrl+Shift+R ({e}). \
+                     The overlay is still reachable from the tray and the dashboard."
+                );
+            }
 
             // Answer WebView2's mic prompt in both windows (the overlay records;
             // the dashboard has the in-app recorder too).
