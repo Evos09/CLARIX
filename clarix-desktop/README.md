@@ -69,9 +69,12 @@ and lives **outside this repo** at `~/.tauri/clarix.key`. Never commit it.
 - **Public** half is in `tauri.conf.json` → `plugins.updater.pubkey`. Public by
   design; it is what installed apps use to verify a download.
 - **Private** half must exist as the `TAURI_SIGNING_PRIVATE_KEY` repository
-  secret (Settings → Secrets and variables → **Actions**), plus
-  `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` (empty for this key). The release
-  workflow fails loudly if it is missing.
+  secret (Settings → Secrets and variables → **Actions**). That is the only
+  secret needed — the release workflow fails loudly if it is missing.
+- The key has **no password**, and GitHub cannot store an empty secret, so
+  `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` is set to `""` directly in the workflow.
+  Do not delete that line: an unset password can drop the signer into an
+  interactive prompt and hang the job.
 
 > Losing `~/.tauri/clarix.key` means no already-installed app can ever accept an
 > update again — a new key would fail verification. Back it up. Replacing it

@@ -72,7 +72,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
-          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+          # The key was generated with no password, and GitHub refuses to store
+          # an empty secret. Set it explicitly rather than leaving it unset —
+          # an undefined password can drop the signer into an interactive
+          # prompt, which hangs the job until it times out.
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ""
         with:
           projectPath: clarix-desktop
           tagName: ${{ github.ref_name }}
