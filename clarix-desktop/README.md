@@ -46,40 +46,50 @@ the source art:
 npx tauri icon app-icon.png
 ```
 
-## Auto-update (GitHub Releases) — REMOVED for now
-The updater was removed from the app so it builds and runs with **no signing
-key** (the updater plugin panics at startup unless a full `plugins.updater`
-config + valid signing key exist — which is why an earlier build crashed on
-launch with exit code 101). The release workflow
-`.github/workflows/desktop-release.yml` is kept for when you enable it.
+## Auto-update (GitHub Releases) — ENABLED as of 1.0.4
+Both Windows and macOS self-update from the GitHub Release feed. Nothing to
+click: `main.rs` checks `releases/latest/download/latest.json` on launch and
+every 6 hours after.
 
-**To (re-)enable auto-update later:**
-1. Generate a signing keypair (never commit the private key):
-   ```
-   npx tauri signer generate -w clarix.key
-   ```
-2. `Cargo.toml`: add `tauri-plugin-updater = "2"`.
-3. `main.rs`: register `.plugin(tauri_plugin_updater::Builder::new().build())`
-   and add a launch check via `app.updater()?.check()`.
-4. `tauri.conf.json`: add the updater config with your **public** key, and set
-   `createUpdaterArtifacts: true` in `bundle`:
-   ```json
-   "bundle": { ...existing..., "createUpdaterArtifacts": true },
-   "plugins": {
-     "updater": {
-       "endpoints": ["https://github.com/Evos09/CLARIX/releases/latest/download/latest.json"],
-       "pubkey": "PASTE_PUBLIC_KEY_HERE"
-     }
-   }
-   ```
-5. `capabilities/default.json`: add `"updater:default"`.
-6. GitHub → Settings → Secrets → Actions: add `TAURI_SIGNING_PRIVATE_KEY` (the
-   contents of `clarix.key`) and `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`.
+**When updates apply.** A new version is downloaded and installed **at launch
+only**, then the app relaunches itself. An instance that is already running just
+raises a notification and waits for the next start. That asymmetry is
+deliberate — updating replaces the running binary (on Windows the installer
+terminates the app), and a surprise relaunch mid-meeting would lose the
+recording.
 
-**To ship an update once enabled:** bump `version`, commit, push a tag
-`git tag desktop-v1.0.1 && git push origin desktop-v1.0.1`. The workflow builds +
-signs and drafts a GitHub Release with `latest.json`; publish it and installed
-apps update on next launch.
+Every failure path is logged to stderr and swallowed: no network, no GitHub, or
+a bad signature must never stop CLARIX from opening. The cost is that a failed
+update is quiet — check the console if a version seems stuck.
+
+### Keys
+The keypair was generated with `npx tauri signer generate -w ~/.tauri/clarix.key`
+and lives **outside this repo** at `~/.tauri/clarix.key`. Never commit it.
+
+- **Public** half is in `tauri.conf.json` → `plugins.updater.pubkey`. Public by
+  design; it is what installed apps use to verify a download.
+- **Private** half must exist as the `TAURI_SIGNING_PRIVATE_KEY` repository
+  secret (Settings → Secrets and variables → **Actions**), plus
+  `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` (empty for this key). The release
+  workflow fails loudly if it is missing.
+
+> Losing `~/.tauri/clarix.key` means no already-installed app can ever accept an
+> update again — a new key would fail verification. Back it up. Replacing it
+> requires shipping a new build by hand to every user.
+
+This is **not** OS code-signing. The app is still unsigned for Windows
+SmartScreen and macOS Gatekeeper, which only affects the first-run install
+warning.
+
+### Shipping an update
+1. Bump `version` in all three: `package.json`, `src-tauri/Cargo.toml`,
+   `src-tauri/tauri.conf.json`. They must agree.
+2. Commit, then tag: `git tag desktop-v1.0.5 && git push origin desktop-v1.0.5`
+3. The workflow builds Windows + macOS, signs, and drafts a Release.
+4. **Publish the draft.** `releases/latest/download/…` does not resolve for a
+   draft, so an unpublished release reaches nobody. Publishing *is* the ship.
+5. Optionally drop the new `.dmg`/`.exe` into `/public/downloads` and bump
+   `lib/downloads.ts` so fresh downloads get the new version too.
 
 ## Notes
 - Bundle identifier: `ai.clarix.app`.

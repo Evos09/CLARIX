@@ -1,6 +1,6 @@
 [package]
 name = "clarix-desktop"
-version = "1.0.3"
+version = "1.0.4"
 description = "CLARIX desktop"
 edition = "2021"
 
@@ -14,7 +14,13 @@ tauri-plugin-global-shortcut = "2"
 # Launching CLARIX while it sits hidden in the tray used to start a second
 # process that died during setup. This focuses the running one instead.
 tauri-plugin-single-instance = "2"
+# Silent self-updating from the GitHub Release feed (see updater in
+# tauri.conf.json). Artifacts are signed with the minisign key whose public
+# half is in that config; the private half lives only in GitHub Actions.
+tauri-plugin-updater = "2"
 serde_json = "1"
+# Only for the periodic update check's sleep.
+tokio = { version = "1", features = ["time"] }
 
 # Windows only: lets us answer WebView2's microphone permission prompt so the
 # overlay's recorder can open the mic (see allow_microphone in main.rs).

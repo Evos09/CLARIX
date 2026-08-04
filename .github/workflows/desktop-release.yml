@@ -2,11 +2,20 @@
 # GitHub Release with the installers. This is the ONLY way to produce the macOS
 # build without a Mac (it runs on a macOS runner).
 #
-# Trigger: push a tag like `desktop-v1.0.1` (or run manually).
-# No signing keys required — the app currently ships unsigned. tauri-action
-# creates a draft GitHub Release and uploads the .msi/.exe (Windows) and .dmg
-# (macOS). Download the macOS .dmg from that release to host it on the site
-# (drop it in /public/downloads and set MAC_DOWNLOAD_URL in lib/downloads.ts).
+# Trigger: push a tag like `desktop-v1.0.4` (or run manually).
+#
+# tauri-action creates a DRAFT GitHub Release and uploads the .msi/.exe
+# (Windows), the .dmg (macOS), and the signed updater artifacts + latest.json.
+# Download the macOS .dmg from that release to host it on the site (drop it in
+# /public/downloads and set MAC_DOWNLOAD_URL in lib/downloads.ts).
+#
+# IMPORTANT: installed apps update from `releases/latest/download/latest.json`,
+# which only resolves once the release is PUBLISHED. Leaving it a draft means
+# nobody gets the update. Publishing the release is what ships it.
+#
+# The app is still unsigned for the OS (no Apple/Authenticode cert) — that only
+# affects the first-run install warning. TAURI_SIGNING_PRIVATE_KEY is a separate
+# minisign key that authenticates updates; without it the updater is inert.
 
 name: Desktop Release
 
@@ -45,10 +54,25 @@ jobs:
         working-directory: clarix-desktop
         run: npm install
 
+      # Without the signing key tauri-action still builds, but emits no
+      # signatures and no usable latest.json — every installed copy would go on
+      # silently believing it is up to date. Fail here instead.
+      - name: Require the updater signing key
+        shell: bash
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+        run: |
+          if [ -z "${TAURI_SIGNING_PRIVATE_KEY:-}" ]; then
+            echo "::error::TAURI_SIGNING_PRIVATE_KEY repository secret is not set — add it under Settings > Secrets and variables > Actions. Without it the release ships without update signatures and no installed app can update."
+            exit 1
+          fi
+
       - name: Build, sign, and publish
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
           projectPath: clarix-desktop
           tagName: ${{ github.ref_name }}

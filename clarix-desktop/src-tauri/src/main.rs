@@ -7,6 +7,63 @@ use tauri::menu::{Menu, MenuItem};
 use tauri::tray::TrayIconBuilder;
 use tauri::{Manager, WindowEvent};
 use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Modifiers, Shortcut, ShortcutState};
+use tauri_plugin_notification::NotificationExt;
+use tauri_plugin_updater::UpdaterExt;
+
+/// How often a running CLARIX re-checks for a new version.
+const UPDATE_CHECK_INTERVAL: std::time::Duration = std::time::Duration::from_secs(6 * 60 * 60);
+
+/// Look for a newer release and, when `install` is set, apply it.
+///
+/// Updates are only *installed* at launch, never while the app is already
+/// running. CLARIX records meetings, and both platforms have to replace the
+/// running binary to update — on Windows the installer terminates the app. A
+/// surprise relaunch mid-meeting would lose the recording, so a running
+/// instance only notifies and the update lands on the next start.
+///
+/// Every failure here is logged and swallowed on purpose: the network being
+/// down, or GitHub being slow, must never stop CLARIX from opening.
+async fn check_for_update(app: tauri::AppHandle, install: bool) {
+    let updater = match app.updater() {
+        Ok(u) => u,
+        Err(e) => {
+            eprintln!("CLARIX: updater unavailable ({e})");
+            return;
+        }
+    };
+
+    let update = match updater.check().await {
+        Ok(Some(u)) => u,
+        Ok(None) => return, // already current
+        Err(e) => {
+            eprintln!("CLARIX: update check failed ({e})");
+            return;
+        }
+    };
+
+    let version = update.version.clone();
+
+    if !install {
+        let _ = app
+            .notification()
+            .builder()
+            .title("CLARIX update ready")
+            .body(format!("Version {version} installs the next time you open CLARIX."))
+            .show();
+        return;
+    }
+
+    if let Err(e) = update.download_and_install(|_, _| {}, || {}).await {
+        // A failed update is not a broken app — it just keeps running the
+        // version it already has, and tries again next launch.
+        eprintln!("CLARIX: could not install update {version} ({e})");
+        return;
+    }
+
+    // macOS swaps the bundle in place and needs an explicit relaunch. The
+    // Windows installer restarts the app itself, so this is a no-op there.
+    app.restart();
+}
 
 /// WebView2 asks the user for microphone access the first time a page calls
 /// getUserMedia, and that prompt is easy to miss on a transparent, borderless
@@ -84,6 +141,7 @@ fn main() {
             summon(app);
         }))
         .plugin(tauri_plugin_notification::init())
+        .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(
             tauri_plugin_global_shortcut::Builder::new()
                 // We register exactly one shortcut (below), so any fired shortcut
@@ -96,6 +154,19 @@ fn main() {
                 .build(),
         )
         .setup(|app| {
+            // Self-update. The first pass installs (nothing can be recording
+            // yet at launch); later passes only notify, so a long-running tray
+            // instance still learns about releases without being restarted out
+            // from under a meeting.
+            let updater_handle = app.handle().clone();
+            tauri::async_runtime::spawn(async move {
+                check_for_update(updater_handle.clone(), true).await;
+                loop {
+                    tokio::time::sleep(UPDATE_CHECK_INTERVAL).await;
+                    check_for_update(updater_handle.clone(), false).await;
+                }
+            });
+
             // Global shortcut: Ctrl/Cmd+Shift+R toggles the overlay from
             // anywhere. The tray's "Open CLARIX" re-summons it if it's hidden.
             let overlay_shortcut =
