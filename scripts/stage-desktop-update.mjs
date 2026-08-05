@@ -45,25 +45,37 @@ if (!existsSync(feedPath)) {
 
 const feed = JSON.parse(readFileSync(feedPath, "utf8"));
 const files = readdirSync(src);
-const find = (re) => files.find((f) => re.test(f));
 
-// The updater downloads these exact files; the .dmg and .msi are installer-only.
-// Matched by prefix, not exact key: a universal macOS build is published as
-// "darwin-universal" by some Tauri versions and as separate "darwin-aarch64" +
-// "darwin-x86_64" entries by others, and all of them point at the same
-// universal tarball.
-const winFile = find(/^CLARIX_.*_x64-setup\.exe$/);
-const macFile = find(/^CLARIX_universal\.app\.tar\.gz$/);
-const artifactFor = (platform) =>
-  platform.startsWith("windows") ? winFile : platform.startsWith("darwin") ? macFile : undefined;
+// Exactly one match, or none. Point this at a folder holding several releases
+// (a Downloads folder collects them) and a "first match wins" lookup would
+// quietly stage the wrong version's installer — the kind of mistake that only
+// surfaces once someone downloads it.
+const find = (re) => {
+  const hits = files.filter((f) => re.test(f));
+  if (hits.length > 1) {
+    console.error(`FAIL ambiguous: ${hits.length} files match ${re} in ${src}:`);
+    for (const h of hits) console.error(`  ${h}`);
+    console.error("Stage one release at a time — put just this version's assets in their own folder.");
+    process.exit(1);
+  }
+  return hits[0];
+};
+
+// Which file each platform needs comes from the feed itself — never guess.
+// A real feed carries seven keys (darwin-aarch64, darwin-x86_64, both -app
+// variants, windows-x86_64, -msi and -nsis), several pointing at the same
+// artifact, and the default windows-x86_64 entry is the MSI, not the NSIS exe.
+// Pairing one platform's signature with another's bytes makes every client
+// reject the update, so the filename is read straight from entry.url.
+const artifactFor = (entry) => decodeURIComponent(String(entry.url ?? "").split("/").pop() ?? "");
 
 const staged = [];
 let failed = false;
 
 for (const [platform, entry] of Object.entries(feed.platforms ?? {})) {
-  const file = artifactFor(platform);
-  if (!file) {
-    console.error(`FAIL ${platform}: latest.json lists this platform but its artifact is missing from ${src}`);
+  const file = artifactFor(entry);
+  if (!file || !existsSync(join(src, file))) {
+    console.error(`FAIL ${platform}: needs ${file || "(no url in feed)"}, which is not in ${src}`);
     failed = true;
     continue;
   }
@@ -99,7 +111,7 @@ if (failed) {
 // The installers the /download page links to keep their stable names, so the
 // page never needs a new URL.
 const dmg = find(/^CLARIX_.*_universal\.dmg$/);
-const exe = winFile;
+const exe = find(/^CLARIX_.*_x64-setup\.exe$/);
 if (dmg) {
   copyFileSync(join(src, dmg), join(OUT, "CLARIX-macOS.dmg"));
   staged.push(`installer -> CLARIX-macOS.dmg (${dmg})`);

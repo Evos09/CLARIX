@@ -1,0 +1,35 @@
+{
+  "version": "1.0.5",
+  "notes": "",
+  "pub_date": "2026-08-05T01:17:09.589Z",
+  "platforms": {
+    "darwin-aarch64": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRSHIxc08yN3dMdkZGcmpXTUVkTllmWUxqZi9ERVdXWGgxc3cxN1RHRlJabXhNTUF1Q3RML0d5SzFoWWFJMXFWWk9sQ2RxT0Vyd0pQK3ltaWFOakd5eVpucW9TYUxIbEFJPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg1ODkyMjAwCWZpbGU6Q0xBUklYLmFwcC50YXIuZ3oKaUQrald1NG1UZVdoVjV5dEFJYWRpTEkwN2ZiMmN5M0psVFNsN2ZJOVM2MFR2VUwwbWhYYWs3ZjZqMVZkUWVWTU1DZ3lnWlV4cktmSUxabWRTQTJXQnc9PQo=",
+      "url": "https://www.clarixmeetings.com/downloads/CLARIX_universal.app.tar.gz"
+    },
+    "darwin-x86_64": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRSHIxc08yN3dMdkZGcmpXTUVkTllmWUxqZi9ERVdXWGgxc3cxN1RHRlJabXhNTUF1Q3RML0d5SzFoWWFJMXFWWk9sQ2RxT0Vyd0pQK3ltaWFOakd5eVpucW9TYUxIbEFJPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg1ODkyMjAwCWZpbGU6Q0xBUklYLmFwcC50YXIuZ3oKaUQrald1NG1UZVdoVjV5dEFJYWRpTEkwN2ZiMmN5M0psVFNsN2ZJOVM2MFR2VUwwbWhYYWs3ZjZqMVZkUWVWTU1DZ3lnWlV4cktmSUxabWRTQTJXQnc9PQo=",
+      "url": "https://www.clarixmeetings.com/downloads/CLARIX_universal.app.tar.gz"
+    },
+    "darwin-aarch64-app": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRSHIxc08yN3dMdkZGcmpXTUVkTllmWUxqZi9ERVdXWGgxc3cxN1RHRlJabXhNTUF1Q3RML0d5SzFoWWFJMXFWWk9sQ2RxT0Vyd0pQK3ltaWFOakd5eVpucW9TYUxIbEFJPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg1ODkyMjAwCWZpbGU6Q0xBUklYLmFwcC50YXIuZ3oKaUQrald1NG1UZVdoVjV5dEFJYWRpTEkwN2ZiMmN5M0psVFNsN2ZJOVM2MFR2VUwwbWhYYWs3ZjZqMVZkUWVWTU1DZ3lnWlV4cktmSUxabWRTQTJXQnc9PQo=",
+      "url": "https://www.clarixmeetings.com/downloads/CLARIX_universal.app.tar.gz"
+    },
+    "darwin-x86_64-app": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRSHIxc08yN3dMdkZGcmpXTUVkTllmWUxqZi9ERVdXWGgxc3cxN1RHRlJabXhNTUF1Q3RML0d5SzFoWWFJMXFWWk9sQ2RxT0Vyd0pQK3ltaWFOakd5eVpucW9TYUxIbEFJPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg1ODkyMjAwCWZpbGU6Q0xBUklYLmFwcC50YXIuZ3oKaUQrald1NG1UZVdoVjV5dEFJYWRpTEkwN2ZiMmN5M0psVFNsN2ZJOVM2MFR2VUwwbWhYYWs3ZjZqMVZkUWVWTU1DZ3lnWlV4cktmSUxabWRTQTJXQnc9PQo=",
+      "url": "https://www.clarixmeetings.com/downloads/CLARIX_universal.app.tar.gz"
+    },
+    "windows-x86_64": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRSHIxc08yN3dMdkpOa2Zhb1pWTEhqVmNKTG5mNkhrWkFZajZyVzJNTlphR3FVc3ZrMWtDbkRJYm4veE9kQUZTNDIyemU2YzFKQ1Z4L2E5QW5QSm43MEM2OENqTDduRFFnPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg1ODkyNjI2CWZpbGU6Q0xBUklYXzEuMC41X3g2NF9lbi1VUy5tc2kKTlk1M09OZGJDN1JzenRRbUozbzhLK1VvQWNsdGdFTmJjNU95MWRSZWpwb2ZIbXB2cmdrWk56RzRtd3NSNTBTSDloMzY0Z1Ztd0tYbTh3V3hJUDBoQnc9PQo=",
+      "url": "https://www.clarixmeetings.com/downloads/CLARIX_1.0.5_x64_en-US.msi"
+    },
+    "windows-x86_64-msi": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRSHIxc08yN3dMdkpOa2Zhb1pWTEhqVmNKTG5mNkhrWkFZajZyVzJNTlphR3FVc3ZrMWtDbkRJYm4veE9kQUZTNDIyemU2YzFKQ1Z4L2E5QW5QSm43MEM2OENqTDduRFFnPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg1ODkyNjI2CWZpbGU6Q0xBUklYXzEuMC41X3g2NF9lbi1VUy5tc2kKTlk1M09OZGJDN1JzenRRbUozbzhLK1VvQWNsdGdFTmJjNU95MWRSZWpwb2ZIbXB2cmdrWk56RzRtd3NSNTBTSDloMzY0Z1Ztd0tYbTh3V3hJUDBoQnc9PQo=",
+      "url": "https://www.clarixmeetings.com/downloads/CLARIX_1.0.5_x64_en-US.msi"
+    },
+    "windows-x86_64-nsis": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRSHIxc08yN3dMdkdpYXJkcDRKcTlpVnNMWDN0TFBsWmxmT29BdE1KUE9iak4yeDRrTlVYWDliazZ3NHJKOG52TGpESWR3OTlraklqeWFrL3h0bzJCR09OLzdocGtha3dvPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg1ODkyNjI2CWZpbGU6Q0xBUklYXzEuMC41X3g2NC1zZXR1cC5leGUKaHlwRTJrUUdkUVZZd2xJeWFDK1RBRWw2ZCtGb3JlMHllb0xOUVJFZmF6OGxNM1F3STBCenY1SWtGVU1EcGJ2OGlWVnk4Y0hRNERBREp3andqeU8vQ0E9PQo=",
+      "url": "https://www.clarixmeetings.com/downloads/CLARIX_1.0.5_x64-setup.exe"
+    }
+  }
+}
