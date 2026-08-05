@@ -99,8 +99,9 @@ export default function DownloadPage() {
             </p>
             <p className="text-muted-foreground">
               The Windows and macOS apps are new and still being polished — you may hit rough
-              edges. Your meetings and data are safe (they live in your CLARIX account, same as the
-              web). Run into any problems?{" "}
+              edges. The app keeps itself up to date, so fixes reach you without another download.
+              Your meetings and data are safe (they live in your CLARIX account, same as the web).
+              Run into any problems?{" "}
               <Link href="/contact" className="text-accent underline underline-offset-2">
                 Contact support
               </Link>{" "}
@@ -130,6 +131,7 @@ export default function DownloadPage() {
                   ) : (
                     <span> · overlay not in this build yet</span>
                   )}
+                  <span> · updates itself</span>
                 </p>
 
                 <div className="mt-auto">
@@ -205,6 +207,11 @@ export default function DownloadPage() {
                 The app is a native window around clarixmeetings.com — sign in with your normal CLARIX
                 account and every feature works just like the web. The overlay is the one thing the
                 web app can&apos;t do, since only a desktop app can float above other windows.
+              </li>
+              <li>
+                <span className="text-foreground">You only install once.</span> New versions download
+                quietly in the background and install the next time you open CLARIX — never in the
+                middle of a meeting, and never a download to go hunt for.
               </li>
               <li>
                 Recording from the overlay uses your microphone. Everyone in the meeting must know
