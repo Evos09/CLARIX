@@ -84,15 +84,32 @@ This is **not** OS code-signing. The app is still unsigned for Windows
 SmartScreen and macOS Gatekeeper, which only affects the first-run install
 warning.
 
+### The feed is hosted on the website, not GitHub
+**This repo is private, so GitHub Release assets 404 for everyone without repo
+access — including every installed copy of the app.** 1.0.4 shipped pointing at
+`releases/latest/download/latest.json` and could never have updated anyone. The
+updater now points at `https://www.clarixmeetings.com/downloads/latest.json`,
+which is public (verified: `/downloads/` serves anonymously, no Clerk gate).
+
+GitHub Releases are still where builds are *produced*; the site is where they
+are *served*.
+
 ### Shipping an update
 1. Bump `version` in all three: `package.json`, `src-tauri/Cargo.toml`,
    `src-tauri/tauri.conf.json`. They must agree.
-2. Commit, then tag: `git tag desktop-v1.0.5 && git push origin desktop-v1.0.5`
-3. The workflow builds Windows + macOS, signs, and drafts a Release.
-4. **Publish the draft.** `releases/latest/download/…` does not resolve for a
-   draft, so an unpublished release reaches nobody. Publishing *is* the ship.
-5. Optionally drop the new `.dmg`/`.exe` into `/public/downloads` and bump
-   `lib/downloads.ts` so fresh downloads get the new version too.
+2. Commit, then tag: `git tag desktop-v1.0.6 && git push origin desktop-v1.0.6`
+3. The workflow builds Windows + macOS, signs, and drafts a Release. Publishing
+   it is optional now — the release is just where the build artifacts land.
+4. Download from that release into one folder: `latest.json`, the
+   `*_x64-setup.exe` + `.sig`, `CLARIX_universal.app.tar.gz` + `.sig`, and the
+   `*_universal.dmg`.
+5. `node scripts/stage-desktop-update.mjs <that-folder>` — copies the artifacts
+   into `public/downloads`, rewrites the feed URLs to the website, and checks
+   each `.sig` against the signature inside `latest.json` (a mismatch would make
+   every client reject the update, so it fails loudly here instead).
+6. Bump `WINDOWS_VERSION` / `MAC_VERSION` in `lib/downloads.ts` to match.
+7. Commit and push. Railway deploys, and installed apps pick it up on next
+   launch.
 
 ## Notes
 - Bundle identifier: `ai.clarix.app`.
