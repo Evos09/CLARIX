@@ -1,9 +1,13 @@
 import Link from "next/link";
 import { Monitor, Apple, ArrowUpRight } from "lucide-react";
 
-const items = [
+// macOS is built and working but not offered yet — it isn't code-signed, and we
+// won't ask anyone to click past a Gatekeeper warning to install something that
+// listens to their meetings. Kept visible with a "soon" tag rather than removed,
+// so Mac users know it's coming instead of assuming it never will.
+const items: { icon: typeof Monitor; label: string; href: string; soon?: boolean }[] = [
   { icon: Monitor, label: "Windows", href: "/download" },
-  { icon: Apple, label: "macOS", href: "/download" },
+  { icon: Apple, label: "macOS", href: "/download", soon: true },
 ];
 
 /** Compact "also available on" strip — used on the homepage above the footer. */
@@ -23,6 +27,11 @@ export function PlatformStrip() {
           >
             <it.icon className="w-[18px] h-[18px] text-accent" />
             {it.label}
+            {it.soon && (
+              <span className="rounded-full border border-foreground/15 px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
+                soon
+              </span>
+            )}
             <ArrowUpRight className="w-3 h-3 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
           </Link>
         ))}

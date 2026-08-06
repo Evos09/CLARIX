@@ -17,13 +17,29 @@ export const WINDOWS_VERSION = "1.0.5";
 export const MAC_DOWNLOAD_URL = "/downloads/CLARIX-macOS.dmg";
 export const MAC_VERSION = "1.0.5";
 
-export const WINDOWS_LIVE = WINDOWS_DOWNLOAD_URL.length > 0;
-export const MAC_LIVE = MAC_DOWNLOAD_URL.length > 0;
+export const WINDOWS_LIVE = true;
 
 /**
- * The floating overlay shipped in 1.0.1. The hosted macOS build is still 1.0.0,
- * so it genuinely does not have it — say so on the page rather than advertising
- * a feature that build cannot do.
+ * macOS is DORMANT — deliberately not offered on the site.
+ *
+ * The build works (confirmed on real hardware) and CI still produces it, but it
+ * is unsigned, so installing means clicking past a Gatekeeper warning to run an
+ * app that listens to your meetings. That is the worst possible moment to ask
+ * someone for trust. Silencing it needs Apple notarization, which needs a
+ * $99/yr Apple Developer account we don't have yet.
+ *
+ * The .dmg stays hosted but unlinked, and latest.json still carries its darwin
+ * entries, so anyone already running it keeps getting updates.
+ *
+ * To bring it back: buy the Apple Developer account, add the APPLE_* secrets
+ * listed in clarix-desktop/README.md, cut a release, then flip this to true.
+ */
+export const MAC_LIVE = false;
+
+/**
+ * The floating overlay shipped in 1.0.1. Builds older than that genuinely do
+ * not have it — say so on the page rather than advertising a feature the build
+ * cannot deliver.
  */
 export const OVERLAY_MIN_VERSION = "1.0.1";
 export const WINDOWS_HAS_OVERLAY = WINDOWS_VERSION >= OVERLAY_MIN_VERSION;

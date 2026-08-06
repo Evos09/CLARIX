@@ -109,8 +109,8 @@ export default function FeaturesPage() {
               Use CLARIX wherever your meetings happen
             </h2>
             <p className="text-lg text-muted-foreground leading-relaxed max-w-2xl mb-14">
-              Beyond the web app: run CLARIX as a native desktop app on Windows and macOS,
-              with a floating overlay that records and answers from your meeting history.
+              Beyond the web app: run CLARIX as a native desktop app on Windows, with a floating
+              overlay that records and answers from your meeting history. macOS is on the way.
             </p>
           </Reveal>
 
@@ -126,9 +126,9 @@ export default function FeaturesPage() {
               {
                 icon: Apple,
                 title: "macOS App",
-                desc: "Native desktop app for Intel and Apple Silicon Macs, with the floating overlay.",
+                desc: "Built and working on Intel and Apple Silicon — held back until it's code-signed, so nobody has to click past a security warning to install it.",
                 href: "/download",
-                cta: "Download",
+                cta: "Coming soon",
               },
               {
                 icon: Globe,

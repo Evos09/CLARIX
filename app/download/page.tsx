@@ -22,7 +22,7 @@ import {
 export const metadata: Metadata = {
   title: "Download — CLARIX Desktop",
   description:
-    "Get the CLARIX desktop app for Windows and macOS. Includes the floating overlay: record a meeting and ask your past meetings anything, without leaving the call.",
+    "Get the CLARIX desktop app for Windows. Includes the floating overlay: record a meeting and ask your past meetings anything, without leaving the call. macOS coming soon.",
 };
 
 /** The overlay is desktop-only, and the reason most people install the app. */
@@ -57,6 +57,8 @@ type Platform = {
   note: string;
   version: string;
   hasOverlay: boolean;
+  /** Shown instead of the version line when the platform isn't offered yet. */
+  pendingNote?: string;
 };
 
 const platforms: Platform[] = [
@@ -77,6 +79,7 @@ const platforms: Platform[] = [
     note: "macOS 12+ (Intel & Apple Silicon).",
     version: MAC_VERSION,
     hasOverlay: MAC_HAS_OVERLAY,
+    pendingNote: "Built and working — waiting on Apple code signing",
   },
 ];
 
@@ -96,13 +99,16 @@ export default function DownloadPage() {
         <Reveal>
           <div className="mb-10 rounded-2xl border border-accent/25 bg-accent/[0.06] p-5 lg:p-6 text-sm leading-relaxed">
             <p className="text-foreground font-medium mb-1">
-              The desktop apps are in beta.
+              The desktop app is in beta, and Windows-only for now.
             </p>
             <p className="text-muted-foreground">
-              The Windows and macOS apps are new and still being polished — you may hit rough
-              edges. The app keeps itself up to date, so fixes reach you without another download.
-              Your meetings and data are safe (they live in your CLARIX account, same as the web).
-              Run into any problems?{" "}
+              The Windows app is new and still being polished — you may hit rough edges. It keeps
+              itself up to date, so fixes reach you without another download. The macOS build is
+              finished and working, but it isn&apos;t code-signed yet, and we&apos;re not asking
+              anyone to click past a security warning to install something that listens to their
+              meetings — so it stays off this page until that&apos;s sorted. Your meetings and data
+              are safe either way (they live in your CLARIX account, same as the web). Run into any
+              problems?{" "}
               <Link href="/contact" className="text-accent underline underline-offset-2">
                 Contact support
               </Link>{" "}
@@ -126,13 +132,20 @@ export default function DownloadPage() {
                 </div>
                 <p className="text-sm text-muted-foreground mb-2">{p.note}</p>
                 <p className="text-xs font-mono text-muted-foreground mb-6">
-                  Version {p.version}
-                  {p.hasOverlay ? (
-                    <span className="text-accent"> · includes the overlay</span>
+                  {p.live ? (
+                    <>
+                      Version {p.version}
+                      {p.hasOverlay ? (
+                        <span className="text-accent"> · includes the overlay</span>
+                      ) : (
+                        <span> · overlay not in this build yet</span>
+                      )}
+                      <span> · updates itself</span>
+                    </>
                   ) : (
-                    <span> · overlay not in this build yet</span>
+                    // Never show a version for something nobody can download.
+                    <span>{p.pendingNote}</span>
                   )}
-                  <span> · updates itself</span>
                 </p>
 
                 <div className="mt-auto">
@@ -226,10 +239,6 @@ export default function DownloadPage() {
               <li>
                 <span className="text-foreground">Windows:</span> the installer isn&apos;t code-signed
                 yet, so Windows SmartScreen may warn. Click <em>More info → Run anyway</em>.
-              </li>
-              <li>
-                <span className="text-foreground">macOS:</span> for the same reason, right-click the app
-                and choose <em>Open</em> the first time to get past Gatekeeper.
               </li>
               <li>
                 Prefer the browser? You never need the desktop app —{" "}
