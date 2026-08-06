@@ -21,6 +21,13 @@ const groups: { group: string; rows: { label: string; values: [Cell, Cell, Cell,
       { label: "Meeting types", values: ["General", "All 20+", "All 20+", "All 20+"] },
       { label: "Summary & action items", values: [true, true, true, true] },
       { label: "Clarix Chat (messages / mo)", values: [false, "25", "100", "Unlimited"] },
+      // Must match overlayAskLimit() in lib/plan.ts. Free gets a real
+      // allowance: the overlay is the reason to switch, so it cannot be the one
+      // thing nobody can try. Paid tiers draw on the Clarix Chat numbers above.
+      { label: "Desktop overlay (questions / mo)", values: ["10", "25", "100", "Unlimited"] },
+      // Ambient surfacing runs on a timer, so it stays paid-only —
+      // liveSurfacingAllowed() in lib/plan.ts.
+      { label: "Overlay live surfacing", values: [false, true, true, true] },
       { label: "Audio library & reprocessing", values: [false, false, true, true] },
       { label: "Custom AI templates", values: [false, false, false, true] },
     ],

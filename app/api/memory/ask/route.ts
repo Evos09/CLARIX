@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getOrCreateContext } from "@/lib/auth";
 import { isClaudeConfigured } from "@/lib/claude";
 import { getMeetingType } from "@/lib/meetingTypes";
-import { getOrgPlan, globalChatLimit, chatModelForPlan, overlayAllowed } from "@/lib/plan";
+import { getOrgPlan, chatModelForPlan, overlayAskLimit } from "@/lib/plan";
 import {
   retrieveContext,
   answerGlobalChat,
@@ -75,23 +75,18 @@ export async function POST(req: Request) {
   });
   const plan = await getOrgPlan(ctx.orgId);
 
-  // The overlay is a paid-plan perk (Starter and up); Free is refused outright.
-  if (!overlayAllowed(plan)) {
-    return NextResponse.json(
-      { error: "The CLARIX overlay is available on paid plans. Upgrade to ask across your meetings.", locked: true },
-      { status: 403 },
-    );
-  }
-
-  // Beyond the plan gate, Pro is still metered against the shared chat cap.
-  const limit = globalChatLimit(plan);
+  // Every plan can ask, including Free — the overlay is the reason to switch,
+  // so it can't be the one thing nobody gets to try. Free draws on its own
+  // monthly allowance; paid plans draw on Clarix Chat exactly as before.
+  const limit = overlayAskLimit(plan);
   if (limit !== null) {
     const [used, bonus] = await Promise.all([getChatUsage(ctx.userId), getChatBonus(ctx.userId)]);
     if (used >= limit + bonus) {
-      return NextResponse.json(
-        { error: `You've used all ${limit + bonus} of this month's Clarix Chat messages. Upgrade or add a message pack to keep asking.`, overLimit: true },
-        { status: 429 },
-      );
+      const msg =
+        plan.id === "FREE"
+          ? `You've used all ${limit + bonus} overlay questions this month. Upgrade to keep asking.`
+          : `You've used all ${limit + bonus} of this month's Clarix Chat messages. Upgrade or add a message pack to keep asking.`;
+      return NextResponse.json({ error: msg, overLimit: true }, { status: 429 });
     }
   }
 

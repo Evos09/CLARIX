@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getOrCreateContext } from "@/lib/auth";
 import { getMeetingType } from "@/lib/meetingTypes";
-import { getOrgPlan, overlayAllowed } from "@/lib/plan";
+import { getOrgPlan, liveSurfacingAllowed } from "@/lib/plan";
 import { searchChunks } from "@/lib/memory/search";
 import { isEmbeddingsConfigured } from "@/lib/embeddings";
 
@@ -28,8 +28,12 @@ const MAX_DISTANCE = 0.5;
  *
  * Deliberately lightweight vs. /api/memory/ask: pure retrieval, NO Claude call
  * and NO chat-quota bump. This fires on a timer in the background, so metering
- * it would silently drain the user's Clarix Chat allowance. Access is still
- * gated to paid plans (same ladder as the ask endpoint); Free returns nothing.
+ * it would silently drain the user's Clarix Chat allowance.
+ *
+ * Access stays paid-only. The typed ask is free-capped (10/month) because the
+ * user chooses to spend it; this one fires continuously on its own, so an
+ * unmetered Free tier would be an open-ended embedding bill. Free gets an empty
+ * snippet list rather than an error.
  *
  * Requires the semantic index — a keyword match on a transcript tail is too
  * noisy to auto-surface, so when embeddings aren't live we return no snippets.
@@ -44,9 +48,9 @@ export async function POST(req: Request) {
   const parsed = Body.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "Invalid input" }, { status: 400 });
 
-  // Same paid-plan gate as the overlay's ask endpoint.
+  // Ambient surfacing is paid-only; the deliberate ask is free-capped.
   const plan = await getOrgPlan(ctx.orgId);
-  if (!overlayAllowed(plan)) return NextResponse.json({ snippets: [], locked: true });
+  if (!liveSurfacingAllowed(plan)) return NextResponse.json({ snippets: [], locked: true });
 
   // Use the tail of the transcript as the query — that's what's being discussed
   // "now". Older context already had its chance to surface on earlier polls.

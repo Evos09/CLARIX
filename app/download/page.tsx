@@ -7,6 +7,7 @@ import { PageHero } from "@/components/site/page-hero";
 import { CtaBand } from "@/components/site/cta-band";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/motion/Reveal";
+import { FREE_OVERLAY_ASKS } from "@/lib/plan";
 import {
   WINDOWS_DOWNLOAD_URL,
   MAC_DOWNLOAD_URL,
@@ -189,7 +190,12 @@ export default function DownloadPage() {
             </div>
 
             <p className="mt-10 text-sm text-muted-foreground">
-              The overlay is included on every paid plan —{" "}
+              <span className="text-foreground">
+                Free accounts get {FREE_OVERLAY_ASKS} overlay questions a month
+              </span>{" "}
+              — enough to try it in a couple of real meetings. Paid plans raise the limit and add
+              live surfacing, where the overlay pulls up relevant moments on its own without being
+              asked —{" "}
               <Link href="/pricing" className="text-accent underline underline-offset-2">
                 see plans
               </Link>

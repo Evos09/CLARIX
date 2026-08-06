@@ -63,12 +63,34 @@ export function chatModelForPlan(plan: PlanConfig): string {
     : CLAUDE_HAIKU;
 }
 
+/** Overlay questions a Free workspace gets each month. */
+export const FREE_OVERLAY_ASKS = 10;
+
 /**
- * The meeting-memory overlay is a desktop-app perk on every paid plan
- * (Starter and up); Free is excluded. Usage is still metered by
- * globalChatLimit, so Starter's 25 messages/month cap applies here too.
+ * How many overlay questions a plan gets per month. null = unlimited.
+ *
+ * Free gets a real allowance rather than a locked door. The overlay is the one
+ * thing CLARIX does that nothing else does, and it used to sit entirely behind
+ * the paywall — so the single best reason to switch was the one thing nobody
+ * could try. Ten is enough to feel it across a couple of real meetings.
+ *
+ * On Free this shares the counter behind getChatUsage, which is safe because
+ * Clarix Chat is locked there (globalChatLimit → 0), so the only thing that can
+ * increment it is the overlay. Paid plans keep drawing on their chat allowance
+ * exactly as before.
  */
-export function overlayAllowed(plan: PlanConfig): boolean {
+export function overlayAskLimit(plan: PlanConfig): number | null {
+  if (plan.id === "FREE") return FREE_OVERLAY_ASKS;
+  return globalChatLimit(plan);
+}
+
+/**
+ * Passive live-surfacing (the overlay quietly pulling up relevant snippets as a
+ * meeting runs) stays paid-only. Unlike a typed question it fires continuously
+ * in the background, so an unmetered Free tier would be an open-ended embedding
+ * and inference bill. Free gets the deliberate ask; paid gets the ambient one.
+ */
+export function liveSurfacingAllowed(plan: PlanConfig): boolean {
   return plan.id !== "FREE";
 }
 

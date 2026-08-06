@@ -3,15 +3,19 @@ export type Plan = {
   unit: string; cta: string; href: string; popular?: boolean; features: string[];
 };
 
+// Overlay counts must match overlayAskLimit() in lib/plan.ts (Free 10,
+// Starter 25, Pro 100, Business unlimited). The overlay is the one thing
+// CLARIX does that nothing else does, so it belongs on every card — including
+// Free, which is the only tier most visitors will ever try.
 export const plans: Plan[] = [
   { name: "Free", description: "For trying CLARIX on your own meetings.", price: { monthly: 0, annual: 0 }, unit: "/month", cta: "Start Free", href: "/sign-up",
-    features: ["10 meetings per month", "General meeting type", "Summary and action items", "In-browser recording", "PDF export"] },
+    features: ["10 meetings per month", "10 desktop overlay questions / month", "General meeting type", "Summary and action items", "In-browser recording", "PDF export"] },
   { name: "Starter", description: "For individuals who meet often.", price: { monthly: 15, annual: 13 }, unit: "/user/mo", cta: "Start 14-day trial", href: "/sign-up",
-    features: ["20 meetings per month", "All standard meeting types", "25 Clarix Chat messages / month", "PDF, DOCX & CSV export", "Auto-join meeting bot (Zoom, Meet, Teams)", "Forever audio library", "Email integration (Gmail)"] },
+    features: ["20 meetings per month", "All standard meeting types", "25 Clarix Chat messages / month", "25 desktop overlay questions / month", "Overlay live surfacing", "PDF, DOCX & CSV export", "Auto-join meeting bot (Zoom, Meet, Teams)", "Forever audio library", "Email integration (Gmail)"] },
   { name: "Pro", description: "For teams that run on meetings.", price: { monthly: 30, annual: 25 }, unit: "/user/mo", cta: "Start 14-day trial", href: "/sign-up", popular: true,
-    features: ["Unlimited meetings", "All exports (PDF, DOCX, CSV, JSON)", "100 Clarix Chat messages / month", "Auto-join meeting bot", "Forever library + reprocessing", "Google Calendar, Gmail, Slack, Notion & Linear", "Voice Mode (coming soon)", "Email support"] },
+    features: ["Unlimited meetings", "All exports (PDF, DOCX, CSV, JSON)", "100 Clarix Chat messages / month", "100 desktop overlay questions / month", "Overlay live surfacing", "Auto-join meeting bot", "Forever library + reprocessing", "Google Calendar, Gmail, Slack, Notion & Linear", "Voice Mode (coming soon)", "Email support"] },
   { name: "Business", description: "For power users and teams who want the full self-serve toolkit.", price: { monthly: 59, annual: 50 }, unit: "/user/mo", cta: "Start 14-day trial", href: "/sign-up",
-    features: ["Everything in Pro", "Unlimited Clarix Chat", "Custom AI templates", "Team sharing", "Email support"] },
+    features: ["Everything in Pro", "Unlimited Clarix Chat", "Unlimited overlay questions", "Custom AI templates", "Team sharing", "Email support"] },
 ];
 
 export type MeetingType = { name: string; summary: string; extracts: string[] };

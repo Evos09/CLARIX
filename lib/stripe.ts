@@ -63,7 +63,7 @@ export const PLANS: Record<PlanId, PlanConfig> = {
     customTemplates: false,
     autoJoinBot: false,
     foreverRetention: false,
-    blurb: "10 meetings/month, General type only, PDF export.",
+    blurb: "10 meetings/month, General type only, PDF export, 10 desktop overlay questions/mo.",
   },
   STARTER: {
     id: "STARTER",

@@ -67,11 +67,50 @@ jobs:
             exit 1
           fi
 
+      # OS code-signing is optional and OFF until the certs exist. Unsigned
+      # builds still work — they just trip SmartScreen / Gatekeeper on first
+      # run. This step never fails the build; it only makes the state visible,
+      # so nobody ships thinking it was signed when it wasn't.
+      - name: Report OS code-signing status
+        shell: bash
+        env:
+          WINDOWS_CERTIFICATE: ${{ secrets.WINDOWS_CERTIFICATE }}
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+        run: |
+          if [ "${{ matrix.platform }}" = "windows-latest" ]; then
+            if [ -n "${WINDOWS_CERTIFICATE:-}" ]; then
+              echo "Windows: Authenticode certificate present — installer will be signed."
+            else
+              echo "::warning::Windows: no WINDOWS_CERTIFICATE secret — shipping UNSIGNED. Users will see the SmartScreen warning."
+            fi
+          else
+            if [ -n "${APPLE_CERTIFICATE:-}" ] && [ -n "${APPLE_ID:-}" ]; then
+              echo "macOS: Developer ID certificate and Apple ID present — app will be signed and notarized."
+            else
+              echo "::warning::macOS: no APPLE_CERTIFICATE / APPLE_ID secrets — shipping UNSIGNED. Users must right-click > Open to get past Gatekeeper."
+            fi
+          fi
+
       - name: Build, sign, and publish
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          # --- OS code-signing (all optional; unset = unsigned build) ---
+          # Windows Authenticode: base64 of a .pfx, plus its password.
+          WINDOWS_CERTIFICATE: ${{ secrets.WINDOWS_CERTIFICATE }}
+          WINDOWS_CERTIFICATE_PASSWORD: ${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}
+          # macOS Developer ID: base64 of a .p12, its password, and the identity
+          # name. APPLE_ID + APPLE_PASSWORD (an app-specific password) and
+          # APPLE_TEAM_ID additionally trigger notarization, which is what
+          # actually silences Gatekeeper — signing alone is not enough.
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           # The key was generated with no password, and GitHub refuses to store
           # an empty secret. Set it explicitly rather than leaving it unset —
           # an undefined password can drop the signer into an interactive
