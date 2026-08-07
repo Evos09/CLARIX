@@ -48,7 +48,13 @@ export function NewMeetingClient() {
         { title: title || "Untitled meeting", meetingType, autoDetect, consentAcknowledged: recordedConsent },
         setProgress,
       );
-      track("meeting_created", { meetingType, source: tab });
+      // Deliberately does NOT send meetingType. The type list includes
+      // "Medical Appointment", "Legal Deposition" and "Financial Advisory", and
+      // shipping those to an ad platform is how hospitals ended up in Meta-pixel
+      // lawsuits — under GDPR it is special-category data. The type is already in
+      // our own database, so type distribution can be queried there instead of
+      // handing it to a third party.
+      track("meeting_created", { source: tab });
       router.push(`/meetings/${id}`);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Something went wrong");
