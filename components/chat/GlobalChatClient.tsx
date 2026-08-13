@@ -375,19 +375,27 @@ export function GlobalChatClient({
   async function send(text: string) {
     const msg = text.trim();
     if (!msg || sending || !canSend) return;
+    // Clear the box and show the question BEFORE any network call. Creating a
+    // session is a round trip, and leaving the text sitting there through it
+    // made Enter feel like it hadn't registered — worse, if that call failed we
+    // returned early and the text was never cleared at all.
+    setInput("");
+    setMessages((m) => [...m, { role: "user", content: msg }]);
+    setSending(true);
     // Use the ref (synchronously current) so back-to-back sends reuse the same
     // session instead of each spawning a new one — otherwise history is lost.
     let sid = activeIdRef.current;
     if (!sid) {
       const r = await fetch("/api/chat/sessions", { method: "POST" });
-      if (!r.ok) return;
+      if (!r.ok) {
+        setMessages((m) => [...m, { role: "assistant", content: "Couldn't start a new chat. Please try again." }]);
+        setSending(false);
+        return;
+      }
       sid = (await r.json()).sessionId as string;
       setActiveId(sid);
       activeIdRef.current = sid;
     }
-    setInput("");
-    setMessages((m) => [...m, { role: "user", content: msg }]);
-    setSending(true);
     try {
       const r = await fetch(`/api/chat/sessions/${sid}/messages`, {
         method: "POST",

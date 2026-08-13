@@ -15,7 +15,7 @@
  */
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { Search, Loader2, CornerDownLeft, FileText, Clock, Eye, EyeOff, Play, X, Minus, Maximize2, Mic, Square, ShieldCheck, MessageSquarePlus } from "lucide-react";
+import { Search, Loader2, CornerDownLeft, FileText, Clock, Eye, EyeOff, Play, X, Minus, Maximize2, Mic, Square, ShieldCheck, MessageSquarePlus, History } from "lucide-react";
 import { MarkdownView } from "@/components/chat/MarkdownView";
 import { createMeetingFromFile } from "@/lib/uploadClient";
 
@@ -157,6 +157,10 @@ export default function OverlayPage() {
   // from the first response, and state wouldn't have landed yet.
   const sessionRef = useRef<string | null>(null);
   const threadEndRef = useRef<HTMLDivElement>(null);
+  // Past conversations, and whether the picker is open over the thread.
+  const [sessions, setSessions] = useState<{ id: string; title: string; updatedAt: string }[]>([]);
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [loadingThread, setLoadingThread] = useState(false);
   // Look: "glass" (frosted panels, default) or "transparent" (just the words
   // floating over your screen — no panel, border, or blur). `?mode=` wins on
   // first load, otherwise the last saved choice.
@@ -343,8 +347,12 @@ export default function OverlayPage() {
         return;
       }
       if (typeof data.sessionId === "string") {
+        const isNewThread = sessionRef.current !== data.sessionId;
         sessionRef.current = data.sessionId;
         setSessionId(data.sessionId);
+        // A brand-new thread won't be in the picker yet. Refresh the list only
+        // then, rather than on every question.
+        if (isNewThread) void refreshSessions();
       }
       setMessages((m) => [
         ...m,
@@ -365,40 +373,70 @@ export default function OverlayPage() {
     }
   }
 
-  /** Start a fresh thread. The old one stays in Clarix Chat. */
+  /** Start a fresh thread. The old one stays in history and in Clarix Chat. */
   function newThread() {
     sessionRef.current = null;
     setSessionId(null);
     setMessages([]);
     setError(null);
     setQuery("");
+    setHistoryOpen(false);
+  }
+
+  /** Pull the conversation list without disturbing the open thread. */
+  async function refreshSessions() {
+    try {
+      const res = await fetch("/api/memory/thread", { cache: "no-store" });
+      if (!res.ok) return;
+      const data = await res.json();
+      if (Array.isArray(data.sessions)) setSessions(data.sessions);
+    } catch {
+      // Non-fatal: the picker just stays as it was.
+    }
+  }
+
+  // Reopen into the conversation you were last having — in the overlay OR at
+  // your desk. The overlay is dismissed and summoned constantly during a
+  // meeting; starting from nothing each time is what made follow-ups useless.
+  /**
+   * Load a conversation — the most recent one when `id` is omitted, or a
+   * specific one picked from history. Also refreshes the history list, so the
+   * picker stays current without a second round trip.
+   */
+  async function loadThread(id?: string) {
+    setLoadingThread(true);
+    try {
+      const res = await fetch(`/api/memory/thread${id ? `?id=${encodeURIComponent(id)}` : ""}`, {
+        cache: "no-store",
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      if (Array.isArray(data.sessions)) setSessions(data.sessions);
+      if (!data?.sessionId || !Array.isArray(data.messages)) return;
+      sessionRef.current = data.sessionId;
+      setSessionId(data.sessionId);
+      setMessages(
+        data.messages.map((m: { role: string; content: string; citations?: Citation[] }) => ({
+          role: m.role === "user" ? "user" : "assistant",
+          content: m.content,
+          citations: Array.isArray(m.citations) ? m.citations : undefined,
+        })),
+      );
+      setError(null);
+    } catch {
+      // Offline or not signed in — start a fresh thread rather than blocking.
+    } finally {
+      setLoadingThread(false);
+    }
   }
 
   // Reopen into the conversation you were last having — in the overlay OR at
   // your desk. The overlay is dismissed and summoned constantly during a
   // meeting; starting from nothing each time is what made follow-ups useless.
   useEffect(() => {
-    let cancelled = false;
-    void (async () => {
-      try {
-        const res = await fetch("/api/memory/thread", { cache: "no-store" });
-        if (!res.ok || cancelled) return;
-        const data = await res.json();
-        if (cancelled || !data?.sessionId || !Array.isArray(data.messages)) return;
-        sessionRef.current = data.sessionId;
-        setSessionId(data.sessionId);
-        setMessages(
-          data.messages.map((m: { role: string; content: string; citations?: Citation[] }) => ({
-            role: m.role === "user" ? "user" : "assistant",
-            content: m.content,
-            citations: Array.isArray(m.citations) ? m.citations : undefined,
-          })),
-        );
-      } catch {
-        // Offline or not signed in — start a fresh thread rather than blocking.
-      }
-    })();
-    return () => { cancelled = true; };
+    void loadThread();
+    // Runs once on mount; loadThread is stable enough for this one-shot resume.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -688,20 +726,59 @@ export default function OverlayPage() {
             <span className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
               <span className="clarix-solid size-1.5 rounded-full bg-accent" /> CLARIX · from your meetings
             </span>
-            {messages.length > 0 && (
-              <button
-                onClick={newThread}
-                title="Start a new conversation — this one stays in Clarix Chat"
-                className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] text-muted-foreground transition hover:text-foreground"
-              >
-                <MessageSquarePlus className="size-3" /> New
-              </button>
-            )}
+            <span data-no-drag className="flex items-center gap-1">
+              {sessions.length > 0 && (
+                <button
+                  onClick={() => setHistoryOpen((v) => !v)}
+                  title="Load an earlier conversation"
+                  className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] transition ${
+                    historyOpen ? "text-accent" : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  <History className="size-3" /> History
+                </button>
+              )}
+              {messages.length > 0 && (
+                <button
+                  onClick={newThread}
+                  title="Start a new conversation — this one stays in your history and in Clarix Chat"
+                  className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] text-muted-foreground transition hover:text-foreground"
+                >
+                  <MessageSquarePlus className="size-3" /> New
+                </button>
+              )}
+            </span>
           </div>
 
-          {/* data-no-drag: answers stay selectable instead of dragging the window. */}
-          <div data-no-drag className="min-h-0 flex-1 overflow-y-auto px-4 py-4">
-            {messages.length === 0 && !error && !loading && (
+          {/* ── History picker — replaces the thread while open ── */}
+          {historyOpen && (
+            <div data-no-drag className="min-h-0 flex-1 overflow-y-auto px-2 py-2">
+              {sessions.map((s) => (
+                <button
+                  key={s.id}
+                  onClick={() => { setHistoryOpen(false); void loadThread(s.id); }}
+                  className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left transition hover:bg-accent/10 ${
+                    s.id === sessionId ? "bg-accent/10" : ""
+                  }`}
+                >
+                  <MessageSquarePlus className="size-3.5 shrink-0 text-accent" />
+                  <span className="min-w-0 flex-1 truncate text-[13px]">{s.title}</span>
+                  <span className="shrink-0 text-[10px] text-muted-foreground">{fmtDate(s.updatedAt)}</span>
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* data-no-drag: answers stay selectable, and the wheel/scrollbar
+              scroll the thread instead of dragging the whole window. */}
+          <div data-no-drag className={`min-h-0 flex-1 overflow-y-auto px-4 py-4 ${historyOpen ? "hidden" : ""}`}>
+            {loadingThread && messages.length === 0 && (
+              <p className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Loader2 className="size-4 animate-spin" /> Loading your conversation…
+              </p>
+            )}
+
+            {messages.length === 0 && !error && !loading && !loadingThread && (
               <div className="space-y-3">
                 <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Try asking</p>
                 <div className="flex flex-wrap gap-2">
