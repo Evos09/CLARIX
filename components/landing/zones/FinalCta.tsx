@@ -31,6 +31,12 @@ export default function FinalCta() {
             Start Free Today
             <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
           </Link>
+          <Link
+            href="/demo"
+            className="inline-flex items-center justify-center gap-2 border border-gray-300 hover:border-ink text-ink text-sm font-semibold px-8 h-12 rounded-full transition-all"
+          >
+            See a real meeting first
+          </Link>
         </div>
       </div>
 

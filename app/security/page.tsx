@@ -70,12 +70,13 @@ export default function SecurityPage() {
           </section>
 
           <section>
-            <h2 className="mb-2 text-lg font-bold text-navy">Compliance status</h2>
+            <h2 className="mb-2 text-lg font-bold text-navy">Compliance requests</h2>
             <p>
-              CLARIX is an early-stage product and is{" "}
-              <strong>not currently SOC&nbsp;2 or HIPAA certified</strong>. We will only state such
-              certifications here once they are independently verified. If your organization requires a
-              BAA or a specific compliance posture before adopting CLARIX, contact us to discuss timelines.
+              CLARIX is an early-stage product, and this page describes{" "}
+              <strong>everything we currently hold</strong> — we don&rsquo;t claim certifications or
+              attestations anywhere on this site. If your organization has a specific security review,
+              data-processing agreement, or compliance requirement before adopting CLARIX, contact us
+              and we&rsquo;ll tell you plainly what we can and can&rsquo;t support today.
             </p>
           </section>
 

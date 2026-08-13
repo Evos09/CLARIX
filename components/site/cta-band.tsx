@@ -7,7 +7,10 @@ export function CtaBand({
   title = "Start Free — no credit card required",
   description = "Get your first structured meeting summary in minutes. Every paid plan starts with a 14-day free trial.",
   primary = { label: "Start Free", href: "/sign-up" },
-  secondary,
+  // Defaults to the no-signup demo: anyone not ready to hand over an account
+  // should still have somewhere to go from every CTA on the site. Callers that
+  // pass their own secondary still win.
+  secondary = { label: "See a real meeting", href: "/demo" },
 }: {
   title?: string;
   description?: string;

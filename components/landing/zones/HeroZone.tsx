@@ -18,6 +18,7 @@ export default function HeroZone() {
         <nav className="hidden md:flex items-center gap-8">
           <Link href="/features" className="text-sm text-gray-500 hover:text-ink transition-colors">Features</Link>
           <Link href="/meeting-types" className="text-sm text-gray-500 hover:text-ink transition-colors">Meeting Types</Link>
+          <Link href="/demo" className="text-sm text-gray-500 hover:text-ink transition-colors">Live Demo</Link>
           <Link href="/pricing" className="text-sm text-gray-500 hover:text-ink transition-colors">Pricing</Link>
           <Link href="/integrations" className="text-sm text-gray-500 hover:text-ink transition-colors">Integrations</Link>
         </nav>
@@ -43,6 +44,12 @@ export default function HeroZone() {
               Start Free
               <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
             </Link>
+            {/* The no-signup escape hatch. A stranger evaluating a meeting
+                recorder wants to judge the output before handing over audio —
+                this lets them, without an account or an install. */}
+            <Link href="/demo" className="inline-flex items-center gap-2 border border-gray-300 hover:border-ink text-ink text-sm font-semibold px-6 h-12 rounded-full transition-all">
+              See a real meeting
+            </Link>
           </div>
           <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-gray-100 pt-6 w-full max-w-xl text-xs text-gray-500">
             <span className="inline-flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-violet-600" /> 10 free meetings every month — no credit card</span>
@@ -62,12 +69,16 @@ export default function HeroZone() {
                 Recording
               </span>
             </div>
+            {/* Taken from the opening of the meeting at /demo — the "See a
+                real meeting" button sits right below this, so what it teases
+                has to be what it lands on. Keep in sync with
+                lib/site/sampleMeeting.ts. */}
             <div className="space-y-3 text-gray-600">
-              <p><span className="text-violet-600 font-semibold">Sarah:</span> So the Q3 launch is locked for Sep 15 unless we...</p>
-              <p><span className="text-violet-600 font-semibold">Mike:</span> Yeah but legal hasn't signed off on the pricing yet</p>
-              <p><span className="text-violet-600 font-semibold">Priya:</span> I can have the deck done by Friday, maybe Thursday</p>
-              <p><span className="text-violet-600 font-semibold">Sarah:</span> Great. And someone needs to ping Marcus about...</p>
-              <p><span className="text-violet-600 font-semibold">Mike:</span> right the API integration, I'll loop in Daniel too</p>
+              <p><span className="text-violet-600 font-semibold">Sarah:</span> Let's kick off Q3 planning. Mike, where are we on the auth refactor?</p>
+              <p><span className="text-violet-600 font-semibold">Mike:</span> Code's complete. I'm blocked waiting on legal sign-off from Daniel</p>
+              <p><span className="text-violet-600 font-semibold">Sarah:</span> How long has that been sitting?</p>
+              <p><span className="text-violet-600 font-semibold">Mike:</span> Nine days. I emailed once and haven't chased it since</p>
+              <p><span className="text-violet-600 font-semibold">Priya:</span> On design — the dashboard mockups are eighty percent done...</p>
             </div>
           </div>
 
@@ -81,7 +92,7 @@ export default function HeroZone() {
             <div className="flex items-center justify-between border-b border-paper/10 pb-3 mb-3">
               <span className="font-semibold text-paper flex items-center gap-1.5 font-display text-sm">
                 <Sparkles className="w-3.5 h-3.5 text-violet-400" />
-                Q3 Launch Sync — Aug 14
+                Q3 Product Strategy Sync
               </span>
               <span className="bg-violet-500/20 text-violet-300 px-2 py-0.5 rounded-full text-[9px] font-mono">
                 Complete
@@ -90,7 +101,7 @@ export default function HeroZone() {
             <div className="space-y-3">
               <div>
                 <span className="text-[9px] font-mono text-paper/40 uppercase tracking-wider block mb-1">TLDR</span>
-                <p className="text-paper/80 leading-relaxed">Q3 launch targets Sep 15. Priya's deck is on track for Thu/Fri. Pricing is blocked on legal review.</p>
+                <p className="text-paper/80 leading-relaxed">Q3 is on track for a Sep 15 launch, but the auth refactor has been blocked on legal sign-off for nine days and is now the critical path.</p>
               </div>
               <div className="border-t border-paper/10 pt-3">
                 <span className="text-[9px] font-mono text-paper/40 uppercase tracking-wider block mb-1.5">Action Items</span>
@@ -98,14 +109,14 @@ export default function HeroZone() {
                   <li className="flex items-start gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-violet-400 mt-1.5 shrink-0" />
                     <div className="flex justify-between w-full">
-                      <span className="text-paper/85">Ping Marcus about API</span>
+                      <span className="text-paper/85">Chase Daniel on legal sign-off</span>
                       <span className="text-paper/45 font-mono text-[9px]">Mike</span>
                     </div>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-violet-400 mt-1.5 shrink-0" />
                     <div className="flex justify-between w-full">
-                      <span className="text-paper/85">Finish Q3 launch deck</span>
+                      <span className="text-paper/85">Deliver dashboard mockups</span>
                       <span className="text-paper/45 font-mono text-[9px]">Priya</span>
                     </div>
                   </li>

@@ -60,9 +60,9 @@ export default async function DemoDetailPage({ params }: Params) {
       <header className="border-b border-border bg-card px-4 py-3 md:px-6">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <Link href="/" className="flex items-center gap-2 hover:opacity-90">
-              <Logo />
-            </Link>
+            {/* Logo renders its own <Link href="/">; nesting another one here
+                puts <a> inside <a> and fails hydration. */}
+            <Logo className="hover:opacity-90" />
             <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-violet-100 text-violet-700">
               Interactive Demo
             </span>

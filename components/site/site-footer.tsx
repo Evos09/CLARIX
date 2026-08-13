@@ -5,6 +5,7 @@ import { ArrowUpRight } from "lucide-react";
 
 const footerLinks: Record<string, { name: string; href: string }[]> = {
   Product: [
+    { name: "Live Demo", href: "/demo" },
     { name: "Features", href: "/features" },
     { name: "Meeting Types", href: "/meeting-types" },
     { name: "Pricing", href: "/pricing" },

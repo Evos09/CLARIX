@@ -64,7 +64,9 @@ export function MeetingTabs({
 
   return (
     <div className="space-y-4">
-      {!canEdit && (
+      {/* Collaborator notice only. The public demo is also read-only, but it
+          isn't "shared with you" by anyone — saying so there is just confusing. */}
+      {!canEdit && !isDemo && (
         <div className="rounded-md border border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
           You have view-only access to this shared meeting. Only the owner and editors can make changes.
         </div>

@@ -8,6 +8,7 @@ import { Menu, X } from "lucide-react";
 import { LogoMark } from "@/components/layout/LogoMark";
 
 const navLinks = [
+  { name: "Live Demo", href: "/demo" },
   { name: "Features", href: "/features" },
   { name: "Meeting Types", href: "/meeting-types" },
   { name: "Pricing", href: "/pricing" },
