@@ -2,6 +2,7 @@ import { TopNav } from "@/components/layout/TopNav";
 import { PageHeader, Accent } from "@/components/layout/PageHeader";
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import { MeetingCard } from "@/components/meetings/MeetingCard";
+import { MeetingLiveRefresh } from "@/components/meetings/MeetingLiveRefresh";
 import { prisma } from "@/lib/prisma";
 import { getOrCreateContext, hasDb } from "@/lib/auth";
 
@@ -22,9 +23,16 @@ export default async function MeetingsPage() {
     }
   }
 
+  // Anything still in flight? Then keep the list live, so a meeting that
+  // finishes while you're looking at it stops claiming to be transcribing.
+  // Only polls while there is something to watch — an all-COMPLETE library
+  // makes no requests at all.
+  const hasInFlight = meetings.some((m) => m.status !== "COMPLETE" && m.status !== "ERROR");
+
   return (
     <>
       <TopNav title="Meetings" />
+      {hasInFlight && <MeetingLiveRefresh intervalMs={5000} />}
       <main className="flex-1 space-y-8 p-4 md:p-8">
         <PageHeader
           eyebrow="Meetings"

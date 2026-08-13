@@ -106,6 +106,7 @@ export default async function MeetingDetailPage({ params }: Params) {
             meetingId={meeting.id}
             status={meeting.status}
             errorMessage={meeting.errorMessage}
+            startedAt={meeting.createdAt.toISOString()}
           />
         ) : (
           <MeetingTabs

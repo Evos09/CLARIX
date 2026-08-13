@@ -7,6 +7,7 @@ import { UpcomingMeetings } from "@/components/calendar/UpcomingMeetings";
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import { MeetingTypeBreakdown } from "@/components/dashboard/MeetingTypeBreakdown";
 import { MeetingCard } from "@/components/meetings/MeetingCard";
+import { MeetingLiveRefresh } from "@/components/meetings/MeetingLiveRefresh";
 import { OnboardingChecklist, type OnboardingStep } from "@/components/dashboard/OnboardingChecklist";
 import { GlassModeButton } from "@/components/desktop/GlassModeButton";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -71,10 +72,14 @@ export default async function DashboardPage() {
   }
 
   const hasMeetings = recent.length > 0;
+  // Same as the meetings list: keep the page live only while something is
+  // actually processing, so a finished meeting stops showing as transcribing.
+  const hasInFlight = recent.some((m) => m.status !== "COMPLETE" && m.status !== "ERROR");
 
   return (
     <>
       <TopNav title="Dashboard" showNewMeeting={false} />
+      {hasInFlight && <MeetingLiveRefresh intervalMs={5000} />}
       <script
         dangerouslySetInnerHTML={{
           __html: `

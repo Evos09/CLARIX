@@ -13,17 +13,53 @@ const STEPS = [
   { key: "COMPLETE", label: "Done" },
 ];
 
+/** What the pipeline is actually doing right now, per stage. */
+const STAGE_DETAIL: Record<string, string> = {
+  UPLOADING: "Saving your audio.",
+  TRANSCRIBING: "Turning speech into text and separating out who said what.",
+  PROCESSING: "Writing the summary and pulling out action items.",
+};
+
+/**
+ * Past this many seconds, stop implying it's nearly done and say so plainly. A
+ * spinner with no elapsed time reads as "stuck" long before it actually is.
+ */
+const SLOW_AFTER_SEC = 300;
+
+function fmtElapsed(totalSec: number): string {
+  const m = Math.floor(totalSec / 60);
+  const s = totalSec % 60;
+  return m > 0 ? `${m}m ${s}s` : `${s}s`;
+}
+
 export function StatusPoller({
   meetingId,
   status,
   errorMessage,
+  startedAt,
 }: {
   meetingId: string;
   status: string;
   errorMessage?: string | null;
+  /** ISO timestamp the meeting was created; drives the elapsed counter. */
+  startedAt?: string | null;
 }) {
   const router = useRouter();
   const [current, setCurrent] = useState(status);
+  const [elapsed, setElapsed] = useState<number | null>(null);
+
+  // Ticks once a second while work is in flight. Derived from the server's
+  // createdAt rather than a local start time, so it stays honest across
+  // reloads and when the user returns to the tab later.
+  useEffect(() => {
+    if (!startedAt || current === "COMPLETE" || current === "ERROR") return;
+    const started = new Date(startedAt).getTime();
+    if (Number.isNaN(started)) return;
+    const tick = () => setElapsed(Math.max(0, Math.floor((Date.now() - started) / 1000)));
+    tick();
+    const id = window.setInterval(tick, 1000);
+    return () => window.clearInterval(id);
+  }, [startedAt, current]);
 
   useEffect(() => {
     if (current === "COMPLETE" || current === "ERROR") return;
@@ -88,9 +124,19 @@ export function StatusPoller({
           );
         })}
       </div>
-      <p className="mt-4 text-center text-sm text-muted-foreground">
-        CLARIX is working on your meeting. This page updates automatically.
-      </p>
+      <div className="mt-5 space-y-1 text-center text-sm">
+        <p className="text-foreground">
+          {STAGE_DETAIL[current] ?? "CLARIX is working on your meeting."}
+          {elapsed !== null && (
+            <span className="ml-2 font-mono text-xs text-muted-foreground">{fmtElapsed(elapsed)} elapsed</span>
+          )}
+        </p>
+        <p className="text-muted-foreground">
+          {elapsed !== null && elapsed >= SLOW_AFTER_SEC
+            ? "This one is taking longer than most. It's still running — CLARIX keeps checking on its own, so you can safely close this page and come back."
+            : "This page updates automatically, and you can safely leave — we'll keep working."}
+        </p>
+      </div>
     </div>
   );
 }
