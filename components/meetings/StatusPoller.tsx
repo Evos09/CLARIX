@@ -18,6 +18,11 @@ const STAGE_DETAIL: Record<string, string> = {
   UPLOADING: "Saving your audio.",
   TRANSCRIBING: "Turning speech into text and separating out who said what.",
   PROCESSING: "Writing the summary and pulling out action items.",
+  // Between the status flipping to COMPLETE and router.refresh() swapping in
+  // the finished view there is a beat where all four steps are ticked. Without
+  // this it fell back to "CLARIX is working on your meeting", which reads as
+  // wrong next to a completed row. Observed live, not theoretical.
+  COMPLETE: "Done — loading your summary.",
 };
 
 /**
