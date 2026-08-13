@@ -29,7 +29,18 @@ const COMMANDS = [
   { cmd: "/risks", desc: "Flagged risks", q: "What risks or concerns were flagged across my recent meetings?", icon: AlertCircle },
 ];
 
-export function GlobalChatClient({ usageThisMonth, usageLimit }: { usageThisMonth: number; usageLimit: number | null }) {
+export function GlobalChatClient({
+  usageThisMonth,
+  usageLimit,
+  // False on Free: the workspace can read threads it created in the overlay,
+  // but composing from the dashboard is the paid feature. Defaults to true so
+  // every existing caller behaves exactly as before.
+  canSend = true,
+}: {
+  usageThisMonth: number;
+  usageLimit: number | null;
+  canSend?: boolean;
+}) {
   const [sessions, setSessions] = useState<SessionMeta[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Msg[]>([]);
@@ -363,7 +374,7 @@ export function GlobalChatClient({ usageThisMonth, usageLimit }: { usageThisMont
 
   async function send(text: string) {
     const msg = text.trim();
-    if (!msg || sending) return;
+    if (!msg || sending || !canSend) return;
     // Use the ref (synchronously current) so back-to-back sends reuse the same
     // session instead of each spawning a new one — otherwise history is lost.
     let sid = activeIdRef.current;
@@ -412,14 +423,22 @@ export function GlobalChatClient({ usageThisMonth, usageLimit }: { usageThisMont
         <div className="flex items-center gap-2 px-4 py-4">
           <span className="text-[13px] font-semibold text-foreground">Chats</span>
         </div>
-        <div className="px-3">
-          <button onClick={newChat} className="flex w-full items-center justify-center gap-2 rounded-lg bg-accent py-2 text-[13px] font-semibold text-white transition-colors hover:bg-teal-600">
-            <Plus className="size-4" /> New chat
-          </button>
-        </div>
+        {canSend && (
+          <div className="px-3">
+            <button onClick={newChat} className="flex w-full items-center justify-center gap-2 rounded-lg bg-accent py-2 text-[13px] font-semibold text-white transition-colors hover:bg-teal-600">
+              <Plus className="size-4" /> New chat
+            </button>
+          </div>
+        )}
         <div className="px-4 py-3 text-xs text-muted-foreground">
-          {usageLimit === null ? "Unlimited Clarix Chat messages" : `${usage} of ${usageLimit} Clarix Chat messages this month`}
-          {usageLimit !== null && (
+          {!canSend ? (
+            <span>Conversations you started in the overlay.</span>
+          ) : usageLimit === null ? (
+            "Unlimited Clarix Chat messages"
+          ) : (
+            `${usage} of ${usageLimit} Clarix Chat messages this month`
+          )}
+          {canSend && usageLimit !== null && (
             <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-muted">
               <div className="h-full bg-violet-600" style={{ width: `${Math.min(100, (usage / usageLimit) * 100)}%` }} />
             </div>
@@ -491,10 +510,14 @@ export function GlobalChatClient({ usageThisMonth, usageLimit }: { usageThisMont
           {messages.length === 0 ? (
             <div className="mx-auto mt-14 max-w-2xl text-center">
               <h2 className="text-2xl font-semibold tracking-tight text-foreground">
-                Ask anything about your meetings
+                {canSend ? "Ask anything about your meetings" : "Pick a conversation"}
               </h2>
-              <p className="mt-2 text-sm text-muted-foreground">Searches across every meeting in your workspace. Type / for commands.</p>
-              <div className="mt-8 grid gap-3 sm:grid-cols-2 text-left">
+              <p className="mt-2 text-sm text-muted-foreground">
+                {canSend
+                  ? "Searches across every meeting in your workspace. Type / for commands."
+                  : "Your overlay conversations are listed on the left."}
+              </p>
+              <div className={cn("mt-8 grid gap-3 sm:grid-cols-2 text-left", !canSend && "hidden")}>
                 {SUGGESTIONS.map((s) => (
                   <button
                     key={s}
@@ -545,6 +568,24 @@ export function GlobalChatClient({ usageThisMonth, usageLimit }: { usageThisMont
         </div>
 
         <div className="border-t border-border p-3 md:p-4">
+          {!canSend ? (
+            <div className="mx-auto flex max-w-3xl flex-col items-center gap-3 rounded-2xl border border-violet-600/25 bg-violet-50/40 px-5 py-5 text-center">
+              <p className="text-sm font-medium text-foreground">
+                Asking from here is part of Clarix Chat
+              </p>
+              <p className="max-w-md text-xs text-muted-foreground">
+                You can read every conversation you started in the overlay, and keep asking there on
+                your monthly allowance. Upgrade to Starter to carry the conversation on from your
+                desk as well.
+              </p>
+              <a
+                href="/settings/billing"
+                className="rounded-lg bg-violet-600 px-4 py-2 text-xs font-semibold text-white transition hover:bg-violet-700"
+              >
+                See plans
+              </a>
+            </div>
+          ) : (
           <div className="relative mx-auto max-w-3xl">
             {slashOpen && slashMatches.length > 0 && (
               <div className="absolute bottom-full mb-2 w-full overflow-hidden rounded-xl border border-border bg-card shadow-xl p-1.5 space-y-0.5 z-30">
@@ -593,6 +634,7 @@ export function GlobalChatClient({ usageThisMonth, usageLimit }: { usageThisMont
               </button>
             </div>
           </div>
+          )}
         </div>
       {isVoiceOpen && (
         <aside className="w-85 shrink-0 border-l border-border bg-zinc-950 text-white flex flex-col items-center justify-between p-6 relative transition-all duration-300 shadow-2xl z-20 overflow-hidden">

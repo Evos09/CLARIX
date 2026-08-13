@@ -15,7 +15,7 @@
  */
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { Search, Loader2, CornerDownLeft, FileText, Clock, Eye, EyeOff, Play, X, Minus, Maximize2, Mic, Square, ShieldCheck } from "lucide-react";
+import { Search, Loader2, CornerDownLeft, FileText, Clock, Eye, EyeOff, Play, X, Minus, Maximize2, Mic, Square, ShieldCheck, MessageSquarePlus } from "lucide-react";
 import { MarkdownView } from "@/components/chat/MarkdownView";
 import { createMeetingFromFile } from "@/lib/uploadClient";
 
@@ -26,6 +26,20 @@ type Mode = "glass" | "transparent";
 
 type Citation = { id: string; title: string; type: string; date: string; hl?: string; t?: number };
 type RangePreset = "week" | "month" | "quarter" | "year";
+
+/**
+ * One turn in the overlay conversation. `range` is the date window CLARIX
+ * resolved for that specific question, so a scoped answer stays labelled as
+ * scoped after you've asked three more things.
+ */
+type Msg = {
+  role: "user" | "assistant";
+  content: string;
+  citations?: Citation[];
+  range?: string | null;
+  /** Set when the turn failed — rendered in place, so the thread keeps its shape. */
+  failed?: boolean;
+};
 
 const EXAMPLES = [
   "What happened in the Q3 meetings?",
@@ -133,10 +147,16 @@ export default function OverlayPage() {
   const [query, setQuery] = useState("");
   const [range, setRange] = useState<RangePreset | null>(null);
   const [loading, setLoading] = useState(false);
-  const [answer, setAnswer] = useState<string | null>(null);
-  const [citations, setCitations] = useState<Citation[]>([]);
-  const [activeRange, setActiveRange] = useState<string | null>(null);
+  // The conversation. Persisted server-side against the same store the
+  // dashboard's Clarix Chat reads, so a thread started here can be picked up
+  // there (and vice versa) — and so follow-ups have something to refer back to.
+  const [messages, setMessages] = useState<Msg[]>([]);
+  const [sessionId, setSessionId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  // Held in a ref as well: two questions sent back to back both need the id
+  // from the first response, and state wouldn't have landed yet.
+  const sessionRef = useRef<string | null>(null);
+  const threadEndRef = useRef<HTMLDivElement>(null);
   // Look: "glass" (frosted panels, default) or "transparent" (just the words
   // floating over your screen — no panel, border, or blur). `?mode=` wins on
   // first load, otherwise the last saved choice.
@@ -299,29 +319,91 @@ export default function OverlayPage() {
     if (!question || loading) return;
     setLoading(true);
     setError(null);
-    setAnswer(null);
-    setCitations([]);
-    setActiveRange(null);
+    setQuery("");
+    setMessages((m) => [...m, { role: "user", content: question }]);
     try {
       const res = await fetch("/api/memory/ask", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query: question, ...(r ? { range: r } : {}) }),
+        body: JSON.stringify({
+          query: question,
+          ...(r ? { range: r } : {}),
+          ...(sessionRef.current ? { sessionId: sessionRef.current } : {}),
+        }),
       });
       const data = await res.json().catch(() => null);
       if (!res.ok) {
-        setError(data?.error ?? "Something went wrong. Try again.");
+        // Kept in the thread rather than replacing it: losing the whole
+        // conversation because one question hit the monthly cap would be worse
+        // than the cap itself.
+        setMessages((m) => [
+          ...m,
+          { role: "assistant", content: data?.error ?? "Something went wrong. Try again.", failed: true },
+        ]);
         return;
       }
-      setAnswer(data.answer ?? "");
-      setCitations(Array.isArray(data.citations) ? data.citations : []);
-      setActiveRange(typeof data.range === "string" ? data.range : null);
+      if (typeof data.sessionId === "string") {
+        sessionRef.current = data.sessionId;
+        setSessionId(data.sessionId);
+      }
+      setMessages((m) => [
+        ...m,
+        {
+          role: "assistant",
+          content: data.answer ?? "",
+          citations: Array.isArray(data.citations) ? data.citations : [],
+          range: typeof data.range === "string" ? data.range : null,
+        },
+      ]);
     } catch {
-      setError("Couldn't reach CLARIX. Check your connection.");
+      setMessages((m) => [
+        ...m,
+        { role: "assistant", content: "Couldn't reach CLARIX. Check your connection.", failed: true },
+      ]);
     } finally {
       setLoading(false);
     }
   }
+
+  /** Start a fresh thread. The old one stays in Clarix Chat. */
+  function newThread() {
+    sessionRef.current = null;
+    setSessionId(null);
+    setMessages([]);
+    setError(null);
+    setQuery("");
+  }
+
+  // Reopen into the conversation you were last having — in the overlay OR at
+  // your desk. The overlay is dismissed and summoned constantly during a
+  // meeting; starting from nothing each time is what made follow-ups useless.
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      try {
+        const res = await fetch("/api/memory/thread", { cache: "no-store" });
+        if (!res.ok || cancelled) return;
+        const data = await res.json();
+        if (cancelled || !data?.sessionId || !Array.isArray(data.messages)) return;
+        sessionRef.current = data.sessionId;
+        setSessionId(data.sessionId);
+        setMessages(
+          data.messages.map((m: { role: string; content: string; citations?: Citation[] }) => ({
+            role: m.role === "user" ? "user" : "assistant",
+            content: m.content,
+            citations: Array.isArray(m.citations) ? m.citations : undefined,
+          })),
+        );
+      } catch {
+        // Offline or not signed in — start a fresh thread rather than blocking.
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  useEffect(() => {
+    threadEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+  }, [messages, loading]);
 
   function fmtDate(iso: string): string {
     try {
@@ -606,23 +688,27 @@ export default function OverlayPage() {
             <span className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
               <span className="clarix-solid size-1.5 rounded-full bg-accent" /> CLARIX · from your meetings
             </span>
-            {activeRange && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-white/[0.06] px-2 py-0.5 text-[10px] text-muted-foreground">
-                <Clock className="size-2.5" /> {activeRange}
-              </span>
+            {messages.length > 0 && (
+              <button
+                onClick={newThread}
+                title="Start a new conversation — this one stays in Clarix Chat"
+                className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] text-muted-foreground transition hover:text-foreground"
+              >
+                <MessageSquarePlus className="size-3" /> New
+              </button>
             )}
           </div>
 
           {/* data-no-drag: answers stay selectable instead of dragging the window. */}
           <div data-no-drag className="min-h-0 flex-1 overflow-y-auto px-4 py-4">
-            {!answer && !error && !loading && (
+            {messages.length === 0 && !error && !loading && (
               <div className="space-y-3">
                 <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Try asking</p>
                 <div className="flex flex-wrap gap-2">
                   {EXAMPLES.map((ex) => (
                     <button
                       key={ex}
-                      onClick={() => { setQuery(ex); void ask(ex); }}
+                      onClick={() => void ask(ex)}
                       className={`rounded-full px-3 py-1.5 text-left text-xs transition hover:bg-accent/10 ${glass ? "border border-white/10 bg-white/[0.03] hover:border-accent/40" : ""}`}
                     >
                       {ex}
@@ -632,51 +718,74 @@ export default function OverlayPage() {
               </div>
             )}
 
-            {loading && (
-              <p className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Loader2 className="size-4 animate-spin" /> Searching your meetings…
-              </p>
-            )}
-
-            {error && <p className="text-sm text-destructive">{error}</p>}
-
-            {answer && (
-              <div className="space-y-4">
-                <div className="text-[15px] leading-relaxed">
-                  <MarkdownView content={answer} />
-                </div>
-
-                {citations.length > 0 && (
-                  <div className={`space-y-1.5 pt-3 ${glass ? "border-t border-white/10" : ""}`}>
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                      Sources · jump to the moment
+            {/* The conversation. Your questions sit right-aligned in a pill;
+                CLARIX answers full width so long answers stay readable in a
+                narrow overlay window. */}
+            <div className="space-y-5">
+              {messages.map((m, i) =>
+                m.role === "user" ? (
+                  <div key={i} className="flex justify-end">
+                    <p
+                      className={`max-w-[85%] whitespace-pre-wrap rounded-2xl px-3.5 py-2 text-[13.5px] ${
+                        glass ? "bg-white/[0.08]" : "bg-accent/15"
+                      }`}
+                    >
+                      {m.content}
                     </p>
-                    {citations.map((c) => (
-                      <Link
-                        key={c.id}
-                        href={citationHref(c)}
-                        target="_blank"
-                        onClick={(e) => openMeetingWindow(e, citationHref(c), setError)}
-                        className={`group flex items-center gap-2.5 rounded-lg px-3 py-2 transition hover:bg-accent/10 ${glass ? "border border-white/10 bg-white/[0.03] hover:border-accent/40" : ""}`}
-                      >
-                        <FileText className="size-4 shrink-0 text-accent" />
-                        <span className="min-w-0 flex-1 truncate">
-                          <span className="text-[13.5px] font-medium">{c.title}</span>
-                          <span className="ml-1.5 text-xs text-muted-foreground">· {c.type} · {fmtDate(c.date)}</span>
-                        </span>
-                        {typeof c.t === "number" ? (
-                          <span className="flex shrink-0 items-center gap-1 rounded-md bg-teal-400/10 px-2 py-1 font-mono text-[11px] text-teal-300">
-                            <Play className="size-2.5 fill-current" /> {fmtTime(c.t)}
-                          </span>
-                        ) : c.hl ? (
-                          <span className="shrink-0 rounded-md bg-teal-400/10 px-2 py-1 font-mono text-[11px] text-teal-300">↳ jump</span>
-                        ) : null}
-                      </Link>
-                    ))}
                   </div>
-                )}
-              </div>
-            )}
+                ) : (
+                  <div key={i} className="space-y-3">
+                    {m.range && (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-white/[0.06] px-2 py-0.5 text-[10px] text-muted-foreground">
+                        <Clock className="size-2.5" /> {m.range}
+                      </span>
+                    )}
+                    <div className={`text-[15px] leading-relaxed ${m.failed ? "text-destructive" : ""}`}>
+                      {m.failed ? m.content : <MarkdownView content={m.content} />}
+                    </div>
+
+                    {m.citations && m.citations.length > 0 && (
+                      <div className={`space-y-1.5 pt-3 ${glass ? "border-t border-white/10" : ""}`}>
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                          Sources · jump to the moment
+                        </p>
+                        {m.citations.map((c) => (
+                          <Link
+                            key={c.id}
+                            href={citationHref(c)}
+                            target="_blank"
+                            onClick={(e) => openMeetingWindow(e, citationHref(c), setError)}
+                            className={`group flex items-center gap-2.5 rounded-lg px-3 py-2 transition hover:bg-accent/10 ${glass ? "border border-white/10 bg-white/[0.03] hover:border-accent/40" : ""}`}
+                          >
+                            <FileText className="size-4 shrink-0 text-accent" />
+                            <span className="min-w-0 flex-1 truncate">
+                              <span className="text-[13.5px] font-medium">{c.title}</span>
+                              <span className="ml-1.5 text-xs text-muted-foreground">· {c.type} · {fmtDate(c.date)}</span>
+                            </span>
+                            {typeof c.t === "number" ? (
+                              <span className="flex shrink-0 items-center gap-1 rounded-md bg-teal-400/10 px-2 py-1 font-mono text-[11px] text-teal-300">
+                                <Play className="size-2.5 fill-current" /> {fmtTime(c.t)}
+                              </span>
+                            ) : c.hl ? (
+                              <span className="shrink-0 rounded-md bg-teal-400/10 px-2 py-1 font-mono text-[11px] text-teal-300">↳ jump</span>
+                            ) : null}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ),
+              )}
+
+              {loading && (
+                <p className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Loader2 className="size-4 animate-spin" /> Searching your meetings…
+                </p>
+              )}
+
+              {error && <p className="text-sm text-destructive">{error}</p>}
+              <div ref={threadEndRef} />
+            </div>
           </div>
 
           <div className={`flex flex-none items-center justify-between px-4 py-2 text-[10px] text-muted-foreground ${glass ? "border-t border-white/10" : ""}`}>

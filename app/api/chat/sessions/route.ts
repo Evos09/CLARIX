@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getOrCreateContext } from "@/lib/auth";
-import { getOrgPlan, globalChatLimit } from "@/lib/plan";
+import { canSendGlobalChat, getOrgPlan, globalChatLimit } from "@/lib/plan";
 import { getChatBonus, getChatUsage } from "@/lib/globalChat";
 
 export const dynamic = "force-dynamic";
@@ -11,8 +11,12 @@ export async function GET() {
   if (!ctx) return NextResponse.json({ error: "Database not configured" }, { status: 503 });
   const plan = await getOrgPlan(ctx.orgId);
   const limit = globalChatLimit(plan);
-  if (limit === 0) return NextResponse.json({ locked: true, sessions: [], usageThisMonth: 0, usageLimit: 0 });
 
+  // Listing is not gated. Free can't compose here (see canSend below), but it
+  // CAN ask questions in the overlay, and those threads land in this same
+  // store — so returning an empty list for Free would hide a user's own
+  // conversations from them. Read your history on any plan; sending is what
+  // costs.
   const sessions = await prisma.globalChatSession.findMany({
     where: { userId: ctx.userId },
     orderBy: { updatedAt: "desc" },
@@ -20,7 +24,7 @@ export async function GET() {
   });
   const [usageThisMonth, bonus] = await Promise.all([getChatUsage(ctx.userId), getChatBonus(ctx.userId)]);
   return NextResponse.json({
-    locked: false,
+    canSend: canSendGlobalChat(plan),
     usageThisMonth,
     usageLimit: limit === null ? null : limit + bonus,
     sessions: sessions.map((s) => ({

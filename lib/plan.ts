@@ -49,6 +49,19 @@ export function globalChatLimit(plan: PlanConfig): number | null {
   }
 }
 
+/**
+ * Whether a plan can SEND new messages from the dashboard's Clarix Chat.
+ *
+ * Deliberately separate from being able to READ the history. Free can ask
+ * questions in the overlay (see overlayAskLimit) and those threads persist, so
+ * locking Free out of the dashboard entirely would hide a user's own
+ * conversations from them. Free gets read-only access to what it created;
+ * composing from the dashboard stays the paid feature.
+ */
+export function canSendGlobalChat(plan: PlanConfig): boolean {
+  return globalChatLimit(plan) !== 0;
+}
+
 /** Messages sold per purchased overage pack, and the pack price in USD. */
 export const CHAT_PACK_SIZE = 100;
 export const CHAT_PACK_PRICE = 9;
