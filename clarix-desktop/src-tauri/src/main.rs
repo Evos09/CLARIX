@@ -13,6 +13,17 @@ use tauri_plugin_updater::UpdaterExt;
 /// How often a running CLARIX re-checks for a new version.
 const UPDATE_CHECK_INTERVAL: std::time::Duration = std::time::Duration::from_secs(6 * 60 * 60);
 
+/// Set the moment a real quit is requested, so the close handler below knows to
+/// let the windows actually close.
+///
+/// Without this, CLARIX could not be quit at all. `app.exit(0)` asks every
+/// window to close, which fires `CloseRequested`, which the close-to-tray
+/// handler answered with `prevent_close()` — so Quit did nothing and the
+/// process survived until it was killed from Task Manager. A process that never
+/// dies also never restarts, which is how an installed update could sit there
+/// unapplied, and how a stale WebView2 cache could outlive every deploy.
+static QUITTING: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+
 /// Look for a newer release and, when `install` is set, apply it.
 ///
 /// Updates are only *installed* at launch, never while the app is already
@@ -62,6 +73,9 @@ async fn check_for_update(app: tauri::AppHandle, install: bool) {
 
     // macOS swaps the bundle in place and needs an explicit relaunch. The
     // Windows installer restarts the app itself, so this is a no-op there.
+    // Same veto applies as for Quit: a relaunch closes the windows, so the
+    // close-to-tray handler has to be told to stand down first.
+    QUITTING.store(true, std::sync::atomic::Ordering::SeqCst);
     app.restart();
 }
 
@@ -201,16 +215,26 @@ fn main() {
                 .icon(app.default_window_icon().unwrap().clone())
                 .on_menu_event(|app, event| match event.id.as_ref() {
                     "open" => summon(app),
-                    "quit" => app.exit(0),
+                    "quit" => {
+                        // Announce the quit before asking anyone to close, or
+                        // the close handler will veto it and nothing happens.
+                        QUITTING.store(true, std::sync::atomic::Ordering::SeqCst);
+                        app.exit(0);
+                    }
                     _ => {}
                 })
                 .build(app)?;
             Ok(())
         })
-        // Closing the window hides it to the tray instead of quitting the app.
-        // Use the tray's Quit item (or the OS) to fully exit.
+        // Closing a window hides it to the tray instead of quitting the app —
+        // but only when the user closed that window. A real quit must be
+        // allowed through, otherwise Quit vetoes itself and CLARIX can only be
+        // stopped from Task Manager.
         .on_window_event(|window, event| {
             if let WindowEvent::CloseRequested { api, .. } = event {
+                if QUITTING.load(std::sync::atomic::Ordering::SeqCst) {
+                    return; // let it close; the app is on its way out
+                }
                 let _ = window.hide();
                 api.prevent_close();
             }
