@@ -19,6 +19,7 @@ import { cn } from "@/lib/utils";
 import { LogoMark } from "./LogoMark";
 import { PLANS, type PlanId } from "@/lib/stripe";
 import { SidebarUserMenu } from "./SidebarUserMenu";
+import { DesktopUpdateBanner } from "@/components/desktop/DesktopUpdateBanner";
 
 const hasClerk = Boolean(process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY);
 
@@ -162,6 +163,9 @@ export function Sidebar({
 
       {/* Bottom: usage meter + account menu (Settings lives in the user menu) */}
       <div className="mt-auto shrink-0 pt-2">
+        {/* Desktop app only, and only when an update is actually waiting.
+            Hidden while collapsed, like the plan card below it. */}
+        {!isCollapsed && <DesktopUpdateBanner />}
         <div
           className={cn(
             "rounded-lg bg-muted/60 transition-all duration-300 overflow-hidden",
