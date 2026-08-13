@@ -75,7 +75,9 @@ function hlPhrase(text: string): string {
  */
 export async function POST(req: Request) {
   const ctx = await getOrCreateContext();
-  if (!ctx) return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+  // Null context is almost always "not signed in", not a missing database, and
+  // the overlay renders this string straight to the user.
+  if (!ctx) return NextResponse.json({ error: "Sign in to CLARIX to ask about your meetings." }, { status: 401 });
   if (!isClaudeConfigured()) {
     return NextResponse.json({ error: "AI not configured (ANTHROPIC_API_KEY)" }, { status: 503 });
   }

@@ -562,6 +562,17 @@ export default function OverlayPage() {
             <input
               autoFocus
               value={query}
+              // Enter is handled explicitly rather than relying on the form's
+              // implicit submission. A form with no submit button only submits
+              // implicitly under conditions that were not holding here, so
+              // pressing Enter did nothing at all: the question stayed in the
+              // box and no message ever reached the thread.
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
+                  e.preventDefault();
+                  void ask(query);
+                }
+              }}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Ask your meetings…"
               className="min-w-0 flex-1 bg-transparent text-[14px] outline-none placeholder:text-muted-foreground"
@@ -569,9 +580,16 @@ export default function OverlayPage() {
             {loading ? (
               <Loader2 className="size-4 shrink-0 animate-spin text-accent" />
             ) : (
-              <span className="flex shrink-0 items-center gap-1 text-[10px] text-muted-foreground">
+              // A real submit button, so the form actually has one and the
+              // affordance is clickable rather than a decorative hint.
+              <button
+                type="submit"
+                disabled={!query.trim()}
+                title="Ask CLARIX"
+                className="flex shrink-0 items-center gap-1 text-[10px] text-muted-foreground transition hover:text-foreground disabled:opacity-50"
+              >
                 <CornerDownLeft className="size-3" /> ask
-              </span>
+              </button>
             )}
           </form>
 
