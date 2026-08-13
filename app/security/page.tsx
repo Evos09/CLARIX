@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { Logo } from "@/components/layout/Logo";
+import { SiteNav } from "@/components/site/site-nav";
+import { SiteFooter } from "@/components/site/site-footer";
+import { PageHero } from "@/components/site/page-hero";
 
 export const metadata: Metadata = {
   title: "Security",
@@ -11,19 +12,16 @@ const UPDATED = "June 23, 2026";
 
 export default function SecurityPage() {
   return (
-    <div className="min-h-screen bg-surface">
-      <header className="border-b border-border bg-card">
-        <div className="mx-auto flex max-w-3xl items-center justify-between px-6 py-4">
-          <Logo href="/" />
-          <Link href="/" className="text-sm font-medium text-muted-foreground hover:text-foreground">
-            ← Back to home
-          </Link>
-        </div>
-      </header>
+    <main className="relative min-h-screen overflow-x-hidden">
+      <SiteNav />
+      <PageHero
+        eyebrow="Trust"
+        title="Security"
+        description="How CLARIX protects your meetings and your data, in plain language."
+      />
 
-      <main className="mx-auto max-w-3xl px-6 py-12">
-        <h1 className="text-3xl font-extrabold tracking-tight text-navy">Security</h1>
-        <p className="mt-2 text-sm text-muted-foreground">Last updated: {UPDATED}</p>
+      <div className="mx-auto max-w-3xl px-6 py-16 lg:px-12">
+        <p className="text-sm text-muted-foreground">Last updated: {UPDATED}</p>
 
         <div className="mt-8 space-y-8 text-[15px] leading-relaxed text-foreground">
           <section>
@@ -34,7 +32,7 @@ export default function SecurityPage() {
           </section>
 
           <section>
-            <h2 className="mb-2 text-lg font-bold text-navy">Encryption</h2>
+            <h2 className="mb-3 font-display text-2xl tracking-tight">Encryption</h2>
             <p>
               Traffic to CLARIX is served over HTTPS (TLS), and your meeting audio, transcripts, and
               derived output are stored with encryption at rest by our cloud storage and database
@@ -43,7 +41,7 @@ export default function SecurityPage() {
           </section>
 
           <section>
-            <h2 className="mb-2 text-lg font-bold text-navy">Your data, your control</h2>
+            <h2 className="mb-3 font-display text-2xl tracking-tight">Your data, your control</h2>
             <p>
               You own your meetings and the output CLARIX generates. You can delete a meeting at any time,
               which removes its audio, transcript, and derived data. We do not sell your data, and we do
@@ -52,7 +50,7 @@ export default function SecurityPage() {
           </section>
 
           <section>
-            <h2 className="mb-2 text-lg font-bold text-navy">Subprocessors</h2>
+            <h2 className="mb-3 font-display text-2xl tracking-tight">Subprocessors</h2>
             <p>
               To deliver the service we rely on trusted providers for authentication, cloud hosting and
               storage, speech-to-text transcription, AI summarization, payments, and transactional email.
@@ -61,7 +59,7 @@ export default function SecurityPage() {
           </section>
 
           <section>
-            <h2 className="mb-2 text-lg font-bold text-navy">Access &amp; isolation</h2>
+            <h2 className="mb-3 font-display text-2xl tracking-tight">Access &amp; isolation</h2>
             <p>
               Data is scoped to your workspace and only accessible to authenticated members of that
               workspace. Calendar connections are read-only — CLARIX never creates, edits, or deletes
@@ -70,7 +68,7 @@ export default function SecurityPage() {
           </section>
 
           <section>
-            <h2 className="mb-2 text-lg font-bold text-navy">Compliance requests</h2>
+            <h2 className="mb-3 font-display text-2xl tracking-tight">Compliance requests</h2>
             <p>
               CLARIX is an early-stage product, and this page describes{" "}
               <strong>everything we currently hold</strong> — we don&rsquo;t claim certifications or
@@ -81,14 +79,16 @@ export default function SecurityPage() {
           </section>
 
           <section>
-            <h2 className="mb-2 text-lg font-bold text-navy">Reporting a vulnerability</h2>
+            <h2 className="mb-3 font-display text-2xl tracking-tight">Reporting a vulnerability</h2>
             <p>
               If you believe you&rsquo;ve found a security issue, please reach out to your CLARIX
               workspace administrator or the email associated with your account so we can investigate.
             </p>
           </section>
         </div>
-      </main>
-    </div>
+      </div>
+
+      <SiteFooter />
+    </main>
   );
 }
