@@ -95,9 +95,19 @@ GitHub Releases are still where builds are *produced*; the site is where they
 are *served*.
 
 ### Shipping an update
-1. Bump `version` in all three: `package.json`, `src-tauri/Cargo.toml`,
-   `src-tauri/tauri.conf.json`. They must agree.
-2. Commit, then tag: `git tag desktop-v1.0.6 && git push origin desktop-v1.0.6`
+1. Bump every version at once, from the repo root:
+   `node scripts/bump-desktop-version.mjs 1.0.7`
+
+   It edits `tauri.conf.json`, `src-tauri/Cargo.toml`, `package.json` and
+   `lib/downloads.ts`, then runs `cargo check` to regenerate `Cargo.lock`, and
+   refuses to finish unless all six agree.
+
+   **Do not do this by hand.** `Cargo.lock` is generated, so it only changes
+   when cargo runs — and Tauri refuses to build when it disagrees with
+   `Cargo.toml`. That killed the 1.0.5 and 1.0.6 tags outright: both matrix legs
+   died before producing anything, so the symptom was "no release appeared",
+   which looks nothing like a version problem.
+2. Commit, then tag: `git tag desktop-v1.0.7 && git push origin desktop-v1.0.7`
 3. The workflow builds Windows + macOS, signs, and drafts a Release. Publishing
    it is optional now — the release is just where the build artifacts land.
 4. Download from that release into one folder: `latest.json`, the
@@ -107,9 +117,9 @@ are *served*.
    into `public/downloads`, rewrites the feed URLs to the website, and checks
    each `.sig` against the signature inside `latest.json` (a mismatch would make
    every client reject the update, so it fails loudly here instead).
-6. Bump `WINDOWS_VERSION` / `MAC_VERSION` in `lib/downloads.ts` to match.
-7. Commit and push. Railway deploys, and installed apps pick it up on next
-   launch.
+6. Commit and push. Railway deploys, and installed apps pick it up on next
+   launch. (`WINDOWS_VERSION` / `MAC_VERSION` in `lib/downloads.ts` were already
+   set in step 1 — that is what the bump script is for.)
 
 ## Notes
 - Bundle identifier: `ai.clarix.app`.
