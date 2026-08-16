@@ -7,6 +7,7 @@ import type { BaseOutput } from "@/lib/outputTypes";
 import { searchChunks, type ChunkFilter } from "@/lib/memory/search";
 import { isEmbeddingsConfigured } from "@/lib/embeddings";
 import { isResendConfigured, sendHtml } from "@/lib/email";
+import type { TranscriptSegment } from "@/lib/transcription";
 
 function monthKey(): string {
   const d = new Date();
@@ -187,6 +188,27 @@ const CHAT_TOOLS: Anthropic.Messages.ToolUnion[] = [
         query: { type: "string", description: "What to search for, e.g. 'pricing decision for the enterprise deal'" },
       },
       required: ["query"],
+    },
+  },
+  {
+    name: "find_exact_phrase",
+    description:
+      "Find every literal occurrence of a word or phrase across all transcripts, with who said it and the exact second. Use this — NOT search_meetings — whenever the question is about specific wording rather than meaning: counting how many times something was said, who used a word, when exactly a phrase came up, or quoting someone verbatim. search_meetings matches by meaning and only ever sees the top few chunks, so it can neither reliably find a rare literal word nor count anything. Pass several related terms to cover variants (plurals, tenses, or every word in a category).",
+    input_schema: {
+      type: "object" as const,
+      properties: {
+        phrases: {
+          type: "array",
+          items: { type: "string" },
+          description:
+            "Literal terms to look for, case-insensitive. Include the variants you care about, e.g. ['refund','refunded','refunding'].",
+        },
+        speaker: {
+          type: "string",
+          description: "Optional: only count lines from this speaker (matched loosely against the transcript's labels).",
+        },
+      },
+      required: ["phrases"],
     },
   },
   {
@@ -376,6 +398,85 @@ async function runChatTool(
         })),
       });
     }
+    case "find_exact_phrase": {
+      const raw = Array.isArray(input.phrases) ? input.phrases : [];
+      const phrases = raw.map((p) => String(p).trim()).filter(Boolean).slice(0, 25);
+      if (!phrases.length) return JSON.stringify({ error: "Give at least one phrase to look for." });
+      const speakerFilter = typeof input.speaker === "string" ? input.speaker.toLowerCase().trim() : "";
+
+      // Narrow with SQL first: only meetings whose raw transcript contains at
+      // least one term get their segments walked. Scanning every transcript in
+      // the workspace would be pointless work on a large history.
+      const candidates = await prisma.meeting.findMany({
+        where: {
+          orgId,
+          status: "COMPLETE",
+          OR: phrases.map((p) => ({ rawTranscript: { contains: p, mode: "insensitive" as const } })),
+        },
+        orderBy: { createdAt: "desc" },
+        select: { id: true, title: true, createdAt: true, transcriptSegments: true },
+      });
+
+      // Word-boundary match, so "class" doesn't score a hit inside "classic".
+      // Falls back to a plain substring for multi-word or punctuated phrases,
+      // where \b behaves unhelpfully.
+      const matchers = phrases.map((p) => {
+        const esc = p.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        const simple = /^[\p{L}\p{N}']+$/u.test(p);
+        return { phrase: p, re: new RegExp(simple ? `\\b${esc}\\b` : esc, "iu") };
+      });
+
+      const occurrences: {
+        phrase: string;
+        meeting_id: string;
+        meeting: string;
+        date: string;
+        speaker: string;
+        at_seconds: number | null;
+        at: string;
+        line: string;
+      }[] = [];
+      const perPhrase: Record<string, number> = Object.fromEntries(phrases.map((p) => [p, 0]));
+
+      for (const m of candidates) {
+        const segs = (m.transcriptSegments as unknown as TranscriptSegment[] | null) ?? [];
+        for (const s of segs) {
+          const text = String(s?.text ?? "");
+          if (!text) continue;
+          const speaker = String(s?.speaker ?? "");
+          if (speakerFilter && !speaker.toLowerCase().includes(speakerFilter)) continue;
+          for (const { phrase, re } of matchers) {
+            if (!re.test(text)) continue;
+            perPhrase[phrase] += 1;
+            // Cap what we hand back to the model; the counts above stay exact.
+            if (occurrences.length < 60) {
+              const sec = typeof s?.start === "number" ? Math.floor(s.start) : null;
+              occurrences.push({
+                phrase,
+                meeting_id: m.id,
+                meeting: m.title,
+                date: m.createdAt.toISOString().slice(0, 10),
+                speaker: speaker || "unknown",
+                at_seconds: sec,
+                at: sec === null ? "unknown" : `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, "0")}`,
+                line: text.slice(0, 300),
+              });
+            }
+          }
+        }
+      }
+
+      const total = Object.values(perPhrase).reduce((a, b) => a + b, 0);
+      return JSON.stringify({
+        total_occurrences: total,
+        counts_by_phrase: perPhrase,
+        meetings_searched: candidates.length,
+        occurrences,
+        truncated: total > occurrences.length,
+        note:
+          "Counts are exact and cover every completed meeting in the workspace. at_seconds is the offset to cite — link a meeting as /meetings/<meeting_id>?tab=transcript&t=<at_seconds> to jump straight to that moment.",
+      });
+    }
     case "get_action_items": {
       const where: Prisma.ActionItemWhereInput = { orgId };
       if (typeof input.completed === "boolean") where.completed = input.completed;
@@ -487,6 +588,8 @@ You have tools to search meetings, list action items, fetch full meeting details
 - For time-based questions ("this week", "recently"), call list_recent_meetings first.
 - For task/commitment questions, call get_action_items — it is the authoritative, current list.
 - When the provided context doesn't fully answer the question, call search_meetings with a sharper query before saying you don't know.
+- For questions about literal wording — how many times a word was said, who said it, when exactly, or an exact quote — call find_exact_phrase. search_meetings matches meaning over a handful of chunks and CANNOT count or reliably locate a specific word. If the question names a category rather than a word (swearing, competitor names, hedging language), pick the concrete terms yourself and pass them all in one call.
+- Never say you are unable to count occurrences or locate when something was said: find_exact_phrase does exactly that, returns exact totals, and gives the second to cite.
 - When quoting specifics from one meeting, call get_meeting_details to get it right.
 - Use web_search only when the answer needs current or external information the meetings can't provide (news, prices, company facts, docs). Meeting questions never need it.
 
