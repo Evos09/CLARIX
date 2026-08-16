@@ -448,7 +448,11 @@ async function runChatTool(
       }[] = [];
       const perPhrase: Record<string, number> = Object.fromEntries(phrases.map((p) => [p, 0]));
 
-      const perMeeting: Record<string, number> = {};
+      // Keyed by meeting id, never title. Four meetings in a real workspace
+      // shared the title "War room ", and a title-keyed tally merged them into
+      // one bucket — which the model then reported against a single date, so a
+      // four-meeting total looked like one meeting's.
+      const perMeeting: { meeting_id: string; meeting: string; date: string; count: number }[] = [];
 
       for (const m of candidates) {
         const segs = (m.transcriptSegments as unknown as TranscriptSegment[] | null) ?? [];
@@ -512,7 +516,14 @@ async function runChatTool(
           }
         }
 
-        if (inThisMeeting) perMeeting[m.title] = (perMeeting[m.title] ?? 0) + inThisMeeting;
+        if (inThisMeeting) {
+          perMeeting.push({
+            meeting_id: m.id,
+            meeting: m.title,
+            date: m.createdAt.toISOString().slice(0, 10),
+            count: inThisMeeting,
+          });
+        }
       }
 
       const total = Object.values(perPhrase).reduce((a, b) => a + b, 0);
@@ -520,13 +531,13 @@ async function runChatTool(
       return JSON.stringify({
         total_occurrences: total,
         counts_by_phrase: perPhrase,
-        counts_by_meeting: perMeeting,
-        meetings_with_hits: Object.keys(perMeeting).length,
+        counts_by_meeting: perMeeting.sort((a, b) => b.count - a.count),
+        meetings_with_hits: perMeeting.length,
         meetings_searched: candidates.length,
         occurrences,
         truncated: listed < total,
         note:
-          "Counts are exact occurrences (not lines) across every completed meeting in this workspace, so total_occurrences is the authoritative number and is always >= any single meeting's count. If a meeting's analytics page disagrees, trust this: that page's filler-word figures come from an AI estimate, not a literal scan. at_seconds is the offset to cite — link a meeting as /meetings/<meeting_id>?tab=transcript&t=<at_seconds> to jump to the moment.",
+          "Counts are exact occurrences (not lines) across every completed meeting in this workspace, so total_occurrences is authoritative and is always >= any single meeting's count. counts_by_meeting has one row per meeting, identified by meeting_id and date — titles are NOT unique, so never merge rows that share a title or report one date's figure for several meetings. If a meeting's analytics page disagrees, trust this: that page's filler-word figures come from an AI estimate, not a literal scan. at_seconds is the offset to cite — link a meeting as /meetings/<meeting_id>?tab=transcript&t=<at_seconds> to jump to the moment.",
       });
     }
     case "get_action_items": {
