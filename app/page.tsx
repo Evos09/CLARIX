@@ -9,8 +9,12 @@ import { SiteFooter } from "@/components/site/site-footer";
 import { PlatformStrip } from "@/components/site/platform-strip";
 
 export const metadata: Metadata = {
-  title: { absolute: "CLARIX — Your AI Assistant for Every Meeting" },
-  description: "The AI that handles every meeting you never have time to recap. Transcribe, summarize, and turn any meeting into action.",
+  // Leads on memory, not note-taking. "AI meeting notes" is a saturated search
+  // term owned by funded incumbents; answering from meetings months old, with a
+  // jump to the second it was said, is the thing none of them do.
+  title: { absolute: "CLARIX — The AI that remembers every meeting" },
+  description:
+    "Ask what was decided months ago and get an answer mid-call, with a link to the exact second it was said. CLARIX searches every meeting you've recorded — notes, decisions and action items included.",
 };
 
 export default async function Home() {

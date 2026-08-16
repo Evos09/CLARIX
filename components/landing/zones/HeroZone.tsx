@@ -33,11 +33,17 @@ export default function HeroZone() {
       {/* Main Hero Copy - Linked to fade out in Phase 0 */}
       <div className="hero-overlay-text w-full max-w-7xl mx-auto grid lg:grid-cols-12 gap-12 items-center my-auto z-20 pt-16">
         <div className="lg:col-span-6 flex flex-col items-start text-left">
+          {/* Positioned on cross-meeting memory, not note-taking. Every rival in
+              this category — Granola, Jamie, Fellow, Krisp — already writes good
+              botless summaries of the call you are in, so leading with that is
+              leading with the thing four funded competitors also say. What none
+              of them do is answer a question from meetings months old, mid-call,
+              with a link to the second it was said. */}
           <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-normal leading-[1.1] tracking-tight text-ink">
-            The AI that <span className="italic text-violet-600 font-serif">handles</span> every meeting you never have time to recap.
+            The AI that <span className="italic text-violet-600 font-serif">remembers</span> every meeting — and answers you mid-call.
           </h1>
           <p className="mt-6 text-base sm:text-lg text-gray-600 leading-relaxed max-w-xl">
-            CLARIX joins your calls, listens, and turns every conversation into a clean brief — action items, decisions, summaries — ready moments after the call ends. Then you can <span className="italic">talk to it</span> about what was decided.
+            &ldquo;What did we promise them last quarter?&rdquo; CLARIX searches every meeting you&rsquo;ve ever recorded and answers while you&rsquo;re still on the call — with a link that <span className="italic">jumps to the exact second</span> it was said. Notes, decisions and action items come as standard.
           </p>
           <div className="mt-8 flex flex-wrap gap-4">
             <Link href="/sign-up" className="inline-flex items-center gap-2 bg-ink hover:bg-ink-2 text-paper text-sm font-semibold px-6 h-12 rounded-full shadow-md transition-all group">
@@ -69,16 +75,13 @@ export default function HeroZone() {
                 Recording
               </span>
             </div>
-            {/* Taken from the opening of the meeting at /demo — the "See a
-                real meeting" button sits right below this, so what it teases
-                has to be what it lands on. Keep in sync with
-                lib/site/sampleMeeting.ts. */}
+            {/* The moment the product exists for: a question nobody in the room
+                can answer, about a meeting months ago. The card to the right is
+                CLARIX answering it before the call moves on. */}
             <div className="space-y-3 text-gray-600">
-              <p><span className="text-violet-600 font-semibold">Sarah:</span> Let's kick off Q3 planning. Mike, where are we on the auth refactor?</p>
-              <p><span className="text-violet-600 font-semibold">Mike:</span> Code's complete. I'm blocked waiting on legal sign-off from Daniel</p>
-              <p><span className="text-violet-600 font-semibold">Sarah:</span> How long has that been sitting?</p>
-              <p><span className="text-violet-600 font-semibold">Mike:</span> Nine days. I emailed once and haven't chased it since</p>
-              <p><span className="text-violet-600 font-semibold">Priya:</span> On design — the dashboard mockups are eighty percent done...</p>
+              <p><span className="text-violet-600 font-semibold">Client:</span> You quoted us a discount when we first spoke — what was it?</p>
+              <p><span className="text-violet-600 font-semibold">Sarah:</span> I want to say fifteen percent? Let me check and come back to you.</p>
+              <p><span className="text-violet-600 font-semibold">Mike:</span> That call was back in March, it'll be somewhere in the notes...</p>
             </div>
           </div>
 
@@ -87,40 +90,37 @@ export default function HeroZone() {
             <Sparkles className="w-4 h-4 text-violet-600" />
           </div>
 
-          {/* Structured CLARIX Brief */}
+          {/* The overlay answering from a meeting five months back, while the
+              call above is still running. The timestamp chip is the part rivals
+              cannot copy: the answer is checkable, not just plausible. */}
           <div className="w-full max-w-[300px] p-5 rounded-2xl bg-ink text-paper shadow-2xl flex flex-col text-xs">
             <div className="flex items-center justify-between border-b border-paper/10 pb-3 mb-3">
               <span className="font-semibold text-paper flex items-center gap-1.5 font-display text-sm">
                 <Sparkles className="w-3.5 h-3.5 text-violet-400" />
-                Q3 Product Strategy Sync
+                CLARIX
               </span>
               <span className="bg-violet-500/20 text-violet-300 px-2 py-0.5 rounded-full text-[9px] font-mono">
-                Complete
+                0.9s
               </span>
             </div>
             <div className="space-y-3">
               <div>
-                <span className="text-[9px] font-mono text-paper/40 uppercase tracking-wider block mb-1">TLDR</span>
-                <p className="text-paper/80 leading-relaxed">Q3 is on track for a Sep 15 launch, but the auth refactor has been blocked on legal sign-off for nine days and is now the critical path.</p>
+                <span className="text-[9px] font-mono text-paper/40 uppercase tracking-wider block mb-1">You asked</span>
+                <p className="text-paper/70 leading-relaxed">What discount did we quote Acme?</p>
               </div>
               <div className="border-t border-paper/10 pt-3">
-                <span className="text-[9px] font-mono text-paper/40 uppercase tracking-wider block mb-1.5">Action Items</span>
-                <ul className="space-y-2">
-                  <li className="flex items-start gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-violet-400 mt-1.5 shrink-0" />
-                    <div className="flex justify-between w-full">
-                      <span className="text-paper/85">Chase Daniel on legal sign-off</span>
-                      <span className="text-paper/45 font-mono text-[9px]">Mike</span>
-                    </div>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-violet-400 mt-1.5 shrink-0" />
-                    <div className="flex justify-between w-full">
-                      <span className="text-paper/85">Deliver dashboard mockups</span>
-                      <span className="text-paper/45 font-mono text-[9px]">Priya</span>
-                    </div>
-                  </li>
-                </ul>
+                <p className="text-paper/90 leading-relaxed">
+                  You offered <span className="text-violet-300 font-semibold">15%</span>, conditional on a 12-month commitment. Acme asked for 20% and you said you&rsquo;d take it back to the team.
+                </p>
+              </div>
+              <div className="border-t border-paper/10 pt-3">
+                <span className="text-[9px] font-mono text-paper/40 uppercase tracking-wider block mb-1.5">Source</span>
+                <div className="flex items-center gap-2 rounded-lg border border-paper/10 bg-paper/[0.04] px-2.5 py-2">
+                  <span className="min-w-0 flex-1 truncate text-paper/85">Acme discovery</span>
+                  <span className="shrink-0 rounded bg-violet-500/20 px-1.5 py-0.5 font-mono text-[9px] text-violet-300">
+                    Mar 4 · 22:14
+                  </span>
+                </div>
               </div>
             </div>
           </div>
