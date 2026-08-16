@@ -20,7 +20,7 @@ export default function PricingPage() {
       <PageHero
         eyebrow="Pricing"
         title="Simple pricing that scales with your team"
-        description="Start free and upgrade when you're ready. Every paid plan is billed per user, monthly or annually."
+        description="Every plan can ask across your whole meeting history — Free includes 10 questions a month, no card required. Paid plans raise the limit and are billed per user, monthly or annually."
       />
 
       {/* Plans */}

@@ -19,10 +19,27 @@ import {
 export const metadata = {
   title: "Features — CLARIX",
   description:
-    "Transcription, structured outputs, Clarix Chat, recording and bot capture, audio library, integrations, and analytics.",
+    "Ask across every meeting you've recorded and get an answer mid-call, with a link to the second it was said. Plus transcription, structured outputs, recording and bot capture, integrations, and analytics.",
 };
 
 const blocks = [
+  // Memory leads. Good summaries of the call you are in are table stakes in this
+  // category — Granola, Jamie and Fellow all ship them. Recall across every
+  // meeting, answered mid-call with a checkable timestamp, is what they don't,
+  // so it goes first rather than fourth.
+  {
+    eyebrow: "Memory",
+    title: "Ask across every meeting — while you're still on the call",
+    description:
+      "Months later, someone asks what you agreed. CLARIX searches every meeting you've ever recorded and answers in about a second — and every answer carries a link that jumps to the exact second it was said, so you can check it before you repeat it.",
+    bullets: [
+      "Answers drawn from your whole meeting history",
+      "Every answer links to the moment it was said",
+      "Floating overlay answers during the call",
+      "Or narrow it to a single meeting and chat with that",
+    ],
+    visual: <AskClarixVisual />,
+  },
   {
     eyebrow: "Transcription",
     title: "AI transcription that detects the meeting type",
@@ -38,14 +55,6 @@ const blocks = [
       "Every meeting type produces a tailored output. A standup surfaces blockers and who did what; a sales call surfaces objections, deal stage, and next steps. Same engine, different lens.",
     bullets: ["Tailored to 20+ meeting types", "Decisions, action items, and summaries", "Owners and due dates extracted"],
     visual: <OutputsVisual />,
-  },
-  {
-    eyebrow: "Ask CLARIX",
-    title: "Chat with any past meeting",
-    description:
-      "A chat interface tied to a specific meeting. Ask “Who owns the Q3 deliverable?” or “Write a follow-up email based on this meeting” and get an answer streamed back in real time, grounded in that meeting's transcript.",
-    bullets: ["Answers grounded in the transcript", "Draft follow-ups and recaps", "Real-time streaming responses"],
-    visual: <AskClarixVisual />,
   },
   {
     eyebrow: "Capture",
@@ -87,8 +96,8 @@ export default function FeaturesPage() {
       <SiteNav />
       <PageHero
         eyebrow="Features"
-        title="Everything you need after the meeting ends"
-        description="CLARIX does the work that used to fall through the cracks — capturing the conversation, understanding it, and turning it into something your team can act on."
+        title="Every meeting you've had, one question away"
+        description="CLARIX captures the conversation, turns it into decisions and action items, and remembers all of it — so months later you can ask what was agreed and get the answer with a link to the second it was said."
       />
 
       <section className="max-w-[1400px] mx-auto px-6 lg:px-12">
