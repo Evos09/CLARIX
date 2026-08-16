@@ -414,20 +414,30 @@ async function runChatTool(
           OR: phrases.map((p) => ({ rawTranscript: { contains: p, mode: "insensitive" as const } })),
         },
         orderBy: { createdAt: "desc" },
-        select: { id: true, title: true, createdAt: true, transcriptSegments: true },
+        select: { id: true, title: true, createdAt: true, transcriptSegments: true, rawTranscript: true },
       });
 
       // Word-boundary match, so "class" doesn't score a hit inside "classic".
       // Falls back to a plain substring for multi-word or punctuated phrases,
       // where \b behaves unhelpfully.
+      //
+      // The `g` flag is load-bearing: this counts OCCURRENCES, not lines that
+      // contain one. A line of "um, um, um" is three, and an earlier version
+      // that used re.test() scored it as one — which undercounted every total
+      // badly enough to contradict the per-meeting analytics.
       const matchers = phrases.map((p) => {
         const esc = p.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
         const simple = /^[\p{L}\p{N}']+$/u.test(p);
-        return { phrase: p, re: new RegExp(simple ? `\\b${esc}\\b` : esc, "iu") };
+        return { phrase: p, re: new RegExp(simple ? `\\b${esc}\\b` : esc, "giu") };
       });
+      const countIn = (text: string, re: RegExp) => {
+        re.lastIndex = 0; // shared global regex: reset or matches start mid-string
+        return (text.match(re) ?? []).length;
+      };
 
       const occurrences: {
         phrase: string;
+        times: number;
         meeting_id: string;
         meeting: string;
         date: string;
@@ -438,43 +448,85 @@ async function runChatTool(
       }[] = [];
       const perPhrase: Record<string, number> = Object.fromEntries(phrases.map((p) => [p, 0]));
 
+      const perMeeting: Record<string, number> = {};
+
       for (const m of candidates) {
         const segs = (m.transcriptSegments as unknown as TranscriptSegment[] | null) ?? [];
-        for (const s of segs) {
-          const text = String(s?.text ?? "");
-          if (!text) continue;
-          const speaker = String(s?.speaker ?? "");
-          if (speakerFilter && !speaker.toLowerCase().includes(speakerFilter)) continue;
-          for (const { phrase, re } of matchers) {
-            if (!re.test(text)) continue;
-            perPhrase[phrase] += 1;
-            // Cap what we hand back to the model; the counts above stay exact.
-            if (occurrences.length < 60) {
-              const sec = typeof s?.start === "number" ? Math.floor(s.start) : null;
-              occurrences.push({
-                phrase,
-                meeting_id: m.id,
-                meeting: m.title,
-                date: m.createdAt.toISOString().slice(0, 10),
-                speaker: speaker || "unknown",
-                at_seconds: sec,
-                at: sec === null ? "unknown" : `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, "0")}`,
-                line: text.slice(0, 300),
-              });
+        let inThisMeeting = 0;
+
+        if (segs.length) {
+          for (const s of segs) {
+            const text = String(s?.text ?? "");
+            if (!text) continue;
+            const speaker = String(s?.speaker ?? "");
+            if (speakerFilter && !speaker.toLowerCase().includes(speakerFilter)) continue;
+            for (const { phrase, re } of matchers) {
+              const times = countIn(text, re);
+              if (!times) continue;
+              perPhrase[phrase] += times;
+              inThisMeeting += times;
+              // One entry per line, carrying how many times it appears there —
+              // repeating the same timestamp N times would just be noise. The
+              // cap trims the list, never the counts.
+              if (occurrences.length < 60) {
+                const sec = typeof s?.start === "number" ? Math.floor(s.start) : null;
+                occurrences.push({
+                  phrase,
+                  times,
+                  meeting_id: m.id,
+                  meeting: m.title,
+                  date: m.createdAt.toISOString().slice(0, 10),
+                  speaker: speaker || "unknown",
+                  at_seconds: sec,
+                  at: sec === null ? "unknown" : `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, "0")}`,
+                  line: text.slice(0, 300),
+                });
+              }
+            }
+          }
+        } else {
+          // Older meetings can have a raw transcript but no timed segments.
+          // Skipping them would silently drop real hits from the total, so they
+          // still count — they just can't offer a timestamp to jump to.
+          const raw = String(m.rawTranscript ?? "");
+          if (raw && !speakerFilter) {
+            for (const { phrase, re } of matchers) {
+              const times = countIn(raw, re);
+              if (!times) continue;
+              perPhrase[phrase] += times;
+              inThisMeeting += times;
+              if (occurrences.length < 60) {
+                occurrences.push({
+                  phrase,
+                  times,
+                  meeting_id: m.id,
+                  meeting: m.title,
+                  date: m.createdAt.toISOString().slice(0, 10),
+                  speaker: "unknown",
+                  at_seconds: null,
+                  at: "unknown (no timed transcript for this meeting)",
+                  line: "",
+                });
+              }
             }
           }
         }
+
+        if (inThisMeeting) perMeeting[m.title] = (perMeeting[m.title] ?? 0) + inThisMeeting;
       }
 
       const total = Object.values(perPhrase).reduce((a, b) => a + b, 0);
+      const listed = occurrences.reduce((a, o) => a + o.times, 0);
       return JSON.stringify({
         total_occurrences: total,
         counts_by_phrase: perPhrase,
+        counts_by_meeting: perMeeting,
+        meetings_with_hits: Object.keys(perMeeting).length,
         meetings_searched: candidates.length,
         occurrences,
-        truncated: total > occurrences.length,
+        truncated: listed < total,
         note:
-          "Counts are exact and cover every completed meeting in the workspace. at_seconds is the offset to cite — link a meeting as /meetings/<meeting_id>?tab=transcript&t=<at_seconds> to jump straight to that moment.",
+          "Counts are exact occurrences (not lines) across every completed meeting in this workspace, so total_occurrences is the authoritative number and is always >= any single meeting's count. If a meeting's analytics page disagrees, trust this: that page's filler-word figures come from an AI estimate, not a literal scan. at_seconds is the offset to cite — link a meeting as /meetings/<meeting_id>?tab=transcript&t=<at_seconds> to jump to the moment.",
       });
     }
     case "get_action_items": {
