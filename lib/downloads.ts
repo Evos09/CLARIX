@@ -14,8 +14,13 @@ export const WINDOWS_DOWNLOAD_URL = "/downloads/CLARIX-Windows-Setup.exe";
 export const WINDOWS_VERSION = "1.0.6";
 
 // macOS universal .dmg built by GitHub Actions (macos runner) and hosted here.
+// Deliberately BEHIND Windows: the macOS leg of the 1.0.6 build failed
+// (`tauri build --target universal-apple-darwin`, exit 1), so the newest .dmg
+// that exists is still 1.0.5. Windows shipped anyway because fail-fast is off.
+// Do not raise this until a macOS build actually succeeds — the page shows this
+// number, and claiming a version nobody can download is a visible lie.
 export const MAC_DOWNLOAD_URL = "/downloads/CLARIX-macOS.dmg";
-export const MAC_VERSION = "1.0.6";
+export const MAC_VERSION = "1.0.5";
 
 export const WINDOWS_LIVE = true;
 
@@ -28,8 +33,11 @@ export const WINDOWS_LIVE = true;
  * someone for trust. Silencing it needs Apple notarization, which needs a
  * $99/yr Apple Developer account we don't have yet.
  *
- * The .dmg stays hosted but unlinked, and latest.json still carries its darwin
- * entries, so anyone already running it keeps getting updates.
+ * The .dmg stays hosted but unlinked. NOTE: as of 1.0.6 the feed no longer
+ * carries darwin entries — the macOS build failed, so that job never wrote any.
+ * A Mac still on 1.0.5 simply gets "no update available", which is correct;
+ * there is nothing newer for it. The entries return with the next macOS build
+ * that succeeds.
  *
  * To bring it back: buy the Apple Developer account, add the APPLE_* secrets
  * listed in clarix-desktop/README.md, cut a release, then flip this to true.
