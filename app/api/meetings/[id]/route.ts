@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { getOrCreateContext } from "@/lib/auth";
+import { getOrCreateContext, noContext } from "@/lib/auth";
 import { getAccessibleMeeting } from "@/lib/meetingAccess";
 import { isAssemblyConfigured } from "@/lib/assemblyai";
 import { syncTranscriptStatus } from "@/lib/transcription";
@@ -18,7 +18,7 @@ const PatchBody = z.object({
 export async function GET(_req: Request, { params }: Params) {
   const { id } = await params;
   const ctx = await getOrCreateContext();
-  if (!ctx) return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+  if (!ctx) return noContext();
 
   let meeting = await getAccessibleMeeting(id, ctx);
   if (!meeting) return NextResponse.json({ error: "Not found" }, { status: 404 });
@@ -38,7 +38,7 @@ export async function GET(_req: Request, { params }: Params) {
 export async function PATCH(req: Request, { params }: Params) {
   const { id } = await params;
   const ctx = await getOrCreateContext();
-  if (!ctx) return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+  if (!ctx) return noContext();
 
   const existing = await getAccessibleMeeting(id, ctx, { requireEdit: true });
   if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 });
@@ -63,7 +63,7 @@ export async function PATCH(req: Request, { params }: Params) {
 export async function DELETE(_req: Request, { params }: Params) {
   const { id } = await params;
   const ctx = await getOrCreateContext();
-  if (!ctx) return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+  if (!ctx) return noContext();
 
   const meeting = await prisma.meeting.findFirst({ where: { id, orgId: ctx.orgId } });
   if (!meeting) return NextResponse.json({ error: "Not found" }, { status: 404 });

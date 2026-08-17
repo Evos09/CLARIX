@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { getOrCreateContext } from "@/lib/auth";
+import { getOrCreateContext, noContext } from "@/lib/auth";
 import { canUseType, getOrgPlan } from "@/lib/plan";
 import { isClaudeConfigured } from "@/lib/claude";
 import { processMeeting } from "@/lib/processing";
@@ -14,7 +14,7 @@ const Body = z.object({ meetingType: z.string().min(1) });
 export async function POST(req: Request, { params }: Params) {
   const { id } = await params;
   const ctx = await getOrCreateContext();
-  if (!ctx) return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+  if (!ctx) return noContext();
   const meeting = await prisma.meeting.findFirst({ where: { id, orgId: ctx.orgId } });
   if (!meeting) return NextResponse.json({ error: "Not found" }, { status: 404 });
 

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getOrCreateContext } from "@/lib/auth";
+import { getOrCreateContext, noContext } from "@/lib/auth";
 import { getAccessibleMeeting } from "@/lib/meetingAccess";
 import type { TranscriptSegment } from "@/lib/transcription";
 import { Prisma } from "@prisma/client";
@@ -11,7 +11,7 @@ export async function PATCH(req: Request, { params }: Params) {
   const { id } = await params;
   const ctx = await getOrCreateContext();
   if (!ctx) {
-    return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+    return noContext();
   }
 
   const body = await req.json().catch(() => null);

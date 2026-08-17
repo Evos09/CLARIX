@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getOrCreateContext } from "@/lib/auth";
+import { getOrCreateContext, noContext } from "@/lib/auth";
 import { decryptToken } from "@/lib/crypto";
 import { listSlackChannels } from "@/lib/push/slack";
 
@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 
 export async function GET() {
   const ctx = await getOrCreateContext();
-  if (!ctx) return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+  if (!ctx) return noContext();
   const conn = await prisma.slackConnection.findUnique({ where: { userId: ctx.userId } });
   if (!conn) return NextResponse.json({ error: "Not connected" }, { status: 409 });
   try {

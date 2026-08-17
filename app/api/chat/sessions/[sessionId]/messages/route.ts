@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { getOrCreateContext } from "@/lib/auth";
+import { getOrCreateContext, noContext } from "@/lib/auth";
 import { chatModelForPlan, getOrgPlan, globalChatLimit } from "@/lib/plan";
 import { isClaudeConfigured } from "@/lib/claude";
 import { answerGlobalChat, bumpChatUsage, getChatBonus, getChatUsage, retrieveContext } from "@/lib/globalChat";
@@ -13,7 +13,7 @@ const Body = z.object({ message: z.string().min(1).max(4000), mode: z.enum(["foc
 export async function POST(req: Request, { params }: Params) {
   const { sessionId } = await params;
   const ctx = await getOrCreateContext();
-  if (!ctx) return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+  if (!ctx) return noContext();
   // Anti-abuse ceiling, keyed per user (monthly metering lives in lib/plan.ts).
   if (!chatLimiter.limit(ctx.userId).success) {
     return NextResponse.json({ error: RATE_LIMIT_MESSAGE }, { status: 429 });

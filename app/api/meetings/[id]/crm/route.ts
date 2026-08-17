@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getOrCreateContext } from "@/lib/auth";
+import { getOrCreateContext, noContext } from "@/lib/auth";
 import { getOrgPlan } from "@/lib/plan";
 import { decryptToken, encryptToken } from "@/lib/crypto";
 import { pushToSalesforce, refreshSalesforce } from "@/lib/crm/salesforce";
@@ -12,7 +12,7 @@ type Params = { params: Promise<{ id: string }> };
 export async function GET(_req: Request, { params }: Params) {
   const { id } = await params;
   const ctx = await getOrCreateContext();
-  if (!ctx) return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+  if (!ctx) return noContext();
   const syncs = await prisma.cRMSync.findMany({ where: { meetingId: id }, orderBy: { syncedAt: "desc" } });
   return NextResponse.json(syncs);
 }
@@ -20,7 +20,7 @@ export async function GET(_req: Request, { params }: Params) {
 export async function POST(_req: Request, { params }: Params) {
   const { id } = await params;
   const ctx = await getOrCreateContext();
-  if (!ctx) return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+  if (!ctx) return noContext();
   const plan = await getOrgPlan(ctx.orgId);
   if (plan.id === "FREE") return NextResponse.json({ error: "Upgrade to push to your CRM." }, { status: 403 });
 

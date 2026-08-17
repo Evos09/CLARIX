@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { format as fmtDate } from "date-fns";
 import { prisma } from "@/lib/prisma";
-import { getOrCreateContext } from "@/lib/auth";
+import { getOrCreateContext, noContext } from "@/lib/auth";
 import { getOrgPlan } from "@/lib/plan";
 import { getMeetingType } from "@/lib/meetingTypes";
 import { isResendConfigured, sendHtml } from "@/lib/email";
@@ -19,7 +19,7 @@ const Body = z.object({
 export async function POST(req: Request, { params }: Params) {
   const { id } = await params;
   const ctx = await getOrCreateContext();
-  if (!ctx) return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+  if (!ctx) return noContext();
 
   const plan = await getOrgPlan(ctx.orgId);
   if (plan.id === "FREE") return NextResponse.json({ error: "Upgrade to send meeting emails." }, { status: 403 });

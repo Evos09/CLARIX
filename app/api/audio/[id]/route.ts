@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { getOrCreateContext } from "@/lib/auth";
+import { getOrCreateContext, noContext } from "@/lib/auth";
 import { getSupabaseAdmin, AUDIO_BUCKET, isSupabaseConfigured } from "@/lib/supabase";
 
 type Params = { params: Promise<{ id: string }> };
@@ -10,7 +10,7 @@ const Body = z.object({ title: z.string().min(1).max(200).optional() });
 export async function PATCH(req: Request, { params }: Params) {
   const { id } = await params;
   const ctx = await getOrCreateContext();
-  if (!ctx) return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+  if (!ctx) return noContext();
   const meeting = await prisma.meeting.findFirst({ where: { id, orgId: ctx.orgId } });
   if (!meeting) return NextResponse.json({ error: "Not found" }, { status: 404 });
   const parsed = Body.safeParse(await req.json().catch(() => null));
@@ -22,7 +22,7 @@ export async function PATCH(req: Request, { params }: Params) {
 export async function DELETE(_req: Request, { params }: Params) {
   const { id } = await params;
   const ctx = await getOrCreateContext();
-  if (!ctx) return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+  if (!ctx) return noContext();
   const meeting = await prisma.meeting.findFirst({ where: { id, orgId: ctx.orgId } });
   if (!meeting) return NextResponse.json({ error: "Not found" }, { status: 404 });
   if (meeting.storagePath && isSupabaseConfigured()) {

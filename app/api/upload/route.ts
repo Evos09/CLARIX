@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getSupabaseAdmin, AUDIO_BUCKET, isSupabaseConfigured, ensureAudioBucket } from "@/lib/supabase";
-import { getOrCreateContext } from "@/lib/auth";
+import { getOrCreateContext, noContext } from "@/lib/auth";
 import { getOrgPlan, storageLimitBytes, maxUploadBytes, orgStorageUsed } from "@/lib/plan";
 import { uploadLimiter, clientIp, RATE_LIMIT_MESSAGE } from "@/lib/rateLimit";
 
@@ -22,7 +22,7 @@ export async function POST(req: Request) {
   }
   const ctx = await getOrCreateContext();
   if (!ctx) {
-    return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+    return noContext();
   }
   const parsed = Body.safeParse(await req.json().catch(() => null));
   if (!parsed.success) {

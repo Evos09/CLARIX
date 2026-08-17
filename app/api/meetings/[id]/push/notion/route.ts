@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getOrCreateContext } from "@/lib/auth";
+import { getOrCreateContext, noContext } from "@/lib/auth";
 import { decryptToken } from "@/lib/crypto";
 import { pushToNotion, searchNotionParent } from "@/lib/push/notion";
 import type { BaseOutput } from "@/lib/outputTypes";
@@ -10,7 +10,7 @@ type Params = { params: Promise<{ id: string }> };
 export async function POST(req: Request, { params }: Params) {
   const { id } = await params;
   const ctx = await getOrCreateContext();
-  if (!ctx) return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+  if (!ctx) return noContext();
   const conn = await prisma.notionConnection.findUnique({ where: { userId: ctx.userId } });
   if (!conn) return NextResponse.json({ error: "Connect Notion in Settings first." }, { status: 409 });
   const meeting = await prisma.meeting.findFirst({ where: { id, orgId: ctx.orgId } });

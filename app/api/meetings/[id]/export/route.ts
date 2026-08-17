@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { format as fmtDate } from "date-fns";
 import { prisma } from "@/lib/prisma";
-import { getOrCreateContext } from "@/lib/auth";
+import { getOrCreateContext, noContext } from "@/lib/auth";
 import { getAccessibleMeeting } from "@/lib/meetingAccess";
 import { getOrgPlan, canExportFormat } from "@/lib/plan";
 import { getMeetingType } from "@/lib/meetingTypes";
@@ -24,7 +24,7 @@ function slug(s: string) {
 export async function GET(req: Request, { params }: Params) {
   const { id } = await params;
   const ctx = await getOrCreateContext();
-  if (!ctx) return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+  if (!ctx) return noContext();
 
   const format = (new URL(req.url).searchParams.get("format") ?? "pdf").toLowerCase();
   const meeting = await getAccessibleMeeting(id, ctx);

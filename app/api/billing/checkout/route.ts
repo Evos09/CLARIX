@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { getOrCreateContext } from "@/lib/auth";
+import { getOrCreateContext, noContext } from "@/lib/auth";
 import { appBaseUrl, getStripe, isStripeConfigured, PLANS, type PlanId } from "@/lib/stripe";
 
 const Body = z.object({
@@ -12,7 +12,7 @@ const Body = z.object({
 export async function POST(req: Request) {
   if (!isStripeConfigured()) return NextResponse.json({ error: "Billing not configured" }, { status: 503 });
   const ctx = await getOrCreateContext();
-  if (!ctx) return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+  if (!ctx) return noContext();
 
   const parsed = Body.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "Invalid input" }, { status: 400 });

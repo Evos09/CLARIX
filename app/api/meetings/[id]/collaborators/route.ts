@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { getOrCreateContext } from "@/lib/auth";
+import { getOrCreateContext, noContext } from "@/lib/auth";
 import { getAccessibleMeeting } from "@/lib/meetingAccess";
 import { getOrgPlan } from "@/lib/plan";
 import { isResendConfigured, sendHtml } from "@/lib/email";
@@ -18,7 +18,7 @@ function esc(s: string): string {
 export async function GET(_req: Request, { params }: Params) {
   const { id } = await params;
   const ctx = await getOrCreateContext();
-  if (!ctx) return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+  if (!ctx) return noContext();
 
   const meeting = await getAccessibleMeeting(id, ctx);
   if (!meeting) return NextResponse.json({ error: "Not found" }, { status: 404 });
@@ -53,7 +53,7 @@ const AddBody = z.object({
 export async function POST(req: Request, { params }: Params) {
   const { id } = await params;
   const ctx = await getOrCreateContext();
-  if (!ctx) return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+  if (!ctx) return noContext();
 
   // Only the owning org can share a meeting.
   const meeting = await prisma.meeting.findFirst({ where: { id, orgId: ctx.orgId } });
@@ -123,7 +123,7 @@ export async function POST(req: Request, { params }: Params) {
 export async function DELETE(req: Request, { params }: Params) {
   const { id } = await params;
   const ctx = await getOrCreateContext();
-  if (!ctx) return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+  if (!ctx) return noContext();
 
   const meeting = await prisma.meeting.findFirst({ where: { id, orgId: ctx.orgId } });
   if (!meeting) return NextResponse.json({ error: "Not found" }, { status: 404 });

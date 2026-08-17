@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getOrCreateContext } from "@/lib/auth";
+import { getOrCreateContext, noContext } from "@/lib/auth";
 import { getMeetingType } from "@/lib/meetingTypes";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
   const ctx = await getOrCreateContext();
-  if (!ctx) return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+  if (!ctx) return noContext();
 
   const rows = await prisma.meetingAnalytics.findMany({
     where: { meeting: { orgId: ctx.orgId } },

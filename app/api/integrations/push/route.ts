@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getOrCreateContext } from "@/lib/auth";
+import { getOrCreateContext, noContext } from "@/lib/auth";
 import { isSlackConfigured } from "@/lib/push/slack";
 import { isNotionConfigured } from "@/lib/push/notion";
 import { isLinearConfigured } from "@/lib/push/linear";
@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 
 export async function GET() {
   const ctx = await getOrCreateContext();
-  if (!ctx) return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+  if (!ctx) return noContext();
   
   const [slack, notion, linear] = await Promise.all([
     prisma.slackConnection.findUnique({ 
@@ -36,7 +36,7 @@ export async function GET() {
 
 export async function POST(req: Request) {
   const ctx = await getOrCreateContext();
-  if (!ctx) return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+  if (!ctx) return noContext();
 
   const body = await req.json().catch(() => null);
   const { platform, autoPostEnabled, autoPostChannelId, parentPageId, defaultTeamId } = body || {};
@@ -77,7 +77,7 @@ export async function POST(req: Request) {
 
 export async function DELETE(req: Request) {
   const ctx = await getOrCreateContext();
-  if (!ctx) return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+  if (!ctx) return noContext();
   const platform = new URL(req.url).searchParams.get("platform");
   if (platform === "slack") await prisma.slackConnection.deleteMany({ where: { userId: ctx.userId } });
   else if (platform === "notion") await prisma.notionConnection.deleteMany({ where: { userId: ctx.userId } });

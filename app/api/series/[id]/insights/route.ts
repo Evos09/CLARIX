@@ -3,7 +3,7 @@ import { randomUUID } from "crypto";
 import { z } from "zod";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import { getOrCreateContext } from "@/lib/auth";
+import { getOrCreateContext, noContext } from "@/lib/auth";
 import { claudeText, parseJson, isClaudeConfigured } from "@/lib/claude";
 import type { SeriesNote } from "@/lib/series";
 import type { BaseOutput } from "@/lib/outputTypes";
@@ -30,7 +30,7 @@ function readNotes(raw: unknown): SeriesNote[] {
 export async function POST(req: Request, { params }: Params) {
   const { id } = await params;
   const ctx = await getOrCreateContext();
-  if (!ctx) return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+  if (!ctx) return noContext();
 
   const series = await prisma.meetingSeries.findFirst({
     where: { id, orgId: ctx.orgId },

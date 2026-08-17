@@ -1,8 +1,24 @@
 import { auth, currentUser } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
 export const hasClerk = Boolean(process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY);
 export const hasDb = Boolean(process.env.DATABASE_URL);
+
+/**
+ * The standard reply when getOrCreateContext() came back null.
+ *
+ * That happens for two unrelated reasons — nobody is signed in, or the database
+ * isn't configured — and every route reported both as 503 "Database not
+ * configured". So a user whose session had simply expired was told the database
+ * was down. Split them: a missing session is a 401 the client can act on, and
+ * only a genuinely absent DATABASE_URL is a 503.
+ */
+export function noContext(): NextResponse {
+  return hasDb
+    ? NextResponse.json({ error: "Sign in to CLARIX to continue." }, { status: 401 })
+    : NextResponse.json({ error: "Database not configured" }, { status: 503 });
+}
 
 export interface AuthContext {
   clerkUserId: string;

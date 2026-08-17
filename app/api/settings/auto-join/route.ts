@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { getOrCreateContext } from "@/lib/auth";
+import { getOrCreateContext, noContext } from "@/lib/auth";
 import { getOrgPlan } from "@/lib/plan";
 
 export async function GET() {
   const ctx = await getOrCreateContext();
-  if (!ctx) return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+  if (!ctx) return noContext();
   const [conn, plan] = await Promise.all([
     prisma.calendarConnection.findUnique({ where: { userId: ctx.userId }, select: { autoJoin: true, connected: true } }),
     getOrgPlan(ctx.orgId),
@@ -22,7 +22,7 @@ const Body = z.object({ autoJoin: z.boolean() });
 
 export async function POST(req: Request) {
   const ctx = await getOrCreateContext();
-  if (!ctx) return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+  if (!ctx) return noContext();
   const parsed = Body.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "Invalid input" }, { status: 400 });
 

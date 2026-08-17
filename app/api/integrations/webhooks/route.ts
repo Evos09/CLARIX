@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { getOrCreateContext } from "@/lib/auth";
+import { getOrCreateContext, noContext } from "@/lib/auth";
 import { newWebhookSecret, sign } from "@/lib/push/webhook";
 
 export const dynamic = "force-dynamic";
@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 // GET: list this user's webhook endpoints (secret included so the owner can copy it).
 export async function GET() {
   const ctx = await getOrCreateContext();
-  if (!ctx) return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+  if (!ctx) return noContext();
   const hooks = await prisma.webhookEndpoint.findMany({
     where: { userId: ctx.userId },
     orderBy: { createdAt: "asc" },
@@ -26,7 +26,7 @@ const CreateBody = z.object({
 // POST: create a new endpoint.
 export async function POST(req: Request) {
   const ctx = await getOrCreateContext();
-  if (!ctx) return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+  if (!ctx) return noContext();
   const parsed = CreateBody.safeParse(await req.json().catch(() => null));
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "Invalid input" }, { status: 400 });
@@ -51,7 +51,7 @@ const PatchBody = z.object({
 // PATCH: enable/disable, or send a test ping.
 export async function PATCH(req: Request) {
   const ctx = await getOrCreateContext();
-  if (!ctx) return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+  if (!ctx) return noContext();
   const parsed = PatchBody.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "Invalid input" }, { status: 400 });
 
@@ -101,7 +101,7 @@ export async function PATCH(req: Request) {
 // DELETE: remove an endpoint.
 export async function DELETE(req: Request) {
   const ctx = await getOrCreateContext();
-  if (!ctx) return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+  if (!ctx) return noContext();
   const id = new URL(req.url).searchParams.get("id");
   if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
   await prisma.webhookEndpoint.deleteMany({ where: { id, userId: ctx.userId } });

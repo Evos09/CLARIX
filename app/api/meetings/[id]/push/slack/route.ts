@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { getOrCreateContext } from "@/lib/auth";
+import { getOrCreateContext, noContext } from "@/lib/auth";
 import { decryptToken } from "@/lib/crypto";
 import { pushToSlack } from "@/lib/push/slack";
 import type { BaseOutput } from "@/lib/outputTypes";
@@ -12,7 +12,7 @@ const Body = z.object({ channelId: z.string().min(1) });
 export async function POST(req: Request, { params }: Params) {
   const { id } = await params;
   const ctx = await getOrCreateContext();
-  if (!ctx) return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+  if (!ctx) return noContext();
   const conn = await prisma.slackConnection.findUnique({ where: { userId: ctx.userId } });
   if (!conn) return NextResponse.json({ error: "Connect Slack in Settings first." }, { status: 409 });
   const meeting = await prisma.meeting.findFirst({ where: { id, orgId: ctx.orgId } });

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getOrCreateContext } from "@/lib/auth";
+import { getOrCreateContext, noContext } from "@/lib/auth";
 import { getBot } from "@/lib/recall";
 
 type Params = { params: Promise<{ botId: string }> };
@@ -18,7 +18,7 @@ const MAP: Record<string, "JOINING" | "IN_MEETING" | "DONE" | "FAILED"> = {
 export async function GET(_req: Request, { params }: Params) {
   const { botId } = await params;
   const ctx = await getOrCreateContext();
-  if (!ctx) return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+  if (!ctx) return noContext();
   const bot = await prisma.meetingBot.findUnique({ where: { recallBotId: botId } });
   if (!bot) return NextResponse.json({ error: "Not found" }, { status: 404 });
 

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getOrCreateContext } from "@/lib/auth";
+import { getOrCreateContext, noContext } from "@/lib/auth";
 import { canSendGlobalChat, getOrgPlan, globalChatLimit } from "@/lib/plan";
 import { getChatBonus, getChatUsage } from "@/lib/globalChat";
 
@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 
 export async function GET() {
   const ctx = await getOrCreateContext();
-  if (!ctx) return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+  if (!ctx) return noContext();
   const plan = await getOrgPlan(ctx.orgId);
   const limit = globalChatLimit(plan);
 
@@ -37,7 +37,7 @@ export async function GET() {
 
 export async function POST() {
   const ctx = await getOrCreateContext();
-  if (!ctx) return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+  if (!ctx) return noContext();
   const plan = await getOrgPlan(ctx.orgId);
   if (globalChatLimit(plan) === 0) return NextResponse.json({ error: "Upgrade to Pro for CLARIX AI." }, { status: 403 });
   const s = await prisma.globalChatSession.create({ data: { userId: ctx.userId, orgId: ctx.orgId } });

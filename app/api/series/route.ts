@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { getOrCreateContext } from "@/lib/auth";
+import { getOrCreateContext, noContext } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -26,7 +26,7 @@ const CreateBody = z.object({
 // POST: create a custom series from any hand-picked meetings.
 export async function POST(req: Request) {
   const ctx = await getOrCreateContext();
-  if (!ctx) return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+  if (!ctx) return noContext();
   const parsed = CreateBody.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "Invalid input" }, { status: 400 });
 
@@ -53,7 +53,7 @@ const PatchBody = z.object({
 // PATCH: rename a custom series and/or add/remove meetings.
 export async function PATCH(req: Request) {
   const ctx = await getOrCreateContext();
-  if (!ctx) return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+  if (!ctx) return noContext();
   const parsed = PatchBody.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "Invalid input" }, { status: 400 });
 
@@ -82,7 +82,7 @@ export async function PATCH(req: Request) {
 // DELETE ?slug=<autoSlug> hides an auto-detected series for this org.
 export async function DELETE(req: Request) {
   const ctx = await getOrCreateContext();
-  if (!ctx) return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+  if (!ctx) return noContext();
   const url = new URL(req.url);
   const id = url.searchParams.get("id");
   const slug = url.searchParams.get("slug");

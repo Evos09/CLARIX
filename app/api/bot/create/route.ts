@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { getOrCreateContext } from "@/lib/auth";
+import { getOrCreateContext, noContext } from "@/lib/auth";
 import { isRecallConfigured, detectPlatform, createBot } from "@/lib/recall";
 import { canCreateMeeting, canUseType, getOrgPlan } from "@/lib/plan";
 import { botLimiter, clientIp, RATE_LIMIT_MESSAGE } from "@/lib/rateLimit";
@@ -13,7 +13,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: RATE_LIMIT_MESSAGE }, { status: 429 });
   }
   const ctx = await getOrCreateContext();
-  if (!ctx) return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+  if (!ctx) return noContext();
   if (!isRecallConfigured()) return NextResponse.json({ error: "Meeting bot not configured (MEETING_BAAS_API_KEY)" }, { status: 503 });
 
   const parsed = Body.safeParse(await req.json().catch(() => null));

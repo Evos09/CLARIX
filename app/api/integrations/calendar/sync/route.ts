@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getOrCreateContext } from "@/lib/auth";
+import { getOrCreateContext, noContext } from "@/lib/auth";
 import { syncCalendar } from "@/lib/calendar";
 
 export async function POST() {
   const ctx = await getOrCreateContext();
-  if (!ctx) return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+  if (!ctx) return noContext();
   const conn = await prisma.calendarConnection.findUnique({ where: { userId: ctx.userId } });
   if (!conn) return NextResponse.json({ error: "No calendar connected" }, { status: 409 });
   if (conn.syncedAt && Date.now() - conn.syncedAt.getTime() < 5 * 60 * 1000) {

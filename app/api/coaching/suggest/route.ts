@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { getOrCreateContext } from "@/lib/auth";
+import { getOrCreateContext, noContext } from "@/lib/auth";
 import { isClaudeConfigured, claudeText, parseJson } from "@/lib/claude";
 import { coachingPrompt } from "@/lib/coaching";
 
@@ -13,7 +13,7 @@ const Body = z.object({
 
 export async function POST(req: Request) {
   const ctx = await getOrCreateContext();
-  if (!ctx) return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+  if (!ctx) return noContext();
   if (!isClaudeConfigured()) return NextResponse.json({ suggestions: [] });
 
   // Throttle to one suggestion pass per 20s per user. Kept just under the

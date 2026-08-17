@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getOrCreateContext } from "@/lib/auth";
+import { getOrCreateContext, noContext } from "@/lib/auth";
 import { isAssemblyConfigured } from "@/lib/assemblyai";
 import { prisma } from "@/lib/prisma";
 
@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 
 export async function GET() {
   const ctx = await getOrCreateContext();
-  if (!ctx) return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+  if (!ctx) return noContext();
   if (!isAssemblyConfigured()) return NextResponse.json({ error: "Transcription not configured" }, { status: 503 });
   try {
     const res = await fetch("https://streaming.assemblyai.com/v3/token?expires_in_seconds=120", {

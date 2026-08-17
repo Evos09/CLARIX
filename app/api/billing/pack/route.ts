@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getOrCreateContext } from "@/lib/auth";
+import { getOrCreateContext, noContext } from "@/lib/auth";
 import { appBaseUrl, getStripe, isStripeConfigured } from "@/lib/stripe";
 import { CHAT_PACK_SIZE } from "@/lib/plan";
 
@@ -15,7 +15,7 @@ export async function POST(req: Request) {
   if (!price) return NextResponse.json({ error: "Chat pack price not configured" }, { status: 503 });
 
   const ctx = await getOrCreateContext();
-  if (!ctx) return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+  if (!ctx) return noContext();
 
   const account = await prisma.user.findUnique({
     where: { id: ctx.userId },

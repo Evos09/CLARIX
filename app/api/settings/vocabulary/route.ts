@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getOrCreateContext } from "@/lib/auth";
+import { getOrCreateContext, noContext } from "@/lib/auth";
 
 export async function GET() {
   const ctx = await getOrCreateContext();
   if (!ctx) {
-    return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+    return noContext();
   }
 
   const org = await prisma.organization.findUnique({
@@ -21,7 +21,7 @@ export async function GET() {
 export async function POST(req: Request) {
   const ctx = await getOrCreateContext();
   if (!ctx) {
-    return NextResponse.json({ error: "Database not configured" }, { status: 503 });
+    return noContext();
   }
 
   const body = await req.json().catch(() => null);
