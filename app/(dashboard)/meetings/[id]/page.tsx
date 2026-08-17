@@ -7,6 +7,7 @@ import { StatusBadge } from "@/components/meetings/StatusBadge";
 import { StatusPoller } from "@/components/meetings/StatusPoller";
 import { ExportMenu } from "@/components/meetings/ExportMenu";
 import { PushToIntegrationButton } from "@/components/meetings/integrations/PushToIntegrationButton";
+import { DeleteMeetingButton } from "@/components/meetings/DeleteMeetingButton";
 import { ShareChecklistButton } from "@/components/meetings/ShareChecklistButton";
 import { ShareMeetingButton } from "@/components/meetings/ShareMeetingButton";
 import { MeetingLiveRefresh } from "@/components/meetings/MeetingLiveRefresh";
@@ -96,6 +97,9 @@ export default async function MeetingDetailPage({ params }: Params) {
               {meeting.status === "COMPLETE" && <ExportMenu meetingId={meeting.id} showEhr={getMeetingType(meeting.meetingType).category === "PRO"} />}
               {meeting.status === "COMPLETE" && <PushToIntegrationButton meetingId={meeting.id} />}
               {meeting.status === "COMPLETE" && <ShareChecklistButton meetingId={meeting.id} initialShareToken={meeting.shareToken} />}
+              {/* Owner-only, and deliberately available at any status — a meeting
+                  stuck mid-upload is exactly what users most want to be rid of. */}
+              {isOwner && <DeleteMeetingButton meetingId={meeting.id} title={meeting.title} />}
             </div>
           </div>
         </header>
