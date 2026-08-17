@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { isSafeToRefresh } from "@/lib/refresh";
 
 /**
  * Keeps a shared meeting live without a manual reload: every `intervalMs` it
@@ -9,31 +10,19 @@ import { useEffect } from "react";
  * fresh data (a collaborator's edits) while preserving client state like the
  * active tab and scroll position.
  *
- * It deliberately skips a refresh when the user is mid-edit — a text field is
- * focused, or a modal/dialog is open — because a server refresh would clobber
- * an in-progress edit. It also pauses while the tab is in the background.
- * Rendered only for shared meetings (see the meeting detail page).
+ * Skipping a refresh mid-edit, mid-dialog, or while the tab is backgrounded is
+ * shared with the dashboard's focus refresher — see isSafeToRefresh.
+ *
+ * This covers changes that arrive while you are watching (a collaborator's
+ * edit, a meeting finishing processing). RevalidateOnFocus covers the other
+ * case: a window you came back to after leaving it open.
  */
 export function MeetingLiveRefresh({ intervalMs = 8000 }: { intervalMs?: number }) {
   const router = useRouter();
 
   useEffect(() => {
     const tick = () => {
-      if (document.visibilityState !== "visible") return;
-
-      const el = document.activeElement as HTMLElement | null;
-      const isEditing =
-        !!el &&
-        (el.tagName === "INPUT" ||
-          el.tagName === "TEXTAREA" ||
-          el.tagName === "SELECT" ||
-          el.isContentEditable);
-      if (isEditing) return;
-
-      // Any of our overlays/dialogs open → someone is acting; don't yank data.
-      const modalOpen = !!document.querySelector('[role="dialog"], .fixed.inset-0.z-50');
-      if (modalOpen) return;
-
+      if (!isSafeToRefresh()) return;
       router.refresh();
     };
 
