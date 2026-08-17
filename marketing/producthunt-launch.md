@@ -20,7 +20,7 @@ launches, or comment. Everything below is paste-ready.
 ---
 
 ## Link
-Point the launch link at **https://www.clarixmeetings.com/demo** — real output,
+Point the launch link at **https://www.clarixmeetings.com/demo?utm_source=producthunt&utm_medium=referral&utm_campaign=launch** — real output,
 no signup, no install. On a day when you're competing for eight seconds of
 attention, letting someone judge the product beats asking them to believe a claim.
 
@@ -51,7 +51,7 @@ The problem I kept having was different. A client asks *"what discount did you q
 
 **CLARIX answers that mid-call.** It searches every meeting you've ever recorded and gives you the answer in about a second — with a link that jumps to the exact second it was said, so you can verify it instead of trusting it. That last part matters more than it sounds: an AI answer you can't check is a liability when you're about to repeat it to a client.
 
-Here's a real processed meeting, no signup: https://www.clarixmeetings.com/demo
+Here's a real processed meeting, no signup: https://www.clarixmeetings.com/demo?utm_source=producthunt&utm_medium=referral&utm_campaign=launch
 
 Other things worth knowing:
 • **No bot joins your call.** It records in the browser, or you upload audio.
@@ -81,7 +81,7 @@ Screenshots are in `marketing/assets/`. Lead with the memory claim, not the note
 ## Pre-launch checklist
 - [ ] **Tagline** — replace with the one above
 - [ ] **Description** — replace with the one above
-- [ ] **Link** — change to https://www.clarixmeetings.com/demo
+- [ ] **Link** — change to https://www.clarixmeetings.com/demo?utm_source=producthunt&utm_medium=referral&utm_campaign=launch
 - [x] Maker's first comment written (above)
 - [ ] Gallery — upload the three PNGs in the order above
 - [ ] Shoutouts — Next.js, Clerk, Stripe, Supabase
@@ -89,7 +89,7 @@ Screenshots are in `marketing/assets/`. Lead with the memory claim, not the note
 - [ ] Schedule — Tuesday–Thursday, 12:01 AM PT
 
 ## Pre-flight (the day before)
-- [ ] Open https://www.clarixmeetings.com/demo in a private window — no signup,
+- [ ] Open https://www.clarixmeetings.com/demo?utm_source=producthunt&utm_medium=referral&utm_campaign=launch in a private window — no signup,
       no errors. It is the entire launch if it works, and the entire launch if
       it doesn't.
 - [ ] Confirm sign-up works end to end in a private window.

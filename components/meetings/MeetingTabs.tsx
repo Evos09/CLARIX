@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { Check, Copy, Lock } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { trackOncePerSession } from "@/lib/tracking";
 import type { TranscriptSegment } from "@/lib/transcription";
 import type { BaseOutput } from "@/lib/outputTypes";
 import type { KeyPoint } from "@/lib/keyPoints";
@@ -78,6 +79,10 @@ export function MeetingTabs({
             <button
               key={t}
               onClick={() => {
+                // On the public demo, a tab click is the first evidence that a
+                // visitor is actually reading the output rather than bouncing
+                // off the page. Landing is a pageview; this is interest.
+                if (isDemo) trackOncePerSession("demo_engaged", "demo_engaged", { tab: t });
                 if (t.startsWith("Analytics")) setTab("Analytics");
                 else if (t.startsWith("Ask CLARIX")) setTab("Ask CLARIX");
                 else setTab(t);

@@ -20,7 +20,11 @@ const META_STANDARD_EVENTS = new Set([
 type Props = Record<string, string | number | boolean | undefined>;
 
 type TrackingWindow = {
-  posthog?: { capture: (e: string, p?: Props) => void };
+  posthog?: {
+    capture: (e: string, p?: Props) => void;
+    identify?: (distinctId: string, props?: Props) => void;
+    get_distinct_id?: () => string;
+  };
   fbq?: (...args: unknown[]) => void;
 };
 
@@ -55,6 +59,31 @@ export function trackPageview() {
     w.fbq?.("track", "PageView");
   } catch {
     /* ignore */
+  }
+}
+
+/**
+ * Bind this browser to the signed-in user.
+ *
+ * Without it the funnel breaks in half. Client events (pageviews, signup) are
+ * attributed to PostHog's anonymous device id, while server events — including
+ * `first_meeting_processed`, the only true activation signal — are sent with
+ * the internal User cuid as their distinct id. To PostHog those are two
+ * unrelated people, so "of the visitors who landed, how many activated?" is
+ * unanswerable. Calling identify with the same cuid the server uses merges the
+ * anonymous history into that user.
+ *
+ * Pass only coarse, non-identifying properties (plan tier) — see the PII rule
+ * in lib/tracking-server.ts.
+ */
+export function identify(distinctId: string, props?: Props) {
+  if (typeof window === "undefined" || !distinctId) return;
+  const w = window as unknown as TrackingWindow;
+  try {
+    if (w.posthog?.get_distinct_id?.() === distinctId) return; // already bound
+    w.posthog?.identify?.(distinctId, props);
+  } catch {
+    /* never break the app for analytics */
   }
 }
 

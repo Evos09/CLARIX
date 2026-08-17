@@ -1,5 +1,6 @@
 import { Sidebar } from "@/components/layout/Sidebar";
 import { RevalidateOnFocus } from "@/components/system/RevalidateOnFocus";
+import { IdentifyUser } from "@/components/tracking/IdentifyUser";
 import { prisma } from "@/lib/prisma";
 import { getOrCreateContext, hasDb } from "@/lib/auth";
 import type { PlanId } from "@/lib/stripe";
@@ -28,6 +29,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
           the desktop app especially — would otherwise show whatever was true
           when it last rendered. */}
       <RevalidateOnFocus />
+      {/* Ties this browser's anonymous analytics id to the signed-in user, so
+          landing → signup → activation is one funnel instead of two halves. */}
+      <IdentifyUser />
       <Sidebar plan={plan} openActions={openActions} meetingsThisMonth={meetingsThisMonth} />
       <div className="flex min-w-0 flex-1 flex-col overflow-y-auto">{children}</div>
     </div>

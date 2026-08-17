@@ -46,7 +46,7 @@ An AI answer you can't check is a liability when you're about to repeat it to a 
 **4/**
 You can read a real processed meeting without signing up or installing anything:
 
-https://www.clarixmeetings.com/demo
+https://www.clarixmeetings.com/demo?utm_source=x&utm_medium=social&utm_campaign=launch
 
 Summary, decisions, action items with owners, full transcript with speaker labels. That's the actual product screen, not a mockup.
 
@@ -65,7 +65,7 @@ A client asked what discount we'd quoted them back in March. I said "let me chec
 
 That's the problem CLARIX solves — it searches every meeting you've recorded and answers mid-call, with a link to the second it was said.
 
-Live on Product Hunt today. Real output, no signup: https://www.clarixmeetings.com/demo
+Live on Product Hunt today. Real output, no signup: https://www.clarixmeetings.com/demo?utm_source=x&utm_medium=social&utm_campaign=launch
 
 [PH_LINK]
 
@@ -87,7 +87,7 @@ That last detail matters more than it sounds. An AI answer you can't verify is a
 
 It launched on Product Hunt today: [PH_LINK]
 
-If you'd rather judge it than read about it, there's a real processed meeting here — no signup, no install: https://www.clarixmeetings.com/demo
+If you'd rather judge it than read about it, there's a real processed meeting here — no signup, no install: https://www.clarixmeetings.com/demo?utm_source=linkedin&utm_medium=social&utm_campaign=launch
 
 I'm a solo founder and CLARIX has no users yet. I'd rather have your honest reaction to the output than a polite like.
 
@@ -109,7 +109,7 @@ I've been building CLARIX solo and launched it on Product Hunt today: [PH_LINK]
 
 **Where I actually am.** No users yet. Today is the first time it's been in front of strangers. I spent far too long building and not nearly enough showing it to anyone — the honest lesson so far.
 
-Real output, no signup: https://www.clarixmeetings.com/demo
+Real output, no signup: https://www.clarixmeetings.com/demo?utm_source=indiehackers&utm_medium=social&utm_campaign=launch
 
 Happy to answer anything about the stack (Next.js, Tauri desktop app, pgvector for the cross-meeting search) or the positioning mistakes I made.
 
@@ -127,7 +127,7 @@ Answers are grounded in retrieved transcript chunks, and every one carries a cit
 
 Stack: Next.js, Postgres + pgvector for retrieval, AssemblyAI for transcription with speaker diarisation, Claude for the structured output, Tauri for the desktop app and its always-on-top overlay.
 
-There's a fully processed meeting you can read without an account: https://www.clarixmeetings.com/demo
+There's a fully processed meeting you can read without an account: https://www.clarixmeetings.com/demo?utm_source=hackernews&utm_medium=social&utm_campaign=launch
 
 It has no users yet — this is the first time it's been shown publicly. I'd genuinely like to hear where the retrieval falls down.
 
@@ -143,7 +143,7 @@ It has no users yet — this is the first time it's been shown publicly. I'd gen
 Only post where self-promo is explicitly allowed, and read the channel rules
 first. One line of context beats a link drop.
 
-> Launched CLARIX on Product Hunt today — it answers questions across every meeting you've recorded, mid-call, with a link to the second it was said. There's a real processed meeting you can read without signing up: https://www.clarixmeetings.com/demo — and the PH page is [PH_LINK] if you've got a moment. Genuinely after feedback on the output more than anything.
+> Launched CLARIX on Product Hunt today — it answers questions across every meeting you've recorded, mid-call, with a link to the second it was said. There's a real processed meeting you can read without signing up: https://www.clarixmeetings.com/demo?utm_source=community&utm_medium=social&utm_campaign=launch — and the PH page is [PH_LINK] if you've got a moment. Genuinely after feedback on the output more than anything.
 
 ---
 
