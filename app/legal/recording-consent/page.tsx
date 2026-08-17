@@ -3,7 +3,7 @@ import { SiteFooter } from "@/components/site/site-footer";
 import { PageHero } from "@/components/site/page-hero";
 
 export const metadata = {
-  title: "Recording Consent — CLARIX",
+  title: "Recording Consent",
   description:
     "How call-recording consent laws work, which US states require all-party consent, and what CLARIX does to help you comply.",
 };

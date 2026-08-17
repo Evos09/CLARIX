@@ -8,7 +8,7 @@ import { integrations, type Integration } from "@/lib/site-data";
 import { Bot, MessageSquare, FileText } from "lucide-react";
 
 export const metadata = {
-  title: "Integrations — CLARIX",
+  title: "Integrations",
   description:
     "CLARIX connects to Zoom, Google Meet, Teams, Google Calendar, Gmail, Slack, Notion, and Linear.",
 };

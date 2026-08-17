@@ -4,7 +4,7 @@ import { PageHero } from "@/components/site/page-hero";
 import { CtaBand } from "@/components/site/cta-band";
 
 export const metadata = {
-  title: "About — CLARIX",
+  title: "About",
   description:
     "Why CLARIX exists: turning the hours you spend in meetings into structured, actionable records — automatically and honestly.",
 };

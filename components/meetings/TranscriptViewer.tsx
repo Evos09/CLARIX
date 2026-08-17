@@ -84,7 +84,10 @@ export function TranscriptViewer({
   const seekedRef = useRef(false);
   const rowRefs = useRef<(HTMLDivElement | null)[]>([]);
 
-  const speakerName = (s: string) => names[s] ?? `Speaker ${s}`;
+  // Transcript segments carry bare diarisation labels ("A", "B"), but key points
+  // come from the model, which usually writes them out in full ("Speaker C").
+  // Prefixing those again rendered "Speaker Speaker C".
+  const speakerName = (s: string) => names[s] ?? (/^speaker\b/i.test(s.trim()) ? s.trim() : `Speaker ${s}`);
 
   useEffect(() => {
     fetch(`/api/meetings/${meetingId}/comments`)

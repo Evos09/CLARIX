@@ -6,7 +6,7 @@ import { CtaBand } from "@/components/site/cta-band";
 import { MeetingExplorer } from "@/components/meeting-types/meeting-explorer";
 
 export const metadata = {
-  title: "Meeting Types — CLARIX",
+  title: "Meeting Types",
   description:
     "CLARIX handles 20+ meeting types — from sales calls to standups to board meetings — detecting each format automatically and extracting exactly what matters.",
 };

@@ -7,7 +7,7 @@ import { ComparisonTable } from "@/components/pricing/comparison-table";
 import { PricingFaq } from "@/components/pricing/pricing-faq";
 
 export const metadata = {
-  title: "Pricing — CLARIX",
+  title: "Pricing",
   description:
     "Simple, scalable pricing for CLARIX. Start free, then choose Starter, Pro, or Business. Monthly and annual billing available.",
 };

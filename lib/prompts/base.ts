@@ -30,13 +30,25 @@ export function buildProcessingPrompt(opts: {
   transcript: string;
   instruction?: string;
   templateOverride?: string;
+  /**
+   * When the meeting happened. Transcripts say "by the nineteenth" or "Sept 13"
+   * and almost never name a year, so without this anchor the model supplies one
+   * from its own prior — every action item in the workspace came back dated
+   * 2024, i.e. permanently overdue.
+   */
+  meetingDate?: Date;
 }): string {
   const merged = opts.spec.extraSchema
     ? `Also merge these ADDITIONAL fields into the SAME top-level JSON object:\n${opts.spec.extraSchema}`
     : "";
+  const dateAnchor = opts.meetingDate
+    ? `This meeting took place on ${opts.meetingDate.toISOString().slice(0, 10)}. Resolve every relative or partial date in the transcript ("next Tuesday", "the 19th", "Sept 13") against that date, and never emit a date earlier than it. If you cannot place a date confidently, use "".`
+    : "";
+
   return [
     `Analyze this ${opts.typeLabel} transcript and return a single JSON object.`,
     ``,
+    dateAnchor,
     `Base fields (always include):`,
     BASE_SCHEMA,
     ``,

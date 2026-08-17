@@ -37,6 +37,7 @@ export async function processMeeting(meetingId: string, instruction?: string): P
     transcript: meeting.rawTranscript,
     instruction,
     templateOverride: template?.promptOverride,
+    meetingDate: meeting.createdAt,
   });
 
   try {

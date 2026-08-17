@@ -20,7 +20,7 @@ import {
 } from "@/lib/downloads";
 
 export const metadata: Metadata = {
-  title: "Download — CLARIX Desktop",
+  title: "Download the desktop app",
   description:
     "Get the CLARIX desktop app for Windows. Includes the floating overlay: record a meeting and ask your past meetings anything, without leaving the call. macOS coming soon.",
 };

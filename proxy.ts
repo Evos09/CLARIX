@@ -12,6 +12,7 @@ const isProtectedRoute = createRouteMatcher([
   "/analytics(.*)",
   "/action-items(.*)",
   "/audio(.*)",
+  "/series(.*)",
 ]);
 
 const hasClerk = Boolean(process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY);

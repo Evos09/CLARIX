@@ -17,7 +17,7 @@ import {
 } from "@/components/features/visuals";
 
 export const metadata = {
-  title: "Features — CLARIX",
+  title: "Features",
   description:
     "Ask across every meeting you've recorded and get an answer mid-call, with a link to the second it was said. Plus transcription, structured outputs, recording and bot capture, integrations, and analytics.",
 };

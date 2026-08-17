@@ -290,9 +290,14 @@ export default function OverlayPage() {
       .catch(() => {});
   }
 
-  /** Minimize to just the command bar (and restore the previous height). */
-  async function toggleCollapse() {
-    const next = !collapsed;
+  /**
+   * Minimize to just the command bar (and restore the previous height).
+   * Pass `force` to drive it to a specific state — asking a question uses
+   * `toggleCollapse(false)` so the answer can't land in a hidden panel.
+   */
+  async function toggleCollapse(force?: boolean) {
+    const next = force ?? !collapsed;
+    if (next === collapsed) return;
     setCollapsed(next);
     if (!isDesktop) return;
     try {
@@ -321,6 +326,9 @@ export default function OverlayPage() {
   async function ask(q: string, r: RangePreset | null = range) {
     const question = q.trim();
     if (!question || loading) return;
+    // The conversation panel is hidden while collapsed, so a question asked from
+    // the bare command bar cleared the input and appeared to do nothing at all.
+    void toggleCollapse(false);
     setLoading(true);
     setError(null);
     setQuery("");
@@ -627,7 +635,7 @@ export default function OverlayPage() {
           {/* Desktop only: minimize to just this bar, then restore. */}
           {isDesktop && (
             <button
-              onClick={toggleCollapse}
+              onClick={() => void toggleCollapse()}
               title={collapsed ? "Expand" : "Minimize to the bar"}
               aria-label={collapsed ? "Expand the overlay" : "Minimize the overlay"}
               className={`flex items-center px-3 text-muted-foreground transition hover:text-foreground ${glass ? "border-l border-white/10" : ""}`}
