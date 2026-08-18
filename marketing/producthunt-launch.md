@@ -66,6 +66,10 @@ I'm a solo maker and CLARIX has no users yet — you'd genuinely be the first. T
 
 Screenshots are in `marketing/assets/`. Lead with the memory claim, not the notes.
 
+All three are landscape (3200x2000 / 2880x1800, ratio 1.6) — PH's gallery crops to
+landscape, so the earlier full-page captures rendered as unreadable slivers. The
+originals are kept as `*-fullpage.png` if you ever want them for a blog post.
+
 1. **`home-hero.png`** — the question nobody in the room can answer, and CLARIX
    answering it from a meeting five months back with a `Mar 4 · 22:14` source.
    Caption: *"Asked mid-call. Answered from a meeting in March."*
