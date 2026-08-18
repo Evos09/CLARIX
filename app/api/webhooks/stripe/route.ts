@@ -53,7 +53,7 @@ export async function POST(req: Request) {
           const size = Number(s.metadata.packSize) || CHAT_PACK_SIZE;
           if (userId) {
             await addChatBonus(userId, size);
-            captureServer("bought_chat_pack", s.metadata.orgId ?? userId, { size });
+            captureServer("bought_chat_pack", userId, { size, orgId: s.metadata.orgId ?? "" });
           }
           // Remember the customer so the portal + future checkouts reuse it.
           if (customerId && s.metadata.orgId) {
@@ -77,7 +77,15 @@ export async function POST(req: Request) {
               verticals: plan === "ENTERPRISE" ? ["HEALTHCARE", "LEGAL", "FINANCIAL"] : [],
             },
           });
-          captureServer("upgraded_to_paid_plan", orgId, { plan });
+          // Keyed by user id like every other event in the funnel (see
+          // components/tracking/IdentifyUser.tsx); the org travels as a property.
+          // Sessions started before userId was added to the checkout metadata
+          // still land here, so fall back to the org's admin.
+          const buyerId =
+            s.metadata?.userId ??
+            (await prisma.user.findFirst({ where: { orgId, role: "ADMIN" }, select: { id: true } }))?.id ??
+            (await prisma.user.findFirst({ where: { orgId }, select: { id: true } }))?.id;
+          if (buyerId) captureServer("upgraded_to_paid_plan", buyerId, { plan, orgId });
           await resetChatUsageForOrg(orgId);
         }
         break;

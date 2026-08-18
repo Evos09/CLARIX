@@ -72,7 +72,7 @@ export async function POST(req: Request) {
         ...(isReturning
           ? {}
           : { trial_period_days: 14, trial_settings: { end_behavior: { missing_payment_method: "cancel" } } }),
-        metadata: { orgId: ctx.orgId, plan: planId },
+        metadata: { orgId: ctx.orgId, userId: ctx.userId, plan: planId },
       },
       // Always capture a card, including for the trial: Stripe auto-charges when
       // the 14 days end, and cancelling before then charges nothing.
@@ -80,7 +80,7 @@ export async function POST(req: Request) {
       line_items: [{ price, quantity: 1 }],
       success_url: `${base}/settings/billing?status=success`,
       cancel_url: `${base}/settings/billing?status=cancel`,
-      metadata: { orgId: ctx.orgId, plan: planId },
+      metadata: { orgId: ctx.orgId, userId: ctx.userId, plan: planId },
     });
     return NextResponse.json({ url: session.url });
   } catch (err) {

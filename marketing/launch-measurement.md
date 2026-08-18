@@ -117,11 +117,13 @@ Whatever the numbers, write them down the same night with the date. They are the
 first real baseline the product has ever had — every account before this launch
 was placed by hand, so nothing prior is comparable.
 
-## Known gap
+## Revenue events
 
-`upgraded_to_paid_plan` is captured server-side with the **org** id as its
-distinct id (`app/api/webhooks/stripe/route.ts`), while every other event uses
-the **user** id. Revenue events therefore attach to a separate PostHog person
-and won't join the funnel above. It doesn't affect launch day — nobody converts
-to paid in the first 24 hours — but it needs fixing before you measure
-signup → paid.
+`upgraded_to_paid_plan` and `bought_chat_pack` are keyed by the buyer's user id,
+the same distinct id as every other event, so revenue joins the funnel above
+without a separate person. The org travels as an `orgId` property, which is what
+you break down by when you want per-workspace numbers.
+
+The subscription checkout now writes `userId` into its Stripe metadata. Checkout
+sessions started before that change carry only `orgId`, so the webhook falls back
+to the org's admin — accurate at one user per org, which is every account today.
